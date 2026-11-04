@@ -118,7 +118,7 @@ The first command downloads the public datasets listed in `THIRD-PARTY.md` and w
 - Null recall is reported on two test sets. The corrected set was defined after looking at test diagnostics; the original set gives 0.960.
 - The action rule is conservative and its thresholds were not tuned, so it defers most held-out questions.
 - The default variant needs a GPU: the engine's four passes take 11.5 s on CPU with int8 quantization. The lower-latency variant runs on CPU in about 3 s.
-- Calibration on JevBench's public tiers is worse than on our held-out data (ECE 0.054 to 0.124 by tier); the temperature was fitted on different kinds of text.
+- Calibration on JevBench's public tiers is worse than on our held-out data (ECE 0.038 to 0.124 by tier); the temperature was fitted on different kinds of text.
 - Latency was measured on one laptop GPU shared with the desktop, in its highest power mode.
 - The injection guarantee was tested on synthetic shell-gating and account-deletion items, not on real agent traces.
 - The evidence spans come from the encoder, not from the Qwen model, so they show what the encoder relied on; the necessity check then measures whether masking them changes the Qwen model's answer (0.586 of e-SNLI answers change, against 0.362 for a random mask of the same size).
