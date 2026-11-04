@@ -18,6 +18,15 @@ Agents and apps make small decisions all the time: is this ticket about billing,
 
 It is not a knowledge model. On science exam questions it scores near chance, and the action field says so by escalating.
 
+## How it compares
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmark-dark.svg">
+  <img alt="openverdict against four other systems on accuracy, calibration error, order sensitivity, injection success and null detection, plus its JevBench public-tier accuracy" src="docs/benchmark.svg" width="960">
+</picture>
+
+Larger models answer more questions correctly. openverdict is better calibrated, does not change its answer when the options are reordered, is far harder to steer with injected text, and catches most questions that have no right answer. The figure is drawn from the results files by `scripts/make_benchmark_figure.py`; the numbers behind it are in [docs/results.md](docs/results.md) and `results/baselines_table.md`.
+
 ## Quick start
 
 Windows or Linux with an NVIDIA GPU, or a Mac with Apple Silicon (slower, untested). Python 3.12.

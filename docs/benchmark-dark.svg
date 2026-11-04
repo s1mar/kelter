@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="576" viewBox="0 0 960 576" role="img" aria-label="openverdict compared with four other systems on five measures, and its JevBench public-tier accuracy">
+<rect width="960" height="576" fill="#1a1a19"/>
+<text x="24.0" y="36.0" font-size="20" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict against four other systems, same questions, same scoring code</text>
+<text x="24.0" y="58.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">3,120 held-out questions from sources none of the systems trained on: CLINC150 intents, ARC-Challenge science questions, synthetic policy tasks.</text>
+<text x="24.0" y="75.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">The other systems run zero-shot; the TF-IDF model is trained on our training split. All five are scored by the same code.</text>
+<rect x="24" y="88" width="12" height="12" rx="2" fill="#3987e5"/>
+<text x="42.0" y="98.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict, default variant</text>
+<rect x="220" y="88" width="12" height="12" rx="2" fill="#76746e"/>
+<text x="238.0" y="98.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">other systems</text>
+<text x="24.0" y="126.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Accuracy  (higher is better)</text>
+<text x="24.0" y="142.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">share of held-out questions answered correctly</text>
+<text x="128.0" y="167.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<path d="M136.0,156.0 H231.0 Q235.0,156.0 235.0,160.0 V166.0 Q235.0,170.0 231.0,170.0 H136.0 Z" fill="#3987e5"/>
+<text x="241.0" y="167.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.69</text>
+<text x="128.0" y="193.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
+<path d="M136.0,182.0 H249.1 Q253.1,182.0 253.1,186.0 V192.0 Q253.1,196.0 249.1,196.0 H136.0 Z" fill="#76746e"/>
+<text x="259.1" y="193.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.81</text>
+<text x="128.0" y="219.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Kev 0.8B</text>
+<path d="M136.0,208.0 H243.0 Q247.0,208.0 247.0,212.0 V218.0 Q247.0,222.0 243.0,222.0 H136.0 Z" fill="#76746e"/>
+<text x="253.0" y="219.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.77</text>
+<text x="128.0" y="245.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Laya 0.4</text>
+<path d="M136.0,234.0 H235.7 Q239.7,234.0 239.7,238.0 V244.0 Q239.7,248.0 235.7,248.0 H136.0 Z" fill="#76746e"/>
+<text x="245.7" y="245.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.72</text>
+<text x="128.0" y="271.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">TF-IDF logistic</text>
+<path d="M136.0,260.0 H169.0 Q173.0,260.0 173.0,264.0 V270.0 Q173.0,274.0 169.0,274.0 H136.0 Z" fill="#76746e"/>
+<text x="179.0" y="271.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.26</text>
+<line x1="136" y1="152" x2="136" y2="278" stroke="#383835" stroke-width="1"/>
+<text x="336.0" y="126.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Calibration error  (lower is better)</text>
+<text x="336.0" y="142.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">expected calibration error, 15 bins</text>
+<text x="440.0" y="167.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<path d="M448.0,156.0 H449.8 Q453.8,156.0 453.8,160.0 V166.0 Q453.8,170.0 449.8,170.0 H448.0 Z" fill="#3987e5"/>
+<text x="459.8" y="167.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.04</text>
+<text x="440.0" y="193.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
+<path d="M448.0,182.0 H457.0 Q461.0,182.0 461.0,186.0 V192.0 Q461.0,196.0 457.0,196.0 H448.0 Z" fill="#76746e"/>
+<text x="467.0" y="193.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.09</text>
+<text x="440.0" y="219.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Kev 0.8B</text>
+<path d="M448.0,208.0 H451.2 Q455.2,208.0 455.2,212.0 V218.0 Q455.2,222.0 451.2,222.0 H448.0 Z" fill="#76746e"/>
+<text x="461.2" y="219.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.05</text>
+<text x="440.0" y="245.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Laya 0.4</text>
+<path d="M448.0,234.0 H455.0 Q459.0,234.0 459.0,238.0 V244.0 Q459.0,248.0 455.0,248.0 H448.0 Z" fill="#76746e"/>
+<text x="465.0" y="245.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.08</text>
+<text x="440.0" y="271.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">TF-IDF logistic</text>
+<path d="M448.0,260.0 H460.4 Q464.4,260.0 464.4,264.0 V270.0 Q464.4,274.0 460.4,274.0 H448.0 Z" fill="#76746e"/>
+<text x="470.4" y="271.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.11</text>
+<line x1="448" y1="152" x2="448" y2="278" stroke="#383835" stroke-width="1"/>
+<text x="648.0" y="126.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Order sensitivity  (lower is better)</text>
+<text x="648.0" y="142.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">answers that change when options are reordered</text>
+<text x="752.0" y="167.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<text x="766.0" y="167.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.00</text>
+<text x="752.0" y="193.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
+<path d="M760.0,182.0 H766.1 Q770.1,182.0 770.1,186.0 V192.0 Q770.1,196.0 766.1,196.0 H760.0 Z" fill="#76746e"/>
+<text x="776.1" y="193.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.07</text>
+<text x="752.0" y="219.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Kev 0.8B</text>
+<path d="M760.0,208.0 H767.8 Q771.8,208.0 771.8,212.0 V218.0 Q771.8,222.0 767.8,222.0 H760.0 Z" fill="#76746e"/>
+<text x="777.8" y="219.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.08</text>
+<text x="752.0" y="245.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Laya 0.4</text>
+<path d="M760.0,234.0 H772.1 Q776.1,234.0 776.1,238.0 V244.0 Q776.1,248.0 772.1,248.0 H760.0 Z" fill="#76746e"/>
+<text x="782.1" y="245.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.11</text>
+<text x="752.0" y="271.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">TF-IDF logistic</text>
+<path d="M760.0,260.0 H760.0 Q761.3,260.0 761.3,261.3 V272.7 Q761.3,274.0 760.0,274.0 H760.0 Z" fill="#76746e"/>
+<text x="767.3" y="271.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.01</text>
+<line x1="760" y1="152" x2="760" y2="278" stroke="#383835" stroke-width="1"/>
+<text x="24.0" y="342.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Injection success  (lower is better)</text>
+<text x="24.0" y="358.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">answers moved by a forged instruction in the text</text>
+<text x="128.0" y="383.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<path d="M136.0,372.0 H136.0 Q138.1,372.0 138.1,374.1 V383.9 Q138.1,386.0 136.0,386.0 H136.0 Z" fill="#3987e5"/>
+<text x="144.1" y="383.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.01</text>
+<text x="128.0" y="409.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
+<path d="M136.0,398.0 H172.9 Q176.9,398.0 176.9,402.0 V408.0 Q176.9,412.0 172.9,412.0 H136.0 Z" fill="#76746e"/>
+<text x="182.9" y="409.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.28</text>
+<text x="128.0" y="435.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Kev 0.8B</text>
+<path d="M136.0,424.0 H156.2 Q160.2,424.0 160.2,428.0 V434.0 Q160.2,438.0 156.2,438.0 H136.0 Z" fill="#76746e"/>
+<text x="166.2" y="435.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.17</text>
+<text x="128.0" y="461.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Laya 0.4</text>
+<path d="M136.0,450.0 H229.2 Q233.2,450.0 233.2,454.0 V460.0 Q233.2,464.0 229.2,464.0 H136.0 Z" fill="#76746e"/>
+<text x="239.2" y="461.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.68</text>
+<text x="128.0" y="487.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">TF-IDF logistic</text>
+<path d="M136.0,476.0 H136.6 Q140.6,476.0 140.6,480.0 V486.0 Q140.6,490.0 136.6,490.0 H136.0 Z" fill="#76746e"/>
+<text x="146.6" y="487.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.03</text>
+<line x1="136" y1="368" x2="136" y2="494" stroke="#383835" stroke-width="1"/>
+<text x="336.0" y="342.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Null detection  (higher is better)</text>
+<text x="336.0" y="358.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">unanswerable questions caught at 5% false positives</text>
+<text x="440.0" y="383.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<path d="M448.0,372.0 H561.8 Q565.8,372.0 565.8,376.0 V382.0 Q565.8,386.0 561.8,386.0 H448.0 Z" fill="#3987e5"/>
+<text x="571.8" y="383.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.82</text>
+<text x="440.0" y="409.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
+<path d="M448.0,398.0 H507.1 Q511.1,398.0 511.1,402.0 V408.0 Q511.1,412.0 507.1,412.0 H448.0 Z" fill="#76746e"/>
+<text x="517.1" y="409.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.44</text>
+<text x="440.0" y="435.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Kev 0.8B</text>
+<path d="M448.0,424.0 H485.2 Q489.2,424.0 489.2,428.0 V434.0 Q489.2,438.0 485.2,438.0 H448.0 Z" fill="#76746e"/>
+<text x="495.2" y="435.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.29</text>
+<text x="440.0" y="461.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Laya 0.4</text>
+<path d="M448.0,450.0 H488.6 Q492.6,450.0 492.6,454.0 V460.0 Q492.6,464.0 488.6,464.0 H448.0 Z" fill="#76746e"/>
+<text x="498.6" y="461.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.31</text>
+<text x="440.0" y="487.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">TF-IDF logistic</text>
+<path d="M448.0,476.0 H451.5 Q455.5,476.0 455.5,480.0 V486.0 Q455.5,490.0 451.5,490.0 H448.0 Z" fill="#76746e"/>
+<text x="461.5" y="487.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.05</text>
+<line x1="448" y1="368" x2="448" y2="494" stroke="#383835" stroke-width="1"/>
+<text x="648.0" y="342.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">JevBench public tiers</text>
+<text x="648.0" y="358.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">accuracy by tier, scored by JevBench's own harness</text>
+<text x="752.0" y="383.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Easy (n=48)</text>
+<path d="M760.0,372.0 H885.0 Q889.0,372.0 889.0,376.0 V382.0 Q889.0,386.0 885.0,386.0 H760.0 Z" fill="#3987e5"/>
+<text x="895.0" y="383.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.90</text>
+<text x="752.0" y="409.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Original (n=72)</text>
+<path d="M760.0,398.0 H820.0 Q824.0,398.0 824.0,402.0 V408.0 Q824.0,412.0 820.0,412.0 H760.0 Z" fill="#3987e5"/>
+<text x="830.0" y="409.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.44</text>
+<text x="752.0" y="435.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Hard (n=111)</text>
+<path d="M760.0,424.0 H807.9 Q811.9,424.0 811.9,428.0 V434.0 Q811.9,438.0 807.9,438.0 H760.0 Z" fill="#3987e5"/>
+<text x="817.9" y="435.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.36</text>
+<line x1="760" y1="368" x2="760" y2="442" stroke="#383835" stroke-width="1"/>
+<text x="24.0" y="562.0" font-size="11" fill="#898781" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Values from results/eval/*.json and results/jevbench/; drawn by scripts/make_benchmark_figure.py. Full tables: docs/results.md and results/baselines_table.md.</text>
+</svg>
