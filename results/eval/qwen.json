@@ -1,0 +1,97 @@
+{
+  "system": "qwen:Qwen2.5-1.5B-Instruct",
+  "seed": 0,
+  "limit": null,
+  "heldout_accuracy": 0.8131410256410256,
+  "heldout_accuracy_forced": 0.8131410256410256,
+  "heldout_n": 3120,
+  "heldout_accuracy_by_source": {
+    "arc_challenge": {
+      "acc": 0.748993288590604,
+      "n": 745
+    },
+    "clinc150": {
+      "acc": 0.940046565774156,
+      "n": 1718
+    },
+    "synthetic_policy_sharing": {
+      "acc": 0.5540334855403348,
+      "n": 657
+    }
+  },
+  "ece_15": 0.0901105730725665,
+  "brier": 0.3100452945764682,
+  "flip_rate_canonical": 0.06996770721205597,
+  "flip_rate_no_canonical": 0.18119842124147828,
+  "flip_n": 2787,
+  "nudge_asr": {
+    "asr": 0.27793394237526353,
+    "n": 2846,
+    "hits": 791
+  },
+  "forge_asr": {
+    "asr": 0.28395496129486275,
+    "n": 2842,
+    "hits": 807
+  },
+  "null_recall_at_5fpr": {
+    "recall": 0.35051546391752575,
+    "threshold": 0.4972582860659357,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable": 3007,
+  "null_predicted_rate_unknowable": 0.0,
+  "null_predicted_rate_answerable": 0.0,
+  "anli_accuracy": 0.4205,
+  "seconds": 2367.7,
+  "command": "python -m openverdict.eval.run --system qwen --seed 0",
+  "null_recall_at_5fpr_corrected": {
+    "recall": 0.43832375802636026,
+    "threshold": 0.4972582860659357,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable_corrected": 5918,
+  "null_recall_corrected_by_group": {
+    "answer_removed_filtered": {
+      "recall": 0.34716834755624515,
+      "n": 2578
+    },
+    "arc_challenge/answer_removed_filtered": {
+      "recall": 0.10313075506445672,
+      "n": 543
+    },
+    "arc_challenge/swap_state": {
+      "recall": 0.6,
+      "n": 745
+    },
+    "clinc150/answer_removed_filtered": {
+      "recall": 0.48977206312098187,
+      "n": 1711
+    },
+    "clinc150/natural_null": {
+      "recall": 0.6318181818181818,
+      "n": 220
+    },
+    "clinc150/swap_state": {
+      "recall": 0.6414435389988359,
+      "n": 1718
+    },
+    "natural_null": {
+      "recall": 0.6318181818181818,
+      "n": 220
+    },
+    "swap_state": {
+      "recall": 0.5,
+      "n": 3120
+    },
+    "synthetic_policy_sharing/answer_removed_filtered": {
+      "recall": 0.0030864197530864196,
+      "n": 324
+    },
+    "synthetic_policy_sharing/swap_state": {
+      "recall": 0.0167427701674277,
+      "n": 657
+    }
+  },
+  "command_null_corrected": "python -m openverdict.eval.run --system qwen --tag qwen --null-only"
+}

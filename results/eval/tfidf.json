@@ -1,0 +1,97 @@
+{
+  "system": "tfidf",
+  "seed": 0,
+  "limit": null,
+  "heldout_accuracy": 0.257051282051282,
+  "heldout_accuracy_forced": 0.257051282051282,
+  "heldout_n": 3120,
+  "heldout_accuracy_by_source": {
+    "arc_challenge": {
+      "acc": 0.2657718120805369,
+      "n": 745
+    },
+    "clinc150": {
+      "acc": 0.18451688009313155,
+      "n": 1718
+    },
+    "synthetic_policy_sharing": {
+      "acc": 0.4368340943683409,
+      "n": 657
+    }
+  },
+  "ece_15": 0.11419716126056151,
+  "brier": 0.829646734462487,
+  "flip_rate_canonical": 0.009329027628274129,
+  "flip_rate_no_canonical": 0.009329027628274129,
+  "flip_n": 2787,
+  "nudge_asr": {
+    "asr": 0.033663366336633666,
+    "n": 2525,
+    "hits": 85
+  },
+  "forge_asr": {
+    "asr": 0.03188521323236349,
+    "n": 2509,
+    "hits": 80
+  },
+  "null_recall_at_5fpr": {
+    "recall": 0.04256734286664449,
+    "threshold": 0.8341635265861405,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable": 3007,
+  "null_predicted_rate_unknowable": 0.0,
+  "null_predicted_rate_answerable": 0.0,
+  "anli_accuracy": 0.317,
+  "seconds": 93.1,
+  "command": "python -m openverdict.eval.run --system tfidf --seed 0",
+  "null_recall_at_5fpr_corrected": {
+    "recall": 0.05204460966542751,
+    "threshold": 0.8341635265861405,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable_corrected": 5918,
+  "null_recall_corrected_by_group": {
+    "answer_removed_filtered": {
+      "recall": 0.0395655546935609,
+      "n": 2578
+    },
+    "arc_challenge/answer_removed_filtered": {
+      "recall": 0.0,
+      "n": 543
+    },
+    "arc_challenge/swap_state": {
+      "recall": 0.0,
+      "n": 745
+    },
+    "clinc150/answer_removed_filtered": {
+      "recall": 0.05961426066627703,
+      "n": 1711
+    },
+    "clinc150/natural_null": {
+      "recall": 0.11818181818181818,
+      "n": 220
+    },
+    "clinc150/swap_state": {
+      "recall": 0.10477299185098952,
+      "n": 1718
+    },
+    "natural_null": {
+      "recall": 0.11818181818181818,
+      "n": 220
+    },
+    "swap_state": {
+      "recall": 0.057692307692307696,
+      "n": 3120
+    },
+    "synthetic_policy_sharing/answer_removed_filtered": {
+      "recall": 0.0,
+      "n": 324
+    },
+    "synthetic_policy_sharing/swap_state": {
+      "recall": 0.0,
+      "n": 657
+    }
+  },
+  "command_null_corrected": "python -m openverdict.eval.run --system tfidf --tag tfidf --null-only"
+}

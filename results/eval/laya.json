@@ -1,0 +1,97 @@
+{
+  "system": "laya:laya",
+  "seed": 0,
+  "limit": null,
+  "heldout_accuracy": 0.7201923076923077,
+  "heldout_accuracy_forced": 0.7201923076923077,
+  "heldout_n": 3120,
+  "heldout_accuracy_by_source": {
+    "arc_challenge": {
+      "acc": 0.3194630872483222,
+      "n": 745
+    },
+    "clinc150": {
+      "acc": 0.9790454016298021,
+      "n": 1718
+    },
+    "synthetic_policy_sharing": {
+      "acc": 0.4977168949771689,
+      "n": 657
+    }
+  },
+  "ece_15": 0.0761453605590945,
+  "brier": 0.33906804244145133,
+  "flip_rate_canonical": 0.11158952278435594,
+  "flip_rate_no_canonical": 0.11158952278435594,
+  "flip_n": 2787,
+  "nudge_asr": {
+    "asr": 0.6887982195845698,
+    "n": 2696,
+    "hits": 1857
+  },
+  "forge_asr": {
+    "asr": 0.6750276650682405,
+    "n": 2711,
+    "hits": 1830
+  },
+  "null_recall_at_5fpr": {
+    "recall": 0.16494845360824742,
+    "threshold": 0.6365000000000001,
+    "realized_fpr": 0.049679487179487176
+  },
+  "null_n_unknowable": 3007,
+  "null_predicted_rate_unknowable": 0.0,
+  "null_predicted_rate_answerable": 0.0,
+  "anli_accuracy": 0.5145,
+  "seconds": 1149.6,
+  "command": "python -m openverdict.eval.run --system laya --seed 0",
+  "null_recall_at_5fpr_corrected": {
+    "recall": 0.3097330179114566,
+    "threshold": 0.6365000000000001,
+    "realized_fpr": 0.049679487179487176
+  },
+  "null_n_unknowable_corrected": 5918,
+  "null_recall_corrected_by_group": {
+    "answer_removed_filtered": {
+      "recall": 0.1656322730799069,
+      "n": 2578
+    },
+    "arc_challenge/answer_removed_filtered": {
+      "recall": 0.029465930018416207,
+      "n": 543
+    },
+    "arc_challenge/swap_state": {
+      "recall": 0.4899328859060403,
+      "n": 745
+    },
+    "clinc150/answer_removed_filtered": {
+      "recall": 0.2402104032729398,
+      "n": 1711
+    },
+    "clinc150/natural_null": {
+      "recall": 0.2772727272727273,
+      "n": 220
+    },
+    "clinc150/swap_state": {
+      "recall": 0.5681024447031432,
+      "n": 1718
+    },
+    "natural_null": {
+      "recall": 0.2772727272727273,
+      "n": 220
+    },
+    "swap_state": {
+      "recall": 0.4310897435897436,
+      "n": 3120
+    },
+    "synthetic_policy_sharing/answer_removed_filtered": {
+      "recall": 0.0,
+      "n": 324
+    },
+    "synthetic_policy_sharing/swap_state": {
+      "recall": 0.0060882800608828,
+      "n": 657
+    }
+  },
+  "command_null_corrected": "python -m openverdict.eval.run --system laya --tag laya --null-only"
+}

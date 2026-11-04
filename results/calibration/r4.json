@@ -1,0 +1,40 @@
+{
+  "per_type": {
+    "choice": {
+      "n": 3112,
+      "T": 2.2,
+      "nll_T1": 1.6820456037931768,
+      "nll_best": 1.301197184373794
+    },
+    "noul": {
+      "n": 327,
+      "T": 2.25,
+      "nll_T1": 0.7184340922134187,
+      "nll_best": 0.5080893465451499
+    }
+  },
+  "calib_ece_before": 0.2532961760492728,
+  "calib_ece_after": 0.048756407068786714,
+  "conformal": {
+    "0.05": {
+      "policy": 0.9437318667769432,
+      "_global": 0.9642499499022961,
+      "intent": 0.9722023103386164,
+      "mcq": 0.9115201607346535
+    },
+    "0.1": {
+      "policy": 0.8825985416769981,
+      "_global": 0.9358107149600983,
+      "intent": 0.9562735743820667,
+      "mcq": 0.8861597552895546
+    }
+  },
+  "conformal_n": {
+    "policy": 676,
+    "_global": 3439,
+    "intent": 2040,
+    "mcq": 723
+  },
+  "ckpt": "checkpoints\\r4",
+  "command": "python -m openverdict.calibrate --ckpt checkpoints/r4"
+}

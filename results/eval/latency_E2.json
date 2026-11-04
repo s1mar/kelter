@@ -1,0 +1,35 @@
+{
+  "ckpt": "checkpoints/E2",
+  "runs": 50,
+  "state_tokens": 1000,
+  "options": 5,
+  "sequence_tokens": 1068,
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 4080 Laptop GPU",
+  "gpu_forward_ms": {
+    "p50": 176.92929998156615,
+    "p95": 185.17293501354288,
+    "mean": 176.99823800241575,
+    "n": 50
+  },
+  "gpu_engine_ms": {
+    "p50": 329.36534998589195,
+    "p95": 346.10423000121955,
+    "mean": 328.4804980037734,
+    "n": 50
+  },
+  "cpu_threads": 24,
+  "cpu_int8_forward_ms": {
+    "p50": 3431.262300000526,
+    "p95": 3472.2311600111425,
+    "mean": 3442.8444399964064,
+    "n": 5
+  },
+  "cpu_int8_engine_ms": {
+    "p50": 4890.447499987204,
+    "p95": 4939.422779995948,
+    "mean": 4891.860979993362,
+    "n": 5
+  },
+  "command": "python -m openverdict.eval.latency --ckpt checkpoints/E2 --runs 50 --cpu-int8"
+}

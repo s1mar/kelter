@@ -1,0 +1,186 @@
+{
+  "rows": [
+    {
+      "label": "openverdict r2 (ModernBERT-base, this repo)",
+      "tag": "r2",
+      "heldout_accuracy": 0.6705128205128205,
+      "ece_15": 0.04030720170218484,
+      "brier": 0.4234044569431443,
+      "flip_rate_canonical": 0.0,
+      "flip_rate_no_canonical": 0.09006099748833872,
+      "nudge_asr": {
+        "asr": 0.013254272758981514,
+        "n": 2867,
+        "hits": 38
+      },
+      "forge_asr": {
+        "asr": 0.015906680805938492,
+        "n": 2829,
+        "hits": 45
+      },
+      "null_recall_at_5fpr": {
+        "recall": 0.5823079481210509,
+        "threshold": 0.41494616866111755,
+        "realized_fpr": 0.05
+      },
+      "null_recall_at_5fpr_corrected": {
+        "recall": 0.6032443393038188,
+        "threshold": 0.41494616866111755,
+        "realized_fpr": 0.05
+      },
+      "witness_f1_esnli": 0.6110381330271593,
+      "witness_necessity_esnli": 0.9708904109589042,
+      "random_mask_flip_esnli": 0.22659817351598174,
+      "anli_accuracy": 0.301,
+      "command": "python -m openverdict.eval.run --system ours --ckpt checkpoints/r2 --tag r2 --seed 0"
+    },
+    {
+      "label": "TF-IDF pairwise logistic regression (trained on our train split)",
+      "tag": "tfidf",
+      "heldout_accuracy": 0.257051282051282,
+      "ece_15": 0.11419716126056151,
+      "brier": 0.829646734462487,
+      "flip_rate_canonical": 0.009329027628274129,
+      "flip_rate_no_canonical": 0.009329027628274129,
+      "nudge_asr": {
+        "asr": 0.033663366336633666,
+        "n": 2525,
+        "hits": 85
+      },
+      "forge_asr": {
+        "asr": 0.03188521323236349,
+        "n": 2509,
+        "hits": 80
+      },
+      "null_recall_at_5fpr": {
+        "recall": 0.04256734286664449,
+        "threshold": 0.8341635265861405,
+        "realized_fpr": 0.05
+      },
+      "null_recall_at_5fpr_corrected": {
+        "recall": 0.05204460966542751,
+        "threshold": 0.8341635265861405,
+        "realized_fpr": 0.05
+      },
+      "witness_f1_esnli": null,
+      "witness_necessity_esnli": null,
+      "random_mask_flip_esnli": null,
+      "anli_accuracy": 0.317,
+      "command": "python -m openverdict.eval.run --system tfidf --seed 0"
+    },
+    {
+      "label": "Laya 0.4.15 (convaiinnovations/laya, zero-shot on our sets)",
+      "tag": "laya",
+      "heldout_accuracy": 0.7201923076923077,
+      "ece_15": 0.0761453605590945,
+      "brier": 0.33906804244145133,
+      "flip_rate_canonical": 0.11158952278435594,
+      "flip_rate_no_canonical": 0.11158952278435594,
+      "nudge_asr": {
+        "asr": 0.6887982195845698,
+        "n": 2696,
+        "hits": 1857
+      },
+      "forge_asr": {
+        "asr": 0.6750276650682405,
+        "n": 2711,
+        "hits": 1830
+      },
+      "null_recall_at_5fpr": {
+        "recall": 0.16494845360824742,
+        "threshold": 0.6365000000000001,
+        "realized_fpr": 0.049679487179487176
+      },
+      "null_recall_at_5fpr_corrected": {
+        "recall": 0.3097330179114566,
+        "threshold": 0.6365000000000001,
+        "realized_fpr": 0.049679487179487176
+      },
+      "witness_f1_esnli": null,
+      "witness_necessity_esnli": null,
+      "random_mask_flip_esnli": null,
+      "anli_accuracy": 0.5145,
+      "command": "python -m openverdict.eval.run --system laya --seed 0"
+    },
+    {
+      "label": "Kev 0.8B (jaredpalmer/kev-0.8b @9a45d25, zero-shot on our sets)",
+      "tag": "kev",
+      "heldout_accuracy": 0.7705128205128206,
+      "ece_15": 0.04999692987860635,
+      "brier": 0.31867490457033015,
+      "flip_rate_canonical": 0.08180839612486544,
+      "flip_rate_no_canonical": 0.08216720487979906,
+      "nudge_asr": {
+        "asr": 0.15050752537626882,
+        "n": 2857,
+        "hits": 430
+      },
+      "forge_asr": {
+        "asr": 0.16790123456790124,
+        "n": 2835,
+        "hits": 476
+      },
+      "null_recall_at_5fpr": {
+        "recall": 0.23678084469571,
+        "threshold": 0.6416884362697601,
+        "realized_fpr": 0.05
+      },
+      "null_recall_at_5fpr_corrected": {
+        "recall": 0.28641432916525855,
+        "threshold": 0.6416884362697601,
+        "realized_fpr": 0.05
+      },
+      "witness_f1_esnli": null,
+      "witness_necessity_esnli": null,
+      "random_mask_flip_esnli": null,
+      "anli_accuracy": 0.36,
+      "command": "python -m openverdict.eval.run --system kev --seed 0"
+    },
+    {
+      "label": "Qwen2.5-1.5B-Instruct letter logprobs, 4-rotation averaging",
+      "tag": "qwen",
+      "heldout_accuracy": 0.8131410256410256,
+      "ece_15": 0.0901105730725665,
+      "brier": 0.3100452945764682,
+      "flip_rate_canonical": 0.06996770721205597,
+      "flip_rate_no_canonical": 0.18119842124147828,
+      "nudge_asr": {
+        "asr": 0.27793394237526353,
+        "n": 2846,
+        "hits": 791
+      },
+      "forge_asr": {
+        "asr": 0.28395496129486275,
+        "n": 2842,
+        "hits": 807
+      },
+      "null_recall_at_5fpr": {
+        "recall": 0.35051546391752575,
+        "threshold": 0.4972582860659357,
+        "realized_fpr": 0.05
+      },
+      "null_recall_at_5fpr_corrected": {
+        "recall": 0.43832375802636026,
+        "threshold": 0.4972582860659357,
+        "realized_fpr": 0.05
+      },
+      "witness_f1_esnli": null,
+      "witness_necessity_esnli": null,
+      "random_mask_flip_esnli": null,
+      "anli_accuracy": 0.4205,
+      "command": "python -m openverdict.eval.run --system qwen --seed 0"
+    }
+  ],
+  "quoted": [
+    [
+      "Jev 1.13 (hosted, not run here)",
+      "ECE 0.045, paired flip rate 0.021, injection ASR 0.063",
+      "Respan run as cited in docs/own-decision-model-design.md (read 2026-10-25); different items from ours"
+    ],
+    [
+      "Jev 1.13 (hosted, not run here)",
+      "JevBench v1.4 composite 63.3",
+      "JevBench v1.4 results as cited in docs/own-decision-model-design.md (read 2026-10-25)"
+    ]
+  ]
+}

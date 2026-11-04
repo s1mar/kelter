@@ -1,0 +1,128 @@
+{
+  "from": "E2",
+  "name": "E3",
+  "options": "r2",
+  "tol": 0.005,
+  "splits": 10,
+  "params": {
+    "max_depth": 3,
+    "max_iter": 200,
+    "learning_rate": 0.05,
+    "random_state": 0
+  },
+  "cost_bytes": {
+    "r1": 603226159,
+    "r2": 0,
+    "r3": 603226159,
+    "r4": 1591827039,
+    "r5": 603226159,
+    "r6": 605592799,
+    "r7": 605592799,
+    "rL10": 1591827039
+  },
+  "path": [
+    {
+      "members": [
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5",
+        "r6",
+        "r7",
+        "rL10"
+      ],
+      "score": 0.8065973350666233,
+      "cost": 6204518153
+    },
+    {
+      "members": [
+        "r1",
+        "r2",
+        "r4",
+        "r5",
+        "r6",
+        "r7",
+        "rL10"
+      ],
+      "dropped": "r3",
+      "score": 0.8083197920051999,
+      "cost": 5601291994
+    },
+    {
+      "members": [
+        "r1",
+        "r2",
+        "r4",
+        "r5",
+        "r7",
+        "rL10"
+      ],
+      "dropped": "r6",
+      "score": 0.8057523561910951,
+      "cost": 4995699195
+    },
+    {
+      "members": [
+        "r2",
+        "r4",
+        "r5",
+        "r7",
+        "rL10"
+      ],
+      "dropped": "r1",
+      "score": 0.8035749106272343,
+      "cost": 4392473036
+    },
+    {
+      "members": [
+        "r2",
+        "r5",
+        "r7",
+        "rL10"
+      ],
+      "dropped": "r4",
+      "score": 0.7886577835554112,
+      "cost": 2800645997
+    },
+    {
+      "members": [
+        "r2",
+        "r7",
+        "rL10"
+      ],
+      "dropped": "r5",
+      "score": 0.7723431914202145,
+      "cost": 2197419838
+    },
+    {
+      "members": [
+        "r2",
+        "rL10"
+      ],
+      "dropped": "r7",
+      "score": 0.7135521611959701,
+      "cost": 1591827039
+    },
+    {
+      "members": [
+        "r2"
+      ],
+      "dropped": "rL10",
+      "score": 0.5308417289567761,
+      "cost": 0
+    }
+  ],
+  "full_score": 0.8065973350666233,
+  "floor": 0.8015973350666233,
+  "selected": [
+    "r2",
+    "r4",
+    "r5",
+    "r7",
+    "rL10"
+  ],
+  "selected_score": 0.8035749106272343,
+  "method": "backward-elimination",
+  "command": "python -m openverdict.ensemble_select --from E2 --name E3"
+}

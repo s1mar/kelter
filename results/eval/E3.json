@@ -1,0 +1,106 @@
+{
+  "system": "openverdict:E3",
+  "seed": 0,
+  "limit": null,
+  "heldout_accuracy": 0.6878205128205128,
+  "heldout_accuracy_forced": 0.7102564102564103,
+  "heldout_n": 3120,
+  "heldout_accuracy_by_source": {
+    "arc_challenge": {
+      "acc": 0.30201342281879195,
+      "n": 745
+    },
+    "clinc150": {
+      "acc": 0.8201396973224679,
+      "n": 1718
+    },
+    "synthetic_policy_sharing": {
+      "acc": 0.7792998477929984,
+      "n": 657
+    }
+  },
+  "ece_15": 0.040155890443622146,
+  "brier": 0.3978581684753012,
+  "ece_15_before_temperature": 0.17213776692376273,
+  "flip_rate_canonical": 0.0,
+  "flip_rate_no_canonical": 0.09221385001794044,
+  "flip_n": 2787,
+  "nudge_asr": {
+    "asr": 0.011900595029751488,
+    "n": 2857,
+    "hits": 34
+  },
+  "forge_asr": {
+    "asr": 0.014883061658398299,
+    "n": 2822,
+    "hits": 42
+  },
+  "null_recall_at_5fpr": {
+    "recall": 0.761223811107416,
+    "threshold": 0.29930963334984995,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable": 3007,
+  "null_predicted_rate_unknowable": 0.7838377120053209,
+  "null_predicted_rate_answerable": 0.047115384615384615,
+  "null_recall_at_5fpr_corrected": {
+    "recall": 0.8178438661710037,
+    "threshold": 0.29930963334984995,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable_corrected": 5918,
+  "null_recall_corrected_by_group": {
+    "answer_removed_filtered": {
+      "recall": 0.7571761055081458,
+      "n": 2578
+    },
+    "arc_challenge/answer_removed_filtered": {
+      "recall": 0.996316758747698,
+      "n": 543
+    },
+    "arc_challenge/swap_state": {
+      "recall": 0.6684563758389261,
+      "n": 745
+    },
+    "clinc150/answer_removed_filtered": {
+      "recall": 0.6353009935710111,
+      "n": 1711
+    },
+    "clinc150/natural_null": {
+      "recall": 0.6863636363636364,
+      "n": 220
+    },
+    "clinc150/swap_state": {
+      "recall": 0.9208381839348079,
+      "n": 1718
+    },
+    "natural_null": {
+      "recall": 0.6863636363636364,
+      "n": 220
+    },
+    "swap_state": {
+      "recall": 0.8772435897435897,
+      "n": 3120
+    },
+    "synthetic_policy_sharing/answer_removed_filtered": {
+      "recall": 1.0,
+      "n": 324
+    },
+    "synthetic_policy_sharing/swap_state": {
+      "recall": 1.0,
+      "n": 657
+    }
+  },
+  "witness_f1_esnli": 0.6110381330271593,
+  "witness_f1_squad2": 0.856624980209621,
+  "esnli_accuracy": 0.876,
+  "witness_necessity_esnli": 0.9223744292237442,
+  "witness_sufficiency_esnli": 0.8424657534246576,
+  "random_mask_flip_esnli": 0.2060502283105023,
+  "human_rationale_mask_flip_esnli": 0.8961187214611872,
+  "witness_empty_rate_esnli": 0.0015,
+  "witness_n_esnli": 2000,
+  "anli_accuracy": 0.301,
+  "seconds": 446.1,
+  "command": "python -m openverdict.eval.run --system ensemble --ckpt E3 --tag E3 --seed 0"
+}

@@ -1,0 +1,35 @@
+{
+  "threshold": 0.41494616866111755,
+  "groups": {
+    "arc_challenge/answer_removed": {
+      "recall": 0.5167785234899329,
+      "n": 745
+    },
+    "clinc150/answer_removed": {
+      "recall": 0.5389988358556461,
+      "n": 1718
+    },
+    "clinc150/natural_null": {
+      "recall": 0.5318181818181819,
+      "n": 220
+    },
+    "synthetic_policy_sharing/answer_removed": {
+      "recall": 1.0,
+      "n": 324
+    }
+  },
+  "false_null_by_source": {
+    "arc_challenge": {
+      "rate": 0.012080536912751677,
+      "n": 745
+    },
+    "clinc150": {
+      "rate": 0.08556461001164144,
+      "n": 1718
+    },
+    "synthetic_policy_sharing": {
+      "rate": 0.0,
+      "n": 657
+    }
+  }
+}

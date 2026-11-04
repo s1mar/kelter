@@ -1,0 +1,7 @@
+{"systems": [
+  {"tag": "r2", "label": "openverdict r2 (ModernBERT-base, this repo)"},
+  {"tag": "tfidf", "label": "TF-IDF pairwise logistic regression (trained on our train split)"},
+  {"tag": "laya", "label": "Laya 0.4.15 (convaiinnovations/laya, zero-shot on our sets)"},
+  {"tag": "kev", "label": "Kev 0.8B (jaredpalmer/kev-0.8b @9a45d25, zero-shot on our sets)"},
+  {"tag": "qwen", "label": "Qwen2.5-1.5B-Instruct letter logprobs, 4-rotation averaging"}
+]}

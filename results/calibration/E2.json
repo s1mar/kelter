@@ -1,0 +1,27 @@
+{
+  "ensemble": "E2",
+  "temperature": "members' own",
+  "calib_ece_after": 0.026910030893093774,
+  "conformal": {
+    "0.05": {
+      "policy": 0.9472391957993413,
+      "_global": 0.9412149806174909,
+      "intent": 0.9338912438530581,
+      "mcq": 0.9595429114485574
+    },
+    "0.1": {
+      "policy": 0.870463843579949,
+      "_global": 0.8959406021169056,
+      "intent": 0.8642324344496202,
+      "mcq": 0.9258319951118636
+    }
+  },
+  "conformal_n": {
+    "policy": 676,
+    "_global": 3439,
+    "intent": 2040,
+    "mcq": 723
+  },
+  "ckpt": "checkpoints/E2",
+  "command": "python -m openverdict.calibrate --ckpt checkpoints/E2"
+}

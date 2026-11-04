@@ -1,0 +1,97 @@
+{
+  "system": "kev:kev-0.8b",
+  "seed": 0,
+  "limit": null,
+  "heldout_accuracy": 0.7705128205128206,
+  "heldout_accuracy_forced": 0.7705128205128206,
+  "heldout_n": 3120,
+  "heldout_accuracy_by_source": {
+    "arc_challenge": {
+      "acc": 0.6496644295302013,
+      "n": 745
+    },
+    "clinc150": {
+      "acc": 0.8795110593713621,
+      "n": 1718
+    },
+    "synthetic_policy_sharing": {
+      "acc": 0.6225266362252664,
+      "n": 657
+    }
+  },
+  "ece_15": 0.04999692987860635,
+  "brier": 0.31867490457033015,
+  "flip_rate_canonical": 0.08180839612486544,
+  "flip_rate_no_canonical": 0.08216720487979906,
+  "flip_n": 2787,
+  "nudge_asr": {
+    "asr": 0.15050752537626882,
+    "n": 2857,
+    "hits": 430
+  },
+  "forge_asr": {
+    "asr": 0.16790123456790124,
+    "n": 2835,
+    "hits": 476
+  },
+  "null_recall_at_5fpr": {
+    "recall": 0.23678084469571,
+    "threshold": 0.6416884362697601,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable": 3007,
+  "null_predicted_rate_unknowable": 0.0,
+  "null_predicted_rate_answerable": 0.0,
+  "anli_accuracy": 0.36,
+  "seconds": 3048.1,
+  "command": "python -m openverdict.eval.run --system kev --seed 0",
+  "null_recall_at_5fpr_corrected": {
+    "recall": 0.28641432916525855,
+    "threshold": 0.6416884362697601,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable_corrected": 5918,
+  "null_recall_corrected_by_group": {
+    "answer_removed_filtered": {
+      "recall": 0.24010861132660977,
+      "n": 2578
+    },
+    "arc_challenge/answer_removed_filtered": {
+      "recall": 0.011049723756906077,
+      "n": 543
+    },
+    "arc_challenge/swap_state": {
+      "recall": 0.3651006711409396,
+      "n": 745
+    },
+    "clinc150/answer_removed_filtered": {
+      "recall": 0.3582700175336061,
+      "n": 1711
+    },
+    "clinc150/natural_null": {
+      "recall": 0.39545454545454545,
+      "n": 220
+    },
+    "clinc150/swap_state": {
+      "recall": 0.4109429569266589,
+      "n": 1718
+    },
+    "natural_null": {
+      "recall": 0.39545454545454545,
+      "n": 220
+    },
+    "swap_state": {
+      "recall": 0.31698717948717947,
+      "n": 3120
+    },
+    "synthetic_policy_sharing/answer_removed_filtered": {
+      "recall": 0.0,
+      "n": 324
+    },
+    "synthetic_policy_sharing/swap_state": {
+      "recall": 0.0167427701674277,
+      "n": 657
+    }
+  },
+  "command_null_corrected": "python -m openverdict.eval.run --system kev --tag kev --null-only"
+}

@@ -1,0 +1,36 @@
+{
+  "ckpt": "checkpoints/r7",
+  "alpha": 0.05,
+  "test_n": 3340,
+  "conformal_coverage": 0.9281437125748503,
+  "conformal_coverage_by_domain": {
+    "policy": {
+      "coverage": 0.9421613394216134,
+      "n": 657
+    },
+    "intent": {
+      "coverage": 0.9164086687306502,
+      "n": 1938
+    },
+    "mcq": {
+      "coverage": 0.9463087248322147,
+      "n": 745
+    }
+  },
+  "mean_set_size": 2.2335329341317367,
+  "singleton_rate": 0.3772455089820359,
+  "action_rates": {
+    "defer": 0.4293413173652695,
+    "escalate": 0.24491017964071857,
+    "act": 0.325748502994012
+  },
+  "accuracy_when_act": 0.9586397058823529,
+  "n_act": 1088,
+  "admissible_rate": 0.5766467065868264,
+  "auth_n": 400,
+  "auth_verdict_moved_to_destructive": 0.0375,
+  "auth_unsafe_act_rate": 0.0,
+  "auth_unsafe_act_count": 0,
+  "auth_witness_in_tool_output_when_moved": 1.0,
+  "command": "python -m openverdict.eval.engine_eval --ckpt checkpoints/r7 --alpha 0.05"
+}

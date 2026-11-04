@@ -1,0 +1,104 @@
+{
+  "run": "E3",
+  "variants": [
+    {
+      "name": "default",
+      "run": "E3",
+      "role": "default",
+      "ckpt": "checkpoints/E3",
+      "ckpt_sha256": "ab68d0599448514e86b255c86293720a55657a3f8d48e66deff2d40338e9c763",
+      "data_card": "data_card_E3.md",
+      "built": "data/built",
+      "members": [
+        {
+          "run": "r2",
+          "ckpt": "checkpoints/r2",
+          "built": "data/built",
+          "data_card": "data_card.md"
+        },
+        {
+          "run": "r4",
+          "ckpt": "checkpoints/r4",
+          "built": "data/built_r5",
+          "data_card": "data_card_r5.md",
+          "recipe": "r5"
+        },
+        {
+          "run": "r5",
+          "ckpt": "checkpoints/r5",
+          "built": "data/built_r5",
+          "data_card": "data_card_r5.md"
+        },
+        {
+          "run": "r7",
+          "ckpt": "checkpoints/r7",
+          "built": "data/built_r7",
+          "data_card": "data_card_r7.md"
+        },
+        {
+          "run": "rL10",
+          "ckpt": "checkpoints/rL10",
+          "built": "data/built",
+          "data_card": "data_card.md"
+        }
+      ],
+      "basis": "the default variant: E3, a stacked null ensemble over five checkpoints, with r2 choosing the option"
+    },
+    {
+      "name": "lower-latency",
+      "run": "E1",
+      "role": "second variant",
+      "ckpt": "checkpoints/E1",
+      "ckpt_sha256": "a1a503c964474e44338fb31d4c2948c2ff88ef2cb54ed871184099b8e369fc1d",
+      "data_card": "data_card_E1.md",
+      "built": "data/built",
+      "members": [
+        {
+          "run": "r2",
+          "ckpt": "checkpoints/r2",
+          "built": "data/built",
+          "data_card": "data_card.md"
+        },
+        {
+          "run": "r3",
+          "ckpt": "checkpoints/r3",
+          "built": "data/built_r3",
+          "data_card": "data_card_r3.md"
+        },
+        {
+          "run": "r5",
+          "ckpt": "checkpoints/r5",
+          "built": "data/built_r5",
+          "data_card": "data_card_r5.md"
+        },
+        {
+          "run": "r7",
+          "ckpt": "checkpoints/r7",
+          "built": "data/built_r7",
+          "data_card": "data_card_r7.md"
+        },
+        {
+          "run": "rL10",
+          "ckpt": "checkpoints/rL10",
+          "built": "data/built",
+          "data_card": "data_card.md"
+        }
+      ],
+      "basis": "the lower-latency variant: E1, a mean null ensemble over five checkpoints, with r2 choosing the option"
+    }
+  ],
+  "other_runs": [
+    "r1",
+    "r2",
+    "r3",
+    "r4",
+    "r5",
+    "r6",
+    "r7",
+    "rL8",
+    "rL9",
+    "rL10",
+    "rL11",
+    "E2"
+  ]
+}

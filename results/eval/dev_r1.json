@@ -1,0 +1,58 @@
+{
+  "arc_easy/choice": {
+    "acc": 0.27,
+    "n": 300
+  },
+  "banking77/choice": {
+    "acc": 0.7966666666666666,
+    "n": 300
+  },
+  "boolq/noul": {
+    "acc": 0.6266666666666667,
+    "n": 300
+  },
+  "civil_comments/noul": {
+    "acc": 0.9420289855072463,
+    "n": 207
+  },
+  "civil_comments/score": {
+    "acc": 0.8279569892473119,
+    "n": 93
+  },
+  "esnli/choice": {
+    "acc": 0.48333333333333334,
+    "n": 300
+  },
+  "massive/choice": {
+    "acc": 0.7966666666666666,
+    "n": 300
+  },
+  "mmlu/choice": {
+    "acc": 0.23157894736842105,
+    "n": 285
+  },
+  "mnli/choice": {
+    "acc": 0.36,
+    "n": 300
+  },
+  "paws/noul": {
+    "acc": 0.8233333333333334,
+    "n": 300
+  },
+  "squad2/choice": {
+    "acc": 0.6733333333333333,
+    "n": 300
+  },
+  "synthetic_policy/choice": {
+    "acc": 0.543046357615894,
+    "n": 151
+  },
+  "synthetic_policy/noul": {
+    "acc": 0.5302013422818792,
+    "n": 149
+  },
+  "synthetic_score/score": {
+    "acc": 0.9033333333333333,
+    "n": 300
+  }
+}

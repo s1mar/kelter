@@ -1,0 +1,58 @@
+{
+  "per_type": {
+    "choice": {
+      "n": 2902,
+      "T": 2.05,
+      "nll_T1": 1.3385848629911938,
+      "nll_best": 1.0888455315739662
+    },
+    "noul": {
+      "n": 327,
+      "T": 1.2,
+      "nll_T1": 0.6258761410929411,
+      "nll_best": 0.6239313092303456
+    }
+  },
+  "null_head": true,
+  "null": {
+    "T_null": 1.6,
+    "calib_recall_plain": {
+      "recall": 0.3142857142857143,
+      "threshold": 0.7545534430129951,
+      "realized_fpr": 0.049860637968411274
+    },
+    "calib_recall_stacker": {
+      "recall": 0.3380952380952381,
+      "threshold": 0.2762212168823462,
+      "realized_fpr": 0.049860637968411274
+    },
+    "use_stacker": true,
+    "rule": "stacker iff strictly higher calib null recall at 5% FPR",
+    "n_null": 210,
+    "n": 3439
+  },
+  "calib_ece_after": 0.05301089630134469,
+  "calib_ece_before": 0.21925479094044575,
+  "conformal": {
+    "0.05": {
+      "policy": 0.9210343062877655,
+      "_global": 0.9429631903767586,
+      "intent": 0.9543389976024628,
+      "mcq": 0.9297952875494957
+    },
+    "0.1": {
+      "policy": 0.8875686600804329,
+      "_global": 0.9157906249165535,
+      "intent": 0.9277492612600327,
+      "mcq": 0.9088886678218842
+    }
+  },
+  "conformal_n": {
+    "policy": 676,
+    "_global": 3229,
+    "intent": 1830,
+    "mcq": 723
+  },
+  "ckpt": "checkpoints\\rL9",
+  "command": "python -m openverdict.calibrate --ckpt checkpoints/rL9"
+}

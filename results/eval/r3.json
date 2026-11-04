@@ -1,0 +1,107 @@
+{
+  "system": "openverdict:r3",
+  "seed": 0,
+  "limit": null,
+  "heldout_accuracy": 0.6230769230769231,
+  "heldout_accuracy_forced": 0.6891025641025641,
+  "heldout_n": 3120,
+  "heldout_accuracy_by_source": {
+    "arc_challenge": {
+      "acc": 0.3073825503355705,
+      "n": 745
+    },
+    "clinc150": {
+      "acc": 0.7456344586728755,
+      "n": 1718
+    },
+    "synthetic_policy_sharing": {
+      "acc": 0.6605783866057838,
+      "n": 657
+    }
+  },
+  "ece_15": 0.0561587125999325,
+  "brier": 0.47888320825420017,
+  "ece_15_before_temperature": 0.22277662778705132,
+  "flip_rate_canonical": 0.0,
+  "flip_rate_no_canonical": 0.09723717258701112,
+  "flip_n": 2787,
+  "nudge_asr": {
+    "asr": 0.011832197920401577,
+    "n": 2789,
+    "hits": 33
+  },
+  "forge_asr": {
+    "asr": 0.012612612612612612,
+    "n": 2775,
+    "hits": 35
+  },
+  "null_recall_at_5fpr": {
+    "recall": 0.678084469571001,
+    "threshold": 0.5542944073677063,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable": 3007,
+  "null_predicted_rate_unknowable": 0.8556701030927835,
+  "null_predicted_rate_answerable": 0.10673076923076923,
+  "witness_f1_esnli": 0.6103953735351287,
+  "witness_f1_squad2": 0.8646890214217691,
+  "esnli_accuracy": 0.8695,
+  "witness_necessity_esnli": 0.9672225416906268,
+  "witness_sufficiency_esnli": 0.8441633122484187,
+  "random_mask_flip_esnli": 0.21506612995974697,
+  "human_rationale_mask_flip_esnli": 0.9585968947671075,
+  "witness_empty_rate_esnli": 0.0015,
+  "witness_n_esnli": 2000,
+  "anli_accuracy": 0.284,
+  "seconds": 110.4,
+  "command": "python -m openverdict.eval.run --system ours --ckpt checkpoints/r3 --tag r3 --seed 0",
+  "null_recall_at_5fpr_corrected": {
+    "recall": 0.6459952686718486,
+    "threshold": 0.5542944073677063,
+    "realized_fpr": 0.05
+  },
+  "null_n_unknowable_corrected": 5918,
+  "null_recall_corrected_by_group": {
+    "answer_removed_filtered": {
+      "recall": 0.6698991466252909,
+      "n": 2578
+    },
+    "arc_challenge/answer_removed_filtered": {
+      "recall": 1.0,
+      "n": 543
+    },
+    "arc_challenge/swap_state": {
+      "recall": 0.3838926174496644,
+      "n": 745
+    },
+    "clinc150/answer_removed_filtered": {
+      "recall": 0.5026300409117476,
+      "n": 1711
+    },
+    "clinc150/natural_null": {
+      "recall": 0.4909090909090909,
+      "n": 220
+    },
+    "clinc150/swap_state": {
+      "recall": 0.6082654249126892,
+      "n": 1718
+    },
+    "natural_null": {
+      "recall": 0.4909090909090909,
+      "n": 220
+    },
+    "swap_state": {
+      "recall": 0.6371794871794871,
+      "n": 3120
+    },
+    "synthetic_policy_sharing/answer_removed_filtered": {
+      "recall": 1.0,
+      "n": 324
+    },
+    "synthetic_policy_sharing/swap_state": {
+      "recall": 1.0,
+      "n": 657
+    }
+  },
+  "command_null_corrected": "python -m openverdict.eval.run --system ours --tag r3 --null-only --ckpt checkpoints/r3"
+}

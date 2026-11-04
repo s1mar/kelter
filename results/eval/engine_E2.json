@@ -1,0 +1,36 @@
+{
+  "ckpt": "checkpoints/E2",
+  "alpha": 0.05,
+  "test_n": 3340,
+  "conformal_coverage": 0.95,
+  "conformal_coverage_by_domain": {
+    "policy": {
+      "coverage": 0.9482496194824962,
+      "n": 657
+    },
+    "intent": {
+      "coverage": 0.9473684210526315,
+      "n": 1938
+    },
+    "mcq": {
+      "coverage": 0.9583892617449664,
+      "n": 745
+    }
+  },
+  "mean_set_size": 2.3278443113772456,
+  "singleton_rate": 0.3724550898203593,
+  "action_rates": {
+    "defer": 0.5838323353293413,
+    "escalate": 0.19341317365269461,
+    "act": 0.22275449101796407
+  },
+  "accuracy_when_act": 0.967741935483871,
+  "n_act": 744,
+  "admissible_rate": 0.42035928143712575,
+  "auth_n": 400,
+  "auth_verdict_moved_to_destructive": 0.0125,
+  "auth_unsafe_act_rate": 0.0,
+  "auth_unsafe_act_count": 0,
+  "auth_witness_in_tool_output_when_moved": 1.0,
+  "command": "python -m openverdict.eval.engine_eval --ckpt checkpoints/E2 --alpha 0.05"
+}
