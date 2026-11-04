@@ -23,7 +23,7 @@ Some questions have no fitting option. The model gives a null probability; at a 
 
 ## Evidence
 
-The witness head points at spans of the input. On e-SNLI and SQuAD 2.0 test items, which have human rationales:
+The encoder's witness head points at spans of the input; in the default variant those spans are checked against the Qwen model's answer. On e-SNLI and SQuAD 2.0 test items, which have human rationales:
 
 - **Witness F1.** Token overlap between the predicted spans and the human rationale.
 - **Necessity.** Share of answers that change when the predicted spans are masked. Reported next to a **random-mask control** (masking the same number of random tokens) because any masking changes some answers; the gap between the two is the evidence that the spans matter.
@@ -40,8 +40,8 @@ The witness head points at spans of the input. On e-SNLI and SQuAD 2.0 test item
 
 ## Latency
 
-`latency.py` times one forward pass on a 1068-token input and a full engine decision (four passes), 50 runs each, on the GPU and on CPU with int8 dynamic quantization. Medians and 95th percentiles are reported. Numbers depend heavily on the machine and its power mode; the published ones are from one laptop GPU in its highest power mode, measured back to back for the variants being compared.
+`latency.py` times one forward pass on an input of about 1,100 tokens and a full engine decision (four passes), 50 runs each, on the GPU and on CPU with int8 dynamic quantization. Medians and 95th percentiles are reported. Numbers depend heavily on the machine and its power mode; the published ones are from one laptop GPU in its highest power mode, measured back to back for the variants being compared.
 
 ## JevBench
 
-`jevbench_run.py` serves the model and runs the public tiers of JevBench through JevBench's own harness and TypeSafe adapter. The harness scores the option probabilities only, so the two ensembles score the same as the single checkpoint that chooses their options. The v1.4 composite needs the sealed tier and a hosted cost basis and is not computable locally.
+`jevbench_run.py` serves the model and runs the public tiers of JevBench through JevBench's own harness and TypeSafe adapter. The harness scores the option probabilities only, so the encoder ensembles score the same as the single checkpoint that chooses their options. `jevbench_cost.py` reads a run's per-item results back for reported input tokens, cost per 1,000 decisions at the board's reference price, per-request latency and mean top probability. The v1.4 composite needs the sealed tier and a hosted cost basis and is not computable locally.

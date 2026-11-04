@@ -1,6 +1,6 @@
 """Draw docs/benchmark.svg and docs/benchmark-dark.svg from the results files.
 
-Six small panels: five metrics where openverdict's default variant is compared
+Six small panels: five metrics where openverdict's default variant (Q1) is compared
 with four other systems run through the same evaluation code on the same
 held-out sets, and the JevBench public tiers scored by JevBench's own harness.
 Every number is read from results/, never typed here.
@@ -14,10 +14,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EVAL = ROOT / "results" / "eval"
-JEVBENCH = ROOT / "results" / "jevbench" / "E3-20261031T073700Z" / "openverdict_summary.json"
+JEVBENCH = ROOT / "results" / "jevbench" / "Q1chunk-20261104T162222Z" / "openverdict_summary.json"
 
 SYSTEMS = [  # (label, results tag); the first row is this repository's default variant
-    ("openverdict", "E3"),
+    ("openverdict", "Q1"),
     ("Qwen2.5-1.5B", "qwen"),
     ("Kev 0.8B", "kev"),
     ("Laya 0.4", "laya"),
