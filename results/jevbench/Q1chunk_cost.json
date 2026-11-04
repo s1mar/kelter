@@ -1,0 +1,57 @@
+{
+  "run": "Q1chunk-20261104T162222Z",
+  "price_per_m": 0.04,
+  "cap_per_1k": 0.0646,
+  "tiers": {
+    "original": {
+      "n": 72,
+      "correct": 68,
+      "accuracy": 0.9444444444444444,
+      "mean_top_prob": 0.8962838885082648,
+      "input_tokens_mean": 269.5138888888889,
+      "input_tokens_median": 217.0,
+      "input_tokens_max": 549,
+      "latency_p50_s": 0.11879809998208657,
+      "latency_max_s": 0.5640095000271685,
+      "usd_per_1k": 0.010780555555555557
+    },
+    "hard": {
+      "n": 111,
+      "correct": 63,
+      "accuracy": 0.5675675675675675,
+      "mean_top_prob": 0.6566459748942736,
+      "input_tokens_mean": 2456.189189189189,
+      "input_tokens_median": 1302,
+      "input_tokens_max": 8272,
+      "latency_p50_s": 0.4546429999754764,
+      "latency_max_s": 2.1470625000074506,
+      "usd_per_1k": 0.09824756756756757
+    },
+    "easy": {
+      "n": 48,
+      "correct": 46,
+      "accuracy": 0.9583333333333334,
+      "mean_top_prob": 0.9557251071929346,
+      "input_tokens_mean": 323.0625,
+      "input_tokens_median": 319.0,
+      "input_tokens_max": 505,
+      "latency_p50_s": 0.13480899998103268,
+      "latency_max_s": 0.17268940003123134,
+      "usd_per_1k": 0.012922499999999998
+    }
+  },
+  "pooled": {
+    "n": 231,
+    "correct": 177,
+    "accuracy": 0.7662337662337663,
+    "mean_top_prob": 0.7934846248100446,
+    "input_tokens_mean": 1331.3809523809523,
+    "input_tokens_median": 441,
+    "input_tokens_max": 8272,
+    "latency_p50_s": 0.14726719999453053,
+    "latency_max_s": 2.1470625000074506,
+    "usd_per_1k": 0.05325523809523809
+  },
+  "under_cap": true,
+  "command": "python -m openverdict.eval.jevbench_cost results/jevbench/Q1chunk-20261104T162222Z --out results/jevbench/Q1chunk_cost.json"
+}

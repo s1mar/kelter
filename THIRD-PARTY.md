@@ -7,6 +7,7 @@ Every external artifact this repository downloads or runs, with its license as s
 | Artifact | Use | License |
 |---|---|---|
 | answerdotai/ModernBERT-base | backbone | Apache-2.0 |
+| Qwen/Qwen3-4B-Instruct-2507 (revision cdbee75f17c01a7cc42f958dc650907174af0554) | base of the default model Q1; a LoRA adapter is trained and released, the base is downloaded at first run | Apache-2.0 |
 | sentence-transformers/all-mpnet-base-v2 | kill experiment 1 | Apache-2.0 |
 | BAAI/bge-reranker-base | kill experiment 1 | MIT |
 

@@ -6,7 +6,7 @@ Usage:
     python scripts/download_weights.py --variant all
 
 The weights are attached to a GitHub release of this repository as one tar
-file per checkpoint directory. The release tag, the asset names and their
+file per checkpoint directory. The release tags, the asset names and their
 SHA-256 checksums are in weights/MANIFEST.json. Each file is checked against
 its checksum before it is unpacked; a mismatch aborts.
 
@@ -88,7 +88,6 @@ def main(argv=None) -> int:
         print(f"unknown variant {args.variant!r}; choose one of {sorted(variants)} or all", file=sys.stderr)
         return 2
 
-    base = f"https://github.com/{repo}/releases/download/{manifest['tag']}"
     archives = ROOT / "weights" / "archives"
     for name in wanted:
         if (CHECKPOINTS / name / "config.json").exists():
@@ -98,7 +97,8 @@ def main(argv=None) -> int:
         path = archives / asset["file"]
         if not path.exists() or sha256(path) != asset["sha256"]:
             print(f"downloading {asset['file']} ({asset['size_mb']} MB)")
-            download(f"{base}/{asset['file']}", path)
+            tag = asset.get("tag", manifest["tag"])
+            download(f"https://github.com/{repo}/releases/download/{tag}/{asset['file']}", path)
         digest = sha256(path)
         if digest != asset["sha256"]:
             print(f"checksum mismatch for {asset['file']}: {digest}", file=sys.stderr)

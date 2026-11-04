@@ -1,0 +1,254 @@
+{
+  "name": "Q1",
+  "args": {
+    "name": "Q1",
+    "base": "Qwen/Qwen3-4B-Instruct-2507",
+    "qlora": true,
+    "cap": 1600,
+    "cap_policy": 5000,
+    "cap_score": 3000,
+    "max_len": 1024,
+    "infer_max_len": 4096,
+    "lr": 0.0002,
+    "r": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "batch_tokens": 4096,
+    "accum": 2,
+    "warmup": 0.03,
+    "seed": 0,
+    "limit": null,
+    "witness_ckpt": "checkpoints/r2"
+  },
+  "counts": {
+    "arc_easy": {
+      "available": 2854,
+      "taken": 1600,
+      "null": 208
+    },
+    "banking77": {
+      "available": 12431,
+      "taken": 1600,
+      "null": 206
+    },
+    "boolq": {
+      "available": 10669,
+      "taken": 1600,
+      "null": 39
+    },
+    "civil_comments": {
+      "available": 20515,
+      "taken": 1600,
+      "null": 46
+    },
+    "esnli": {
+      "available": 25492,
+      "taken": 1600,
+      "null": 219
+    },
+    "massive": {
+      "available": 15988,
+      "taken": 1600,
+      "null": 224
+    },
+    "mmlu": {
+      "available": 2582,
+      "taken": 1600,
+      "null": 247
+    },
+    "mnli": {
+      "available": 25417,
+      "taken": 1600,
+      "null": 210
+    },
+    "paws": {
+      "available": 22592,
+      "taken": 1600,
+      "null": 33
+    },
+    "squad2": {
+      "available": 24062,
+      "taken": 1600,
+      "null": 581
+    },
+    "synthetic_policy": {
+      "available": 7187,
+      "taken": 5000,
+      "null": 450
+    },
+    "synthetic_score": {
+      "available": 3728,
+      "taken": 3000,
+      "null": 94
+    }
+  },
+  "n_examples": 24000,
+  "n_batches": 868,
+  "steps": 434,
+  "log": [
+    {
+      "step": 25,
+      "of": 434,
+      "loss": 1.429607359955118,
+      "examples": 1397,
+      "elapsed_s": 252.7,
+      "lr": 0.00019959933830103035,
+      "max_mem_gb": 6.82
+    },
+    {
+      "step": 50,
+      "of": 434,
+      "loss": 0.5341037458508424,
+      "examples": 2691,
+      "elapsed_s": 500.4,
+      "lr": 0.000196212537752478,
+      "max_mem_gb": 6.82
+    },
+    {
+      "step": 75,
+      "of": 434,
+      "loss": 0.35442531692560886,
+      "examples": 4164,
+      "elapsed_s": 749.7,
+      "lr": 0.00018948696094894354,
+      "max_mem_gb": 6.82
+    },
+    {
+      "step": 100,
+      "of": 434,
+      "loss": 0.3874915847105109,
+      "examples": 5593,
+      "elapsed_s": 998.1,
+      "lr": 0.00017965599946970814,
+      "max_mem_gb": 6.84
+    },
+    {
+      "step": 125,
+      "of": 434,
+      "loss": 0.30906312926865237,
+      "examples": 7066,
+      "elapsed_s": 1247.2,
+      "lr": 0.00016706080823612895,
+      "max_mem_gb": 6.84
+    },
+    {
+      "step": 150,
+      "of": 434,
+      "loss": 0.31898711859657053,
+      "examples": 8491,
+      "elapsed_s": 1494.4,
+      "lr": 0.00015213846672246136,
+      "max_mem_gb": 6.84
+    },
+    {
+      "step": 175,
+      "of": 434,
+      "loss": 0.3120846818540206,
+      "examples": 9906,
+      "elapsed_s": 1743.1,
+      "lr": 0.00013540681138410319,
+      "max_mem_gb": 6.84
+    },
+    {
+      "step": 200,
+      "of": 434,
+      "loss": 0.27148215099896067,
+      "examples": 11270,
+      "elapsed_s": 1991.4,
+      "lr": 0.00011744646564971775,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 225,
+      "of": 434,
+      "loss": 0.27842468436142376,
+      "examples": 12536,
+      "elapsed_s": 2238.1,
+      "lr": 9.888069107408824e-05,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 250,
+      "of": 434,
+      "loss": 0.2511001274702701,
+      "examples": 13978,
+      "elapsed_s": 2486.6,
+      "lr": 8.035375885883217e-05,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 275,
+      "of": 434,
+      "loss": 0.22141005761448795,
+      "examples": 15318,
+      "elapsed_s": 2732.5,
+      "lr": 6.250859229443682e-05,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 300,
+      "of": 434,
+      "loss": 0.23976908430814406,
+      "examples": 16736,
+      "elapsed_s": 2981.0,
+      "lr": 4.596445597762959e-05,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 325,
+      "of": 434,
+      "loss": 0.2776574482777099,
+      "examples": 17989,
+      "elapsed_s": 3228.7,
+      "lr": 3.129546603489548e-05,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 350,
+      "of": 434,
+      "loss": 0.244671675063412,
+      "examples": 19348,
+      "elapsed_s": 3476.3,
+      "lr": 1.9010667092324362e-05,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 375,
+      "of": 434,
+      "loss": 0.1993852249712859,
+      "examples": 20963,
+      "elapsed_s": 3725.2,
+      "lr": 9.536367362596421e-06,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 400,
+      "of": 434,
+      "loss": 0.193625469178718,
+      "examples": 22184,
+      "elapsed_s": 3972.8,
+      "lr": 3.201344858527222e-06,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 425,
+      "of": 434,
+      "loss": 0.21533778295296868,
+      "examples": 23492,
+      "elapsed_s": 4221.0,
+      "lr": 2.254381084983659e-07,
+      "max_mem_gb": 6.85
+    },
+    {
+      "step": 434,
+      "of": 434,
+      "loss": 0.2519893583188046,
+      "examples": 24000,
+      "elapsed_s": 4310.6,
+      "lr": 0.0,
+      "max_mem_gb": 6.85
+    }
+  ],
+  "train_s": 4310.7,
+  "command": "python -m openverdict.llm_train --name Q1 --base Qwen/Qwen3-4B-Instruct-2507 --cap 1600 --cap-policy 5000 --cap-score 3000 --max-len 1024 --infer-max-len 4096 --lr 0.0002 --r 16 --alpha 32 --dropout 0.05 --batch-tokens 4096 --accum 2 --warmup 0.03 --witness-ckpt checkpoints/r2 --qlora"
+}
