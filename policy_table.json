@@ -1,0 +1,27 @@
+{
+  "id": "default-2026-10-26",
+  "description": "Maps a verdict class to the provenance types that may serve as its witness. Unknown provenance is untrusted. Destructive verdicts may cite only user or system spans.",
+  "untrusted_types": ["tool_output", "retrieved_doc", "unknown"],
+  "classes": {
+    "default": {
+      "allowed_witness_types": ["user", "system", "retrieved_doc", "tool_output", "unknown"],
+      "untrusted_influence_budget": 1.0,
+      "necessity": "gate"
+    },
+    "benign": {
+      "allowed_witness_types": ["user", "system", "retrieved_doc", "tool_output", "unknown"],
+      "untrusted_influence_budget": 1.0,
+      "necessity": "gate"
+    },
+    "low_stakes": {
+      "allowed_witness_types": ["user", "system", "retrieved_doc", "tool_output", "unknown"],
+      "untrusted_influence_budget": 1.0,
+      "necessity": "report"
+    },
+    "destructive": {
+      "allowed_witness_types": ["user", "system"],
+      "untrusted_influence_budget": 0.2,
+      "necessity": "gate"
+    }
+  }
+}

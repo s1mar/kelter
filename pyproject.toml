@@ -1,0 +1,13 @@
+[project]
+name = "openverdict"
+version = "0.1.0"
+description = "A small local decision model: calibrated multiple-choice verdicts with evidence spans, a null option and an act/escalate/defer action, served on the /v1/systemone API."
+requires-python = ">=3.12"
+license = { text = "Apache-2.0" }
+
+[tool.setuptools.packages.find]
+include = ["openverdict*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
