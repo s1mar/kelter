@@ -1,0 +1,65 @@
+{
+  "tag": "v0.1.0",
+  "repo": "s1mar/openverdict",
+  "note": "One tar per checkpoint directory, unpacked into checkpoints/ by scripts/download_weights.py.",
+  "variants": {
+    "default": [
+      "r2",
+      "r4",
+      "r5",
+      "r7",
+      "rL10",
+      "E3"
+    ],
+    "lower-latency": [
+      "r2",
+      "r3",
+      "r5",
+      "r7",
+      "rL10",
+      "E1"
+    ]
+  },
+  "assets": {
+    "E3": {
+      "file": "E3.tar",
+      "sha256": "830d3150d4db75a92512ef548da032794b4bf19dfd5bf2a005e80484892d3016",
+      "size_mb": 1
+    },
+    "E1": {
+      "file": "E1.tar",
+      "sha256": "e41045c33a4b1b5d8b79454b23282c5861b15a1182adac056b998ceeeca4fb85",
+      "size_mb": 0
+    },
+    "r2": {
+      "file": "r2.tar",
+      "sha256": "c5b271d05115b7552767a51610cb93b13ccf20a47f9a26d03fb59349a47ab839",
+      "size_mb": 607
+    },
+    "r3": {
+      "file": "r3.tar",
+      "sha256": "de77c2711810c372262e6b7fe4f78ea9128f08851c72c1673fb05ee8d77acbbf",
+      "size_mb": 607
+    },
+    "r4": {
+      "file": "r4.tar",
+      "sha256": "be9534f3e2f7c11883f529d4e34d7e04a67474ed11cdac0a616e38e55aefd8da",
+      "size_mb": 1595
+    },
+    "r5": {
+      "file": "r5.tar",
+      "sha256": "d30c8b5cf2c0a211d2af7909c9ba27d8fcc31d284bd8fa9133c013667b97f861",
+      "size_mb": 607
+    },
+    "r7": {
+      "file": "r7.tar",
+      "sha256": "bda53fa6248f7af7847c3d674bf581caa6e31eb78e6b5a7670d3ba692cefe996",
+      "size_mb": 609
+    },
+    "rL10": {
+      "file": "rL10.tar",
+      "sha256": "a285f65728db01c3b7df8ceb6a44e217b2f133951a5668fd88a3515422d9d884",
+      "size_mb": 1595
+    }
+  }
+}
