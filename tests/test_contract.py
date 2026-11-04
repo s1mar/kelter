@@ -418,8 +418,8 @@ def test_verdict_classes_extension_reaches_record():
 def test_default_variant_is_e2():
     from openverdict.server import DEFAULT_VARIANT, VARIANTS, resolve_variant
     assert DEFAULT_VARIANT == "default"
-    assert resolve_variant() == ("default", "checkpoints/E3")
-    assert VARIANTS == {"default": "checkpoints/E3", "lower-latency": "checkpoints/E1"}
+    assert resolve_variant() == ("default", "checkpoints/Q1")
+    assert VARIANTS == {"default": "checkpoints/Q1", "lower-latency": "checkpoints/E1"}
 
 
 def test_variants_match_final_json():
@@ -431,7 +431,7 @@ def test_variants_match_final_json():
     assert [v["name"] for v in default] == [DEFAULT_VARIANT] and default[0]["run"] == fin["run"]
 
 
-@pytest.mark.parametrize("name,ckpt", [("default", "checkpoints/E3"), ("lower-latency", "checkpoints/E1")])
+@pytest.mark.parametrize("name,ckpt", [("default", "checkpoints/Q1"), ("lower-latency", "checkpoints/E1")])
 def test_variant_named_in_every_answer(name, ckpt):
     from openverdict.server import resolve_variant
     v, path = resolve_variant(name)

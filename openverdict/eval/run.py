@@ -274,6 +274,8 @@ def main(argv=None) -> int:
     res = run(system, args.limit, args.seed)
     res["command"] = "python -m openverdict.eval.run " + " ".join(
         f"--{k.replace('_', '-')} {v}" for k, v in vars(args).items() if v is not None and v is not False)
+    from openverdict.llm import prefill_chunk_setting
+    res["prefill_chunk"] = prefill_chunk_setting()
     out.mkdir(parents=True, exist_ok=True)
     (out / f"{tag}.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
     print(json.dumps(res, indent=2))

@@ -7,9 +7,9 @@ See notes/typesafe-contract.md for the sources behind every field.
 The engine is injected: `create_app(engine, variant)`. The module-level `app`
 builds the real engine lazily on first request.
 
-Variants (results/final.json lists the same runs): "default", the stacked
-score ensemble E3, and "lower-latency", the score ensemble E1. Select one
-with --variant or env OPENVERDICT_VARIANT. An explicit --ckpt or env
+Variants (results/final.json lists the same runs): "default", Q1 (Qwen3-4B
+with a LoRA adapter, r2 for the witness), and "lower-latency", the score
+ensemble E1. Select one with --variant or env OPENVERDICT_VARIANT. An explicit --ckpt or env
 OPENVERDICT_CKPT overrides the variant; a checkpoint that is not a shipped
 variant is served as "custom:<name>". Every answer carries the variant name in
 the extension field "variant".
@@ -37,7 +37,7 @@ from openverdict.state import render_state
 
 MAX_CHOICES = 255
 MAX_LEVELS = 10
-VARIANTS = {"default": "checkpoints/E3", "lower-latency": "checkpoints/E1"}
+VARIANTS = {"default": "checkpoints/Q1", "lower-latency": "checkpoints/E1"}
 DEFAULT_VARIANT = "default"
 EXTENSION_FIELDS = ("null_probability", "witness", "verifier", "set", "coverage_level", "action", "receipt")
 

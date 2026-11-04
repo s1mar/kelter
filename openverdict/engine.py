@@ -228,13 +228,29 @@ class Engine:
                     },
                     "order": o.get("order"),
                 },
-                "input_tokens": int(o.get("n_tokens", 0)),
+                "input_tokens": sum(int(x.get("n_tokens", 0)) for x in (o, wo, wm, um) if x is not None),
             })
         return results
 
 
-def load_engine(ckpt: str, alpha: float = 0.05) -> Engine:
-    """OPENVERDICT_DEVICE overrides the device (default: cuda, else mps, else cpu; openverdict.device)."""
+class BareEngine:
+    """Probabilities only, from a baseline adapter: no null, verifier, conformal
+    set or action. For diagnosis runs behind the same server."""
+
+    def __init__(self, adapter):
+        self.adapter = adapter
+        self.model_id = "openverdict-bare-" + adapter.name.replace(":", "-")
+
+    def decide(self, recs: List[Dict[str, Any]], canonical: bool = True) -> List[Dict[str, Any]]:
+        return [{"probs": o["probs"]} for o in self.adapter.predict(recs, canonical=canonical)]
+
+
+def load_engine(ckpt: str, alpha: float = 0.05):
+    """OPENVERDICT_DEVICE overrides the device (default: cuda, else mps, else cpu; openverdict.device).
+    ckpt "qwen:<hf model id>" serves the zero-shot letter-logprob baseline as a BareEngine."""
     from openverdict.device import default_device
+    if ckpt.startswith("qwen:"):
+        from openverdict.eval.baselines.qwen_logprob import QwenLogprobAdapter
+        return BareEngine(QwenLogprobAdapter(ckpt[len("qwen:"):], device=default_device()))
     from openverdict.model import load_predictor
     return Engine(load_predictor(ckpt, device=default_device()), load_policy(), alpha)

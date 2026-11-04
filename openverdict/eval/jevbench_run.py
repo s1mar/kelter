@@ -24,6 +24,8 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
+from openverdict.llm import prefill_chunk_setting
+
 ROOT = Path(__file__).resolve().parents[2]
 JB = ROOT / "third_party" / "jevbench"
 TIERS = ("original", "hard", "easy")
@@ -56,7 +58,8 @@ def main(argv=None) -> int:
     log = (out / "server.log").open("w", encoding="utf-8")
     srv = subprocess.Popen([sys.executable, "-m", "openverdict.server", "--ckpt", args.ckpt, "--port", str(args.port)],
                            cwd=str(ROOT), env=env, stdout=log, stderr=subprocess.STDOUT)
-    summary = {"run": run, "ckpt": args.ckpt, "endpoint": f"http://127.0.0.1:{args.port}", "tiers": {}}
+    summary = {"run": run, "ckpt": args.ckpt, "endpoint": f"http://127.0.0.1:{args.port}", "tiers": {},
+               "prefill_chunk": prefill_chunk_setting()}
     try:
         wait_ready(f"http://127.0.0.1:{args.port}/v1/models")
         rev = subprocess.run(["git", "rev-parse", "HEAD"], cwd=str(JB), capture_output=True, text=True).stdout.strip()

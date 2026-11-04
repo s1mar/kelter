@@ -8,6 +8,8 @@ datasets==5.1.0
 scikit-learn==1.9.1
 sentence-transformers==6.2.0
 accelerate==1.15.0
+peft==0.21.2  # LoRA adapter of the default model
+bitsandbytes==0.50.2  # 4-bit base while training the adapter
 fastapi==0.162.0
 uvicorn[standard]==0.54.0
 httpx==0.28.1

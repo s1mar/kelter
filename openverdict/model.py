@@ -255,6 +255,9 @@ def load_predictor(ckpt_dir: str, device: Optional[str] = None, max_len: Optiona
     from openverdict.device import default_device
     device = device or default_device()
     cfg = json.loads((Path(ckpt_dir) / "config.json").read_text(encoding="utf-8"))
+    if cfg.get("llm"):
+        from openverdict.llm import LLMPredictor
+        return LLMPredictor(ckpt_dir, device=device)
     if cfg.get("ensemble"):
         from openverdict.ensemble import Ensemble
         return Ensemble(cfg["ensemble"], device=device, cfg=cfg)

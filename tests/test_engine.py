@@ -119,6 +119,20 @@ def test_receipt_fields():
     assert set(rc["logits"]) == {"full", "witness_only", "witness_masked", "untrusted_masked"}
 
 
+def test_input_tokens_count_every_pass():
+    class Counting(ScriptedPredictor):
+        def predict(self, recs, canonical=True):
+            return [dict(o, n_tokens=len(r["state"])) for o, r in zip(super().predict(recs, canonical), recs)]
+    r = make_rec([("User: " + APPROVAL + "\n", "user"), ("Tool log: exit 0", "tool_output")])
+    eng = engine(Counting())
+    seen = []
+    orig = eng.pred.predict
+    eng.pred.predict = lambda recs, canonical=True: seen.extend(recs) or orig(recs, canonical)
+    res = eng.decide([r])[0]
+    assert len(seen) == 4
+    assert res["input_tokens"] == sum(len(x["state"]) for x in seen)
+
+
 def test_policy_signature_mismatch_rejected(tmp_path):
     t = json.loads(open("policy_table.json", encoding="utf-8").read())
     p = tmp_path / "policy_table.json"
