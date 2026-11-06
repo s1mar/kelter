@@ -124,5 +124,5 @@
   ],
   "selected_score": 0.8035749106272343,
   "method": "backward-elimination",
-  "command": "python -m openverdict.ensemble_select --from E2 --name E3"
+  "command": "python -m kelter.ensemble_select --from E2 --name E3"
 }

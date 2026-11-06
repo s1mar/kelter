@@ -1,5 +1,5 @@
 {
-  "system": "openverdict:r3",
+  "system": "kelter:r3",
   "seed": 0,
   "limit": null,
   "heldout_accuracy": 0.6230769230769231,
@@ -54,7 +54,7 @@
   "witness_n_esnli": 2000,
   "anli_accuracy": 0.284,
   "seconds": 110.4,
-  "command": "python -m openverdict.eval.run --system ours --ckpt checkpoints/r3 --tag r3 --seed 0",
+  "command": "python -m kelter.eval.run --system ours --ckpt checkpoints/r3 --tag r3 --seed 0",
   "null_recall_at_5fpr_corrected": {
     "recall": 0.6459952686718486,
     "threshold": 0.5542944073677063,
@@ -103,5 +103,5 @@
       "n": 657
     }
   },
-  "command_null_corrected": "python -m openverdict.eval.run --system ours --tag r3 --null-only --ckpt checkpoints/r3"
+  "command_null_corrected": "python -m kelter.eval.run --system ours --tag r3 --null-only --ckpt checkpoints/r3"
 }

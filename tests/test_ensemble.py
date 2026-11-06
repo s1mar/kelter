@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from openverdict import ensemble as E
-from openverdict import ensemble_select as S
+from kelter import ensemble as E
+from kelter import ensemble_select as S
 
 
 def test_fit_logistic_recovers_parameters():

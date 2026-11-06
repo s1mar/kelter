@@ -20,8 +20,8 @@ import pytest
 import torch
 from transformers import ModernBertConfig
 
-from openverdict import train as T
-from openverdict.model import Featurizer, VerdictModel
+from kelter import train as T
+from kelter.model import Featurizer, VerdictModel
 
 # bf16 keeps 8 mantissa bits (relative step 2**-8 = 0.0039); summing four
 # micro-batch gradients in a different order than one batch moves each

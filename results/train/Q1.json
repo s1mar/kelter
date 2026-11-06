@@ -250,5 +250,5 @@
     }
   ],
   "train_s": 4310.7,
-  "command": "python -m openverdict.llm_train --name Q1 --base Qwen/Qwen3-4B-Instruct-2507 --cap 1600 --cap-policy 5000 --cap-score 3000 --max-len 1024 --infer-max-len 4096 --lr 0.0002 --r 16 --alpha 32 --dropout 0.05 --batch-tokens 4096 --accum 2 --warmup 0.03 --witness-ckpt checkpoints/r2 --qlora"
+  "command": "python -m kelter.llm_train --name Q1 --base Qwen/Qwen3-4B-Instruct-2507 --cap 1600 --cap-policy 5000 --cap-score 3000 --max-len 1024 --infer-max-len 4096 --lr 0.0002 --r 16 --alpha 32 --dropout 0.05 --batch-tokens 4096 --accum 2 --warmup 0.03 --witness-ckpt checkpoints/r2 --qlora"
 }

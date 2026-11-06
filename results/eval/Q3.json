@@ -1,5 +1,5 @@
 {
-  "system": "openverdict:Q3",
+  "system": "kelter:Q3",
   "seed": 0,
   "limit": null,
   "heldout_accuracy": 0.908974358974359,
@@ -102,6 +102,6 @@
   "witness_n_esnli": 2000,
   "anli_accuracy": 0.515,
   "seconds": 1153.5,
-  "command": "python -m openverdict.eval.run --system ours --ckpt checkpoints/Q3 --tag Q3 --seed 0",
+  "command": "python -m kelter.eval.run --system ours --ckpt checkpoints/Q3 --tag Q3 --seed 0",
   "prefill_chunk": 1024
 }

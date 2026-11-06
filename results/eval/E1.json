@@ -1,5 +1,5 @@
 {
-  "system": "openverdict:E1",
+  "system": "kelter:E1",
   "seed": 0,
   "limit": null,
   "heldout_accuracy": 0.6884615384615385,
@@ -101,7 +101,7 @@
   "witness_n_esnli": 2000,
   "anli_accuracy": 0.301,
   "seconds": 672.7,
-  "command": "python -m openverdict.eval.run --system ensemble --ckpt E1 --tag E1 --seed 0",
+  "command": "python -m kelter.eval.run --system ensemble --ckpt E1 --tag E1 --seed 0",
   "ece_15_before_temperature": 0.1663322514350042,
-  "command_before_temperature": "python -m openverdict.eval.run --system ensemble --tag E1 --before-temperature-only --ckpt E1"
+  "command_before_temperature": "python -m kelter.eval.run --system ensemble --tag E1 --before-temperature-only --ckpt E1"
 }

@@ -44,7 +44,7 @@
   "null_predicted_rate_answerable": 0.0,
   "anli_accuracy": 0.5145,
   "seconds": 1149.6,
-  "command": "python -m openverdict.eval.run --system laya --seed 0",
+  "command": "python -m kelter.eval.run --system laya --seed 0",
   "null_recall_at_5fpr_corrected": {
     "recall": 0.3097330179114566,
     "threshold": 0.6365000000000001,
@@ -93,5 +93,5 @@
       "n": 657
     }
   },
-  "command_null_corrected": "python -m openverdict.eval.run --system laya --tag laya --null-only"
+  "command_null_corrected": "python -m kelter.eval.run --system laya --tag laya --null-only"
 }

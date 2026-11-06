@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from openverdict.server import create_app
+from kelter.server import create_app
 from tests.fakes import FakeEngine
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -172,7 +172,7 @@ def test_json_object_state(client, engine):
     state = {"subject": "Duplicate charge", "message": "Please help", "n": 3}
     assert post(client, {"q": NOUL_Q}, state=state).status_code == 200
     rec = engine.calls[0][0]
-    from openverdict.state import render_state
+    from kelter.state import render_state
     assert rec["state"] == render_state(state)
     assert '"subject": "Duplicate charge"' in rec["state"]
     assert rec["provenance"] == [[0, len(rec["state"]), "unknown"]]
@@ -185,7 +185,7 @@ def test_array_state(client, engine):
 
 def test_record_shape(client, engine):
     post(client, {"tone": CHOICE_Q, "urgency": SCORE_Q})
-    from openverdict.data import schema
+    from kelter.data import schema
     for rec in engine.calls[0]:
         schema.validate({**rec, "gold": rec["options"][0]["name"]})  # validate() wants a gold; requests have none
         assert rec["gold"] is None and rec["null"] is False and rec["witness"] is None
@@ -219,7 +219,7 @@ def test_no_provenance_is_one_unknown_segment(client, engine):
 
 def test_provenance_over_rendered_json_state(client, engine):
     state = {"a": "x"}
-    from openverdict.state import render_state
+    from kelter.state import render_state
     n = len(render_state(state))
     assert post(client, {"q": NOUL_Q}, state=state, provenance=[{"start": 0, "end": n, "type": "tool_output"}]).status_code == 200
     assert engine.calls[0][0]["provenance"] == [[0, n, "tool_output"]]
@@ -400,7 +400,7 @@ def test_typesafe_python_sdk_against_server(live_server):
 
 def test_verdict_classes_extension_reaches_record():
     from fastapi.testclient import TestClient
-    from openverdict.server import create_app
+    from kelter.server import create_app
     from tests.fakes import FakeEngine
     eng = FakeEngine()
     c = TestClient(create_app(eng))
@@ -416,7 +416,7 @@ def test_verdict_classes_extension_reaches_record():
 
 # ------------------------------------------------------------------ variants
 def test_default_variant_is_e2():
-    from openverdict.server import DEFAULT_VARIANT, VARIANTS, resolve_variant
+    from kelter.server import DEFAULT_VARIANT, VARIANTS, resolve_variant
     assert DEFAULT_VARIANT == "default"
     assert resolve_variant() == ("default", "checkpoints/Q1")
     assert VARIANTS == {"default": "checkpoints/Q1", "lower-latency": "checkpoints/E1"}
@@ -424,7 +424,7 @@ def test_default_variant_is_e2():
 
 def test_variants_match_final_json():
     import json
-    from openverdict.server import DEFAULT_VARIANT, VARIANTS
+    from kelter.server import DEFAULT_VARIANT, VARIANTS
     fin = json.loads((ROOT / "results" / "final.json").read_text(encoding="utf-8"))
     assert {v["name"]: v["ckpt"] for v in fin["variants"]} == VARIANTS
     default = [v for v in fin["variants"] if v["role"] == "default"]
@@ -433,7 +433,7 @@ def test_variants_match_final_json():
 
 @pytest.mark.parametrize("name,ckpt", [("default", "checkpoints/Q1"), ("lower-latency", "checkpoints/E1")])
 def test_variant_named_in_every_answer(name, ckpt):
-    from openverdict.server import resolve_variant
+    from kelter.server import resolve_variant
     v, path = resolve_variant(name)
     assert (v, path) == (name, ckpt)
     assert resolve_variant(None, ckpt)[0] == name
@@ -442,7 +442,7 @@ def test_variant_named_in_every_answer(name, ckpt):
 
 
 def test_unknown_variant_and_custom_ckpt():
-    from openverdict.server import resolve_variant
+    from kelter.server import resolve_variant
     with pytest.raises(ValueError):
         resolve_variant("fastest")
     assert resolve_variant("default", "checkpoints/r5") == ("custom:r5", "checkpoints/r5")

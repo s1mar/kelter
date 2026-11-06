@@ -53,5 +53,5 @@
     "usd_per_1k": 0.05325523809523809
   },
   "under_cap": true,
-  "command": "python -m openverdict.eval.jevbench_cost results/jevbench/Q1chunk-20261104T162222Z --out results/jevbench/Q1chunk_cost.json"
+  "command": "python -m kelter.eval.jevbench_cost results/jevbench/Q1chunk-20261104T162222Z --out results/jevbench/Q1chunk_cost.json"
 }

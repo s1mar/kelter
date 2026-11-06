@@ -1,6 +1,6 @@
 """Draw docs/benchmark.svg and docs/benchmark-dark.svg from the results files.
 
-Six small panels: five metrics where openverdict's default variant (Q1) is compared
+Six small panels: five metrics where kelter's default variant (Q1) is compared
 with four other systems run through the same evaluation code on the same
 held-out sets, and the JevBench public tiers scored by JevBench's own harness.
 Every number is read from results/, never typed here.
@@ -14,10 +14,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EVAL = ROOT / "results" / "eval"
-JEVBENCH = ROOT / "results" / "jevbench" / "Q1chunk-20261104T162222Z" / "openverdict_summary.json"
+JEVBENCH = ROOT / "results" / "jevbench" / "Q1chunk-20261104T162222Z" / "kelter_summary.json"
 
 SYSTEMS = [  # (label, results tag); the first row is this repository's default variant
-    ("openverdict", "Q1"),
+    ("kelter", "Q1"),
     ("Qwen2.5-1.5B", "qwen"),
     ("Kev 0.8B", "kev"),
     ("Laya 0.4", "laya"),
@@ -101,14 +101,14 @@ def figure(theme: str) -> str:
     t = THEMES[theme]
     rows, tiers, n_heldout = load()
     parts = [f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" '
-             f'aria-label="openverdict compared with four other systems on five measures, and its JevBench public-tier accuracy">',
+             f'aria-label="kelter compared with four other systems on five measures, and its JevBench public-tier accuracy">',
              f'<rect width="{W}" height="{H}" fill="{t["surface"]}"/>',
-             text(LEFT, 36, "openverdict against four other systems, same questions, same scoring code", 20, t["ink"], weight="600"),
+             text(LEFT, 36, "kelter against four other systems, same questions, same scoring code", 20, t["ink"], weight="600"),
              text(LEFT, 58, f"{n_heldout:,} held-out questions from sources none of the systems trained on: CLINC150 intents, ARC-Challenge science questions, synthetic policy tasks.", 12, t["ink2"]),
              text(LEFT, 75, "The other systems run zero-shot; the TF-IDF model is trained on our training split. All five are scored by the same code.", 12, t["ink2"]),
              # legend
              f'<rect x="{LEFT}" y="88" width="12" height="12" rx="2" fill="{t["ours"]}"/>',
-             text(LEFT + 18, 98, "openverdict, default variant", 12, t["ink2"]),
+             text(LEFT + 18, 98, "kelter, default variant", 12, t["ink2"]),
              f'<rect x="{LEFT + 196}" y="88" width="12" height="12" rx="2" fill="{t["others"]}"/>',
              text(LEFT + 214, 98, "other systems", 12, t["ink2"])]
     for k, (title, subtitle, get, higher) in enumerate(PANELS):

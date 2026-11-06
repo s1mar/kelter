@@ -1,6 +1,6 @@
 # TypeSafe `/v1/systemone` wire contract
 
-Pinned for `openverdict/server.py`. Source keys used below:
+Pinned for `kelter/server.py`. Source keys used below:
 
 - **OAS** = https://api.typesafe.ai/openapi.json (version 0.2.0; the file docs.typesafe.ai renders its API reference from). Fetched raw.
 - **API** = https://docs.typesafe.ai/api/system-one.md, `/api/list-models.md`, `/api/errors.md`. Fetched raw.
@@ -29,7 +29,7 @@ Where sources disagree, docs.typesafe.ai (OAS, API, PRIM, CONF) wins.
 | Field | Type | Required | Meaning | Source |
 | - | - | - | - | - |
 | `model` | string | yes | Model name or alias (`jev-latest`, `jev-1.14.0`). | OAS |
-| `state` | string, object or array | yes | Content all questions refer to. We render non-strings with `openverdict.state.render_state` (indented JSON). | OAS |
+| `state` | string, object or array | yes | Content all questions refer to. We render non-strings with `kelter.state.render_state` (indented JSON). | OAS |
 | `questions` | object, at least 1 entry | yes | Keyed by a question id the caller chooses. The id is not sent to the model. | OAS, PRIM |
 | `questions.<id>.type` | `"noul"`, `"choice"`, `"score"` (also `"box"`, unsupported here) | yes | Discriminator. | OAS |
 | `questions.<id>.instructions` | string, object or array (nullable in OAS) | optional in OAS | What to decide. | OAS |

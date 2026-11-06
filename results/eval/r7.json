@@ -1,5 +1,5 @@
 {
-  "system": "openverdict:r7",
+  "system": "kelter:r7",
   "seed": 0,
   "limit": null,
   "heldout_accuracy": 0.6307692307692307,
@@ -102,5 +102,5 @@
   "witness_n_esnli": 2000,
   "anli_accuracy": 0.2885,
   "seconds": 127.3,
-  "command": "python -m openverdict.eval.run --system ours --ckpt checkpoints/r7 --tag r7 --seed 0"
+  "command": "python -m kelter.eval.run --system ours --ckpt checkpoints/r7 --tag r7 --seed 0"
 }

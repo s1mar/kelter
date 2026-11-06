@@ -1,6 +1,6 @@
 """Offline unit tests for the row-to-record mappings of converters group A."""
-from openverdict.data.converters import banking77, boolq, civil_comments, clinc150, massive, paws
-from openverdict.data.schema import validate
+from kelter.data.converters import banking77, boolq, civil_comments, clinc150, massive, paws
+from kelter.data.schema import validate
 
 BANK_NAMES = ["activate_my_card", "age_limit", "apple_pay_or_google_pay"]
 CLINC_NAMES = ["alarm_set", "oos", "time_zone"]

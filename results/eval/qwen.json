@@ -44,7 +44,7 @@
   "null_predicted_rate_answerable": 0.0,
   "anli_accuracy": 0.4205,
   "seconds": 2367.7,
-  "command": "python -m openverdict.eval.run --system qwen --seed 0",
+  "command": "python -m kelter.eval.run --system qwen --seed 0",
   "null_recall_at_5fpr_corrected": {
     "recall": 0.43832375802636026,
     "threshold": 0.4972582860659357,
@@ -93,5 +93,5 @@
       "n": 657
     }
   },
-  "command_null_corrected": "python -m openverdict.eval.run --system qwen --tag qwen --null-only"
+  "command_null_corrected": "python -m kelter.eval.run --system qwen --tag qwen --null-only"
 }

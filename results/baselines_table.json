@@ -1,7 +1,7 @@
 {
   "rows": [
     {
-      "label": "openverdict r2 (ModernBERT-base, this repo)",
+      "label": "kelter r2 (ModernBERT-base, this repo)",
       "tag": "r2",
       "heldout_accuracy": 0.6705128205128205,
       "ece_15": 0.04030720170218484,
@@ -32,7 +32,7 @@
       "witness_necessity_esnli": 0.9708904109589042,
       "random_mask_flip_esnli": 0.22659817351598174,
       "anli_accuracy": 0.301,
-      "command": "python -m openverdict.eval.run --system ours --ckpt checkpoints/r2 --tag r2 --seed 0"
+      "command": "python -m kelter.eval.run --system ours --ckpt checkpoints/r2 --tag r2 --seed 0"
     },
     {
       "label": "TF-IDF pairwise logistic regression (trained on our train split)",
@@ -66,7 +66,7 @@
       "witness_necessity_esnli": null,
       "random_mask_flip_esnli": null,
       "anli_accuracy": 0.317,
-      "command": "python -m openverdict.eval.run --system tfidf --seed 0"
+      "command": "python -m kelter.eval.run --system tfidf --seed 0"
     },
     {
       "label": "Laya 0.4.15 (convaiinnovations/laya, zero-shot on our sets)",
@@ -100,7 +100,7 @@
       "witness_necessity_esnli": null,
       "random_mask_flip_esnli": null,
       "anli_accuracy": 0.5145,
-      "command": "python -m openverdict.eval.run --system laya --seed 0"
+      "command": "python -m kelter.eval.run --system laya --seed 0"
     },
     {
       "label": "Kev 0.8B (jaredpalmer/kev-0.8b @9a45d25, zero-shot on our sets)",
@@ -134,7 +134,7 @@
       "witness_necessity_esnli": null,
       "random_mask_flip_esnli": null,
       "anli_accuracy": 0.36,
-      "command": "python -m openverdict.eval.run --system kev --seed 0"
+      "command": "python -m kelter.eval.run --system kev --seed 0"
     },
     {
       "label": "Qwen2.5-1.5B-Instruct letter logprobs, 4-rotation averaging",
@@ -168,7 +168,7 @@
       "witness_necessity_esnli": null,
       "random_mask_flip_esnli": null,
       "anli_accuracy": 0.4205,
-      "command": "python -m openverdict.eval.run --system qwen --seed 0"
+      "command": "python -m kelter.eval.run --system qwen --seed 0"
     }
   ],
   "quoted": [

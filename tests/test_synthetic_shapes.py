@@ -1,4 +1,4 @@
-"""Offline tests for openverdict.data.synthetic_shapes."""
+"""Offline tests for kelter.data.synthetic_shapes."""
 import json
 import re
 import statistics
@@ -6,8 +6,8 @@ from collections import Counter
 
 import pytest
 
-from openverdict.data import synthetic_shapes as ss
-from openverdict.data.schema import validate
+from kelter.data import synthetic_shapes as ss
+from kelter.data.schema import validate
 
 N = 300
 

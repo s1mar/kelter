@@ -1,6 +1,6 @@
 # What the metrics measure
 
-All of these are computed by `openverdict/eval/run.py`, `engine_eval.py` and `latency.py` on the held-out sets, and written to `results/eval/`. The held-out sources (CLINC150, ARC-Challenge and the synthetic "sharing" policy family) were never used for training; a calibration split of the same sources is used to fit temperatures and conformal thresholds, and the test split is evaluated once per run.
+All of these are computed by `kelter/eval/run.py`, `engine_eval.py` and `latency.py` on the held-out sets, and written to `results/eval/`. The held-out sources (CLINC150, ARC-Challenge and the synthetic "sharing" policy family) were never used for training; a calibration split of the same sources is used to fit temperatures and conformal thresholds, and the test split is evaluated once per run.
 
 ## Answers
 

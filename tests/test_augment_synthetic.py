@@ -1,13 +1,13 @@
-"""Offline tests for openverdict.data.synthetic and openverdict.data.augment."""
+"""Offline tests for kelter.data.synthetic and kelter.data.augment."""
 import copy
 import random
 from collections import Counter
 
 import pytest
 
-from openverdict.data import augment as A
-from openverdict.data import synthetic as S
-from openverdict.data.schema import options_from_criteria, validate
+from kelter.data import augment as A
+from kelter.data import synthetic as S
+from kelter.data.schema import options_from_criteria, validate
 
 POOL = [{"name": "maybe", "description": "Cannot tell from the text."},
         {"name": "other", "description": "None of the above."},

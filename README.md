@@ -1,4 +1,4 @@
-# openverdict
+# kelter
 
 A small decision model you run on your own machine. Give it a piece of text and a multiple-choice question, and it returns an answer, a calibrated probability for each option, the passages that support the answer, how likely it is that no option fits, and whether you should act on the answer or hand the question to something bigger.
 
@@ -8,7 +8,7 @@ The server speaks the same `/v1/systemone` API as TypeSafe's Jev, so clients wri
 
 ## What it does
 
-Agents and apps make small decisions all the time: is this ticket about billing, is this command safe to run, how urgent is this message. A large model can answer, but slowly, at a cost per call, and with confidence numbers that are often wrong. openverdict is built for exactly these decisions:
+Agents and apps make small decisions all the time: is this ticket about billing, is this command safe to run, how urgent is this message. A large model can answer, but slowly, at a cost per call, and with confidence numbers that are often wrong. kelter is built for exactly these decisions:
 
 - **Calibrated.** When it says 90%, it is right about 90% of the time (expected calibration error 0.017 on held-out data).
 - **Shows its evidence.** Every answer comes with the spans of the input it relied on, and a check that masking those spans changes the answer.
@@ -20,23 +20,23 @@ Agents and apps make small decisions all the time: is this ticket about billing,
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/benchmark-dark.svg">
-  <img alt="openverdict against four other systems on accuracy, calibration error, order sensitivity, injection success and null detection, plus its JevBench public-tier accuracy" src="docs/benchmark.svg" width="960">
+  <img alt="kelter against four other systems on accuracy, calibration error, order sensitivity, injection success and null detection, plus its JevBench public-tier accuracy" src="docs/benchmark.svg" width="960">
 </picture>
 
-openverdict answers more held-out questions correctly than the other small systems, is better calibrated, does not change its answer when the options are reordered, is far harder to steer with injected text, and catches most questions that have no right answer. On JevBench's public tiers it scores 0.944 (original), 0.568 (hard) and 0.958 (easy), 0.766 pooled. The figure is drawn from the results files by `scripts/make_benchmark_figure.py`; the numbers behind it are in [docs/results.md](docs/results.md) and `results/baselines_table.md`.
+kelter answers more held-out questions correctly than the other small systems, is better calibrated, does not change its answer when the options are reordered, is far harder to steer with injected text, and catches most questions that have no right answer. On JevBench's public tiers it scores 0.944 (original), 0.568 (hard) and 0.958 (easy), 0.766 pooled. The figure is drawn from the results files by `scripts/make_benchmark_figure.py`; the numbers behind it are in [docs/results.md](docs/results.md) and `results/baselines_table.md`.
 
 ## Quick start
 
 Windows or Linux with an NVIDIA GPU with 12 GB of memory, or a Mac with Apple Silicon (slower, untested). Python 3.12.
 
 ```bash
-git clone https://github.com/s1mar/openverdict.git
-cd openverdict
+git clone https://github.com/s1mar/kelter.git
+cd kelter
 python -m venv .venv
 .venv/Scripts/python -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
 .venv/Scripts/python -m pip install -r requirements.txt
 .venv/Scripts/python scripts/download_weights.py
-.venv/Scripts/python -m openverdict.server --port 8765
+.venv/Scripts/python -m kelter.server --port 8765
 ```
 
 On Linux and macOS use `.venv/bin/python`. On a Mac, install torch from PyPI without the CUDA index. The weights download is about 740 MB for the default model (the adapter and the encoder). The first start also downloads the Qwen3-4B base model from Hugging Face, about 8 GB, pinned to the revision named in the checkpoint; later starts use the local copy.
@@ -91,26 +91,26 @@ One model pass scores the options, and the encoder points at the evidence spans.
 
 The main pieces:
 
-- `openverdict/llm.py`: the Qwen predictor, its prompt and the letter readout.
-- `openverdict/model.py`: the encoder with option, witness and null heads.
-- `openverdict/engine.py`: the four-pass verifier and the action rule.
-- `openverdict/server.py`: the FastAPI server.
-- `openverdict/data/`: dataset converters, the synthetic policy tasks and the corpus builder.
-- `openverdict/llm_train.py`, `train.py`, `calibrate.py`, `ensemble.py`: adapter training, encoder training, calibration and the ensembles.
-- `openverdict/eval/`: the evaluation harness, baselines, latency and the JevBench runner.
+- `kelter/llm.py`: the Qwen predictor, its prompt and the letter readout.
+- `kelter/model.py`: the encoder with option, witness and null heads.
+- `kelter/engine.py`: the four-pass verifier and the action rule.
+- `kelter/server.py`: the FastAPI server.
+- `kelter/data/`: dataset converters, the synthetic policy tasks and the corpus builder.
+- `kelter/llm_train.py`, `train.py`, `calibrate.py`, `ensemble.py`: adapter training, encoder training, calibration and the ensembles.
+- `kelter/eval/`: the evaluation harness, baselines, latency and the JevBench runner.
 
 ## Training it yourself
 
 Training needs an NVIDIA GPU with 12 GB or more. The adapter trains in 4-bit (QLoRA) on a 24,000-record sample of the corpus in a little over an hour on a laptop GPU.
 
 ```bash
-python -m openverdict.data.build
-python -m openverdict.llm_train --name Q1 --qlora
-python -m openverdict.calibrate --ckpt checkpoints/Q1
-python -m openverdict.eval.run --system ours --ckpt checkpoints/Q1 --tag Q1
+python -m kelter.data.build
+python -m kelter.llm_train --name Q1 --qlora
+python -m kelter.calibrate --ckpt checkpoints/Q1
+python -m kelter.eval.run --system ours --ckpt checkpoints/Q1 --tag Q1
 ```
 
-The first command downloads the public datasets listed in `THIRD-PARTY.md` and writes `data/built/` and a data card under `docs/data_cards/`. The encoder checkpoints train with `python -m openverdict.train --run r1 --epochs 1 --max-tokens 8192`; `docs/results.md` lists every run and `docs/data_cards/` records what each trained on.
+The first command downloads the public datasets listed in `THIRD-PARTY.md` and writes `data/built/` and a data card under `docs/data_cards/`. The encoder checkpoints train with `python -m kelter.train --run r1 --epochs 1 --max-tokens 8192`; `docs/results.md` lists every run and `docs/data_cards/` records what each trained on.
 
 ## Limitations
 

@@ -44,7 +44,7 @@
   "null_predicted_rate_answerable": 0.0,
   "anli_accuracy": 0.317,
   "seconds": 93.1,
-  "command": "python -m openverdict.eval.run --system tfidf --seed 0",
+  "command": "python -m kelter.eval.run --system tfidf --seed 0",
   "null_recall_at_5fpr_corrected": {
     "recall": 0.05204460966542751,
     "threshold": 0.8341635265861405,
@@ -93,5 +93,5 @@
       "n": 657
     }
   },
-  "command_null_corrected": "python -m openverdict.eval.run --system tfidf --tag tfidf --null-only"
+  "command_null_corrected": "python -m kelter.eval.run --system tfidf --tag tfidf --null-only"
 }

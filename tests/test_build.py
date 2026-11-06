@@ -1,8 +1,8 @@
 """Build helpers."""
 import random
 
-from openverdict.data import build
-from openverdict.data.schema import options_from_criteria, validate
+from kelter.data import build
+from kelter.data.schema import options_from_criteria, validate
 
 
 def _rec(i, source="banking77", state=None, n_opts=20, gold="o0"):
@@ -38,7 +38,7 @@ def test_swap_state_is_null():
 
 
 def test_synthetic_score_levels_and_validity():
-    from openverdict.data import synthetic_score as ss
+    from kelter.data import synthetic_score as ss
     assert ss.priority_level(False, False, 1, True) == 0
     assert ss.priority_level(False, False, 1, False) == 1
     assert ss.priority_level(False, False, 5, True) == 1
@@ -57,7 +57,7 @@ def test_synthetic_score_levels_and_validity():
 
 
 def test_civil_to_score_bins():
-    from openverdict.data import synthetic_score as ss
+    from kelter.data import synthetic_score as ss
     base = {"id": "c-1", "source": "civil_comments", "split": "train", "state": "hi",
             "provenance": [[0, 2, "user"]],
             "question": {"type": "noul", "instructions": "Toxic?", "criteria": {"true": "t", "false": "f"}},

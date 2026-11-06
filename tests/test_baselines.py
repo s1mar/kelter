@@ -1,9 +1,9 @@
 """Offline tests for the baseline adapters: no downloads, no models."""
 import numpy as np
 
-from openverdict.eval.baselines.qwen_logprob import (
+from kelter.eval.baselines.qwen_logprob import (
     aggregate_rotations, letter_probs, n_rotations, rotation_order)
-from openverdict.eval.baselines.tfidf import TfidfAdapter, softmax_groups
+from kelter.eval.baselines.tfidf import TfidfAdapter, softmax_groups
 
 
 def _rec(i, state, instr, opts, gold):

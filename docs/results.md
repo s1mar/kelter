@@ -33,10 +33,10 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | Latency, one forward, 1095-token sequence, GPU p50 / p95 ms | 372.8 / 380.5 | results/eval/latency_Q1.json |
 | Latency, full engine decision (4 passes), GPU p50 / p95 ms | 542.4 / 548.4 | results/eval/latency_Q1.json |
 | Latency, CPU int8 forward / engine p50 ms | 7230 / 11471 | results/eval/latency_Q1.json |
-| JevBench public, original tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 72 of 72) | 0.944 / 0.944 / 0.097 / 0.054 | results/jevbench/Q1chunk-20261104T162222Z/openverdict_summary.json |
-| JevBench public, hard tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 111 of 111) | 0.568 / 0.630 / 0.558 / 0.124 | results/jevbench/Q1chunk-20261104T162222Z/openverdict_summary.json |
-| JevBench public, easy tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 48 of 48) | 0.958 / 0.958 / 0.050 / 0.038 | results/jevbench/Q1chunk-20261104T162222Z/openverdict_summary.json |
-| JevBench public, per-request latency p50 / p95 s by tier: original, hard, easy | 0.119 / 0.164, 0.455 / 1.783, 0.135 / 0.159 | results/jevbench/Q1chunk-20261104T162222Z/openverdict_summary.json |
+| JevBench public, original tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 72 of 72) | 0.944 / 0.944 / 0.097 / 0.054 | results/jevbench/Q1chunk-20261104T162222Z/kelter_summary.json |
+| JevBench public, hard tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 111 of 111) | 0.568 / 0.630 / 0.558 / 0.124 | results/jevbench/Q1chunk-20261104T162222Z/kelter_summary.json |
+| JevBench public, easy tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 48 of 48) | 0.958 / 0.958 / 0.050 / 0.038 | results/jevbench/Q1chunk-20261104T162222Z/kelter_summary.json |
+| JevBench public, per-request latency p50 / p95 s by tier: original, hard, easy | 0.119 / 0.164, 0.455 / 1.783, 0.135 / 0.159 | results/jevbench/Q1chunk-20261104T162222Z/kelter_summary.json |
 | JevBench public, pooled 231 items: correct / latency p50 s / latency max s | 177 / 0.147 / 2.15 | results/jevbench/Q1chunk_cost.json |
 | JevBench public, mean reported input tokens per decision (all engine passes) / cost per 1,000 decisions at USD 0.04 per million tokens | 1331.4 / USD 0.0533 | results/jevbench/Q1chunk_cost.json |
 | JevBench public, hard tier: accuracy / mean top probability | 0.568 / 0.657 | results/jevbench/Q1chunk_cost.json |
@@ -69,9 +69,9 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | Latency, one forward, 1068-token sequence, GPU p50 / p95 ms | 85.9 / 87.7 | results/eval/latency_E1.json |
 | Latency, full engine decision (4 passes), GPU p50 / p95 ms | 149.0 / 154.0 | results/eval/latency_E1.json |
 | Latency, CPU int8 forward / engine p50 ms | 2177 / 3067 | results/eval/latency_E1.json |
-| JevBench public, original tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 72 of 72) | 0.444 / 0.444 / 0.608 / 0.208 | results/jevbench/E1-20261030T212239Z/openverdict_summary.json |
-| JevBench public, hard tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 111 of 111) | 0.360 / 0.369 / 0.786 / 0.224 | results/jevbench/E1-20261030T212239Z/openverdict_summary.json |
-| JevBench public, easy tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 48 of 48) | 0.896 / 0.896 / 0.252 / 0.201 | results/jevbench/E1-20261030T212239Z/openverdict_summary.json |
+| JevBench public, original tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 72 of 72) | 0.444 / 0.444 / 0.608 / 0.208 | results/jevbench/E1-20261030T212239Z/kelter_summary.json |
+| JevBench public, hard tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 111 of 111) | 0.360 / 0.369 / 0.786 / 0.224 | results/jevbench/E1-20261030T212239Z/kelter_summary.json |
+| JevBench public, easy tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 48 of 48) | 0.896 / 0.896 / 0.252 / 0.201 | results/jevbench/E1-20261030T212239Z/kelter_summary.json |
 | JevBench v1.4 composite | not computable locally: it needs the sealed tier and a hosted cost basis | third_party/jevbench/jevbench/composite_v14.py |
 
 ## All measured runs
@@ -98,7 +98,7 @@ The two served variants, the earlier default E3, the member checkpoints and ever
 | rL10 | 0.646 | 0.044 | 0.000 | 0.100 | 0.034 | 0.072 | 0.694 | 0.679 | 0.958 / 0.249 | n/a | n/a | n/a | results/eval/rL10.json |
 | rL11 | 0.527 | 0.063 | 0.000 | 0.115 | 0.085 | 0.242 | 0.431 | 0.510 | 0.968 / 0.255 | n/a | n/a | n/a | results/eval/rL11.json |
 
-JevBench columns for Q2 and Q3 come from `results/jevbench/Q2-20261104T140620Z/openverdict_summary.json` and `results/jevbench/Q3-20261104T230135Z/openverdict_summary.json`.
+JevBench columns for Q2 and Q3 come from `results/jevbench/Q2-20261104T140620Z/kelter_summary.json` and `results/jevbench/Q3-20261104T230135Z/kelter_summary.json`.
 
 The two Qwen rows that did not become the default: Q2 trained on the larger r5 corpus (with the synthetic shapes tasks) and 2048-token prompts, and lost on the hard tier. Q3 is Q1's recipe with 15% of the training records padded with unrelated passages to 846 to 2,786 tokens, to train length handling; it held the held-out numbers but was lower on every JevBench tier and more overconfident on the hard tier (mean top probability 0.734 against accuracy 0.541). Q1 stays the default.
 

@@ -31,5 +31,5 @@
     "mean": 11475.754300015979,
     "n": 5
   },
-  "command": "python -m openverdict.eval.latency --ckpt checkpoints/Q1 --runs 50 --cpu-int8"
+  "command": "python -m kelter.eval.latency --ckpt checkpoints/Q1 --runs 50 --cpu-int8"
 }

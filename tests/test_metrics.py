@@ -3,7 +3,7 @@ import math
 import numpy as np
 import pytest
 
-from openverdict.eval import metrics as m
+from kelter.eval import metrics as m
 
 
 # ---------------------------------------------------------------- accuracy

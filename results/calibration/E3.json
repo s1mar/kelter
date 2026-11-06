@@ -23,5 +23,5 @@
     "mcq": 723
   },
   "ckpt": "checkpoints/E3",
-  "command": "python -m openverdict.calibrate --ckpt checkpoints/E3"
+  "command": "python -m kelter.calibrate --ckpt checkpoints/E3"
 }

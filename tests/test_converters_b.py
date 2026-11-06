@@ -3,8 +3,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from openverdict.data.converters import anli, arc, esnli, mmlu, mnli, squad2
-from openverdict.data.schema import validate
+from kelter.data.converters import anli, arc, esnli, mmlu, mnli, squad2
+from kelter.data.schema import validate
 
 
 # ---------------------------------------------------------------- NLI

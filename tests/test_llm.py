@@ -1,5 +1,5 @@
 """Pure helpers of the LLM-backed predictor; no model loaded."""
-from openverdict.llm import LETTERS, NULL_TEXT, gold_slot, show_order, user_text
+from kelter.llm import LETTERS, NULL_TEXT, gold_slot, show_order, user_text
 
 
 def _rec(qtype="choice", null=False, gold="b"):

@@ -1,15 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="960" height="576" viewBox="0 0 960 576" role="img" aria-label="openverdict compared with four other systems on five measures, and its JevBench public-tier accuracy">
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="576" viewBox="0 0 960 576" role="img" aria-label="kelter compared with four other systems on five measures, and its JevBench public-tier accuracy">
 <rect width="960" height="576" fill="#1a1a19"/>
-<text x="24.0" y="36.0" font-size="20" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict against four other systems, same questions, same scoring code</text>
+<text x="24.0" y="36.0" font-size="20" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">kelter against four other systems, same questions, same scoring code</text>
 <text x="24.0" y="58.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">3,120 held-out questions from sources none of the systems trained on: CLINC150 intents, ARC-Challenge science questions, synthetic policy tasks.</text>
 <text x="24.0" y="75.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">The other systems run zero-shot; the TF-IDF model is trained on our training split. All five are scored by the same code.</text>
 <rect x="24" y="88" width="12" height="12" rx="2" fill="#3987e5"/>
-<text x="42.0" y="98.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict, default variant</text>
+<text x="42.0" y="98.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">kelter, default variant</text>
 <rect x="220" y="88" width="12" height="12" rx="2" fill="#76746e"/>
 <text x="238.0" y="98.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">other systems</text>
 <text x="24.0" y="126.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Accuracy  (higher is better)</text>
 <text x="24.0" y="142.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">share of held-out questions answered correctly</text>
-<text x="128.0" y="167.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<text x="128.0" y="167.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">kelter</text>
 <path d="M136.0,156.0 H263.4 Q267.4,156.0 267.4,160.0 V166.0 Q267.4,170.0 263.4,170.0 H136.0 Z" fill="#3987e5"/>
 <text x="273.4" y="167.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.91</text>
 <text x="128.0" y="193.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
@@ -27,7 +27,7 @@
 <line x1="136" y1="152" x2="136" y2="278" stroke="#383835" stroke-width="1"/>
 <text x="336.0" y="126.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Calibration error  (lower is better)</text>
 <text x="336.0" y="142.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">expected calibration error, 15 bins</text>
-<text x="440.0" y="167.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<text x="440.0" y="167.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">kelter</text>
 <path d="M448.0,156.0 H448.0 Q450.4,156.0 450.4,158.4 V167.6 Q450.4,170.0 448.0,170.0 H448.0 Z" fill="#3987e5"/>
 <text x="456.4" y="167.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.02</text>
 <text x="440.0" y="193.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
@@ -45,7 +45,7 @@
 <line x1="448" y1="152" x2="448" y2="278" stroke="#383835" stroke-width="1"/>
 <text x="648.0" y="126.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Order sensitivity  (lower is better)</text>
 <text x="648.0" y="142.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">answers that change when options are reordered</text>
-<text x="752.0" y="167.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<text x="752.0" y="167.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">kelter</text>
 <text x="766.0" y="167.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.00</text>
 <text x="752.0" y="193.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
 <path d="M760.0,182.0 H766.1 Q770.1,182.0 770.1,186.0 V192.0 Q770.1,196.0 766.1,196.0 H760.0 Z" fill="#76746e"/>
@@ -62,7 +62,7 @@
 <line x1="760" y1="152" x2="760" y2="278" stroke="#383835" stroke-width="1"/>
 <text x="24.0" y="342.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Injection success  (lower is better)</text>
 <text x="24.0" y="358.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">answers moved by a forged instruction in the text</text>
-<text x="128.0" y="383.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<text x="128.0" y="383.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">kelter</text>
 <path d="M136.0,372.0 H136.0 Q136.6,372.0 136.6,372.6 V385.4 Q136.6,386.0 136.0,386.0 H136.0 Z" fill="#3987e5"/>
 <text x="142.6" y="383.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.00</text>
 <text x="128.0" y="409.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
@@ -80,7 +80,7 @@
 <line x1="136" y1="368" x2="136" y2="494" stroke="#383835" stroke-width="1"/>
 <text x="336.0" y="342.0" font-size="14" fill="#f0efec" text-anchor="start" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Null detection  (higher is better)</text>
 <text x="336.0" y="358.0" font-size="11" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">unanswerable questions caught at 5% false positives</text>
-<text x="440.0" y="383.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">openverdict</text>
+<text x="440.0" y="383.0" font-size="12" fill="#f0efec" text-anchor="end" font-weight="600" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">kelter</text>
 <path d="M448.0,372.0 H583.4 Q587.4,372.0 587.4,376.0 V382.0 Q587.4,386.0 583.4,386.0 H448.0 Z" fill="#3987e5"/>
 <text x="593.4" y="383.0" font-size="12" fill="#c3c2b7" text-anchor="start" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">0.97</text>
 <text x="440.0" y="409.0" font-size="12" fill="#c3c2b7" text-anchor="end" font-weight="normal" font-family="system-ui, -apple-system, &quot;Segoe UI&quot;, sans-serif">Qwen2.5-1.5B</text>
