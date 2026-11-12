@@ -45,6 +45,7 @@ Then ask it something:
 
 ```bash
 curl -s http://127.0.0.1:8765/v1/systemone -H "Content-Type: application/json" -d '{
+  "model": "kelter",
   "state": "I was charged twice for my subscription this month. Please refund the extra charge.",
   "questions": {
     "tone":    {"type": "choice", "instructions": "What is the tone?",
@@ -67,7 +68,9 @@ Each answer has the standard TypeSafe fields (the chosen option, a probability p
 | `set`, `coverage_level` | the options that cannot be ruled out at 95% coverage |
 | `receipt`, `variant` | a record of the decision and which model answered |
 
-Clients that do not know these fields ignore them. To tag provenance, add a `provenance` list of `{"start", "end", "type"}` character ranges to the request; types are `user`, `tool_output`, `retrieved_doc`, `system` and `unknown`. The full field-by-field contract is in `docs/typesafe-contract.md`.
+The `model` field is required by the API and can be any name. Clients that do not know the extra fields ignore them.
+
+The action is strict. It is `act` only when the evidence is admissible and masking it changes the answer, so text with no provenance tags, or text that states the same thing twice, comes back as `defer` even at high confidence. The `verifier` field says which check held it back. To tag provenance, add a `provenance` list of `{"start", "end", "type"}` character ranges to the request; types are `user`, `tool_output`, `retrieved_doc`, `system` and `unknown`. The full field-by-field contract is in `docs/typesafe-contract.md`.
 
 ## Two variants
 
@@ -116,7 +119,7 @@ The first command downloads the public datasets listed in `THIRD-PARTY.md` and w
 
 - JevBench's hard tier is the weak spot: accuracy 0.568, and the model is overconfident there (mean top probability 0.657). The two padding and long-context training rounds tried so far did not improve it; they are recorded in `docs/results.md`.
 - Null recall is reported on two test sets. The corrected set was defined after looking at test diagnostics; the original set gives 0.960.
-- The action rule is conservative and its thresholds were not tuned, so it defers most held-out questions.
+- The action rule is conservative and its thresholds were not tuned, so it defers most held-out questions, and it defers every request that carries no provenance tags. Treat `act` as a strong signal and `defer` as the default, not as a judgment that the answer is wrong.
 - The default variant needs a GPU: the engine's four passes take 11.5 s on CPU with int8 quantization. The lower-latency variant runs on CPU in about 3 s.
 - Calibration on JevBench's public tiers is worse than on our held-out data (ECE 0.038 to 0.124 by tier); the temperature was fitted on different kinds of text.
 - Latency was measured on one laptop GPU shared with the desktop, in its highest power mode.
