@@ -101,3 +101,21 @@ def test_preflight_pass_clean_and_mismatch(tmp_path, monkeypatch):
     monkeypatch.setattr(pf, "_hash_cached", lambda p: "a" * 64)
     monkeypatch.setattr(pf, "_hash_unbuffered", lambda p: "b" * 64)
     assert pf.one_pass([f]) == [{"file": str(f), "cached": "a" * 12, "disk": "b" * 12}]
+
+
+def test_sentinel_missing_is_one_line(tmp_path, monkeypatch, capsys):
+    """A missing sentinel file or model_hash turns the check off with one line instead of a raw error."""
+    import json
+    import kelter.llm_train as lt
+    monkeypatch.setattr(lt, "ROOT", tmp_path)
+    assert lt.resolve_sentinel("") == (None, None)
+    assert lt.resolve_sentinel("checkpoints/r2/model.pt") == (None, None)
+    out = capsys.readouterr().out
+    assert out.count(chr(10)) == 1 and "corruption check off" in out and "--sentinel ''" in out
+    d = tmp_path / "checkpoints" / "r2"
+    d.mkdir(parents=True)
+    (d / "config.json").write_text(json.dumps({"other": 1}), encoding="utf-8")
+    (d / "model.pt").write_bytes(b"x")
+    assert lt.resolve_sentinel("checkpoints/r2/model.pt") == (None, None)
+    (d / "config.json").write_text(json.dumps({"model_hash": "ab"}), encoding="utf-8")
+    assert lt.resolve_sentinel("checkpoints/r2/model.pt") == (d / "model.pt", "ab")

@@ -154,6 +154,23 @@ def sentinel_probe(path: Path, expected: str) -> dict:
     return rec
 
 
+def resolve_sentinel(rel: str):
+    """The sentinel file and its recorded sha256 (model_hash in the config.json beside it), or (None, None) with one
+    printed line when either is missing, so a fresh checkout trains without the corruption check."""
+    if not rel:
+        return None, None
+    path = ROOT / rel
+    try:
+        h = json.loads((path.parent / "config.json").read_text(encoding="utf-8"))["model_hash"]
+        if not path.is_file():
+            raise FileNotFoundError(rel)
+    except (FileNotFoundError, KeyError, json.JSONDecodeError):
+        print(f"corruption check off: {rel} or the model_hash in its config.json is missing; "
+              "point --sentinel at a file with a recorded sha256 to turn it on, or pass --sentinel '' to silence this")
+        return None, None
+    return path, h
+
+
 def sentinel_check(path: Path, expected: str) -> bool:
     """Re-hash a fixed file; a mismatch means memory or disk returned bad data."""
     return _hash_cached(path) == expected
@@ -280,8 +297,7 @@ def main(argv=None) -> int:
     model.train()
     log, t0, run_loss, run_n, step = [], time.time(), 0.0, 0, 0
     state_path = ROOT / "checkpoints" / args.name / "resume" / "state.pt"
-    sent_path = ROOT / args.sentinel if args.sentinel else None
-    sent_hash = json.loads((sent_path.parent / "config.json").read_text(encoding="utf-8"))["model_hash"] if sent_path else None
+    sent_path, sent_hash = resolve_sentinel(args.sentinel)
     if sent_path:
         pr = sentinel_probe(sent_path, sent_hash)
         if not pr["ok"]:
