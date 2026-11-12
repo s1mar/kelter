@@ -252,6 +252,39 @@ def resolve_variant(variant: Optional[str] = None, ckpt: Optional[str] = None) -
     return name, VARIANTS[name]
 
 
+class MissingWeights(SystemExit):
+    """Raised before loading when a checkpoint's files are absent, with what to do next."""
+
+
+def check_weights(ckpt: str, root: Optional[Path] = None) -> None:
+    """A one-line error naming the missing files and the next step, instead of a traceback."""
+    if ckpt.startswith("qwen:"):
+        return
+    base = Path(root) if root else Path.cwd()
+    ck = Path(ckpt) if Path(ckpt).is_absolute() else base / ckpt
+    missing = []
+
+    def shown(x: Path) -> str:
+        try:
+            return x.relative_to(base).as_posix()
+        except ValueError:
+            return x.as_posix()
+
+    cfg = ck / "config.json"
+    if not cfg.exists():
+        missing.append(shown(ck / "config.json"))
+    else:
+        c = json.loads(cfg.read_text(encoding="utf-8"))
+        if "llm" in c and not (ck / "adapter").exists():
+            missing.append(shown(ck / "adapter"))
+        wit = c.get("witness_ckpt")
+        if wit and not ((base / wit) / "config.json").exists():
+            missing.append(shown(base / wit / "config.json"))
+    if missing:
+        raise MissingWeights(f"kelter: weights not found ({', '.join(missing)}). Download the release weights into "
+                             f"checkpoints/ as the README's quick start says, or pass --ckpt <checkpoint dir>.")
+
+
 def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
     app = FastAPI(title="kelter", description="TypeSafe System One compatible server")
     lock = threading.Lock()  # one decide() at a time; the engine owns the GPU
@@ -319,6 +352,7 @@ class _LazyApp:
             if self._app is None:
                 from kelter.engine import load_engine  # lazy: tests never import it
                 name, ckpt = resolve_variant(os.environ.get("KELTER_VARIANT"), os.environ.get("KELTER_CKPT"))
+                check_weights(ckpt)
                 self._app = create_app(load_engine(ckpt), name)
             return self._app
 
@@ -340,6 +374,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     from kelter.engine import load_engine
     import uvicorn
     name, ckpt = resolve_variant(args.variant, args.ckpt)
+    check_weights(ckpt)
     uvicorn.run(create_app(load_engine(ckpt), name), host=args.host, port=args.port)
 
 

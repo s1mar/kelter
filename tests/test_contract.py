@@ -447,3 +447,20 @@ def test_unknown_variant_and_custom_ckpt():
         resolve_variant("fastest")
     assert resolve_variant("default", "checkpoints/r5") == ("custom:r5", "checkpoints/r5")
     assert resolve_variant(None, "checkpoints/r2") == ("custom:r2", "checkpoints/r2")
+
+
+def test_missing_weights_message(tmp_path):
+    """A missing checkpoint gives one line naming the files and the next step, not a traceback."""
+    import json as _json
+    import pytest
+    from kelter.server import MissingWeights, check_weights
+    with pytest.raises(MissingWeights) as e:
+        check_weights("checkpoints/Q1", root=tmp_path)
+    assert "checkpoints/Q1/config.json" in str(e.value) and "quick start" in str(e.value)
+    ck = tmp_path / "checkpoints" / "Q1"
+    ck.mkdir(parents=True)
+    (ck / "config.json").write_text(_json.dumps({"llm": {}, "witness_ckpt": "checkpoints/r2"}))
+    with pytest.raises(MissingWeights) as e:
+        check_weights("checkpoints/Q1", root=tmp_path)
+    assert "adapter" in str(e.value) and "checkpoints/r2/config.json" in str(e.value)
+    check_weights("qwen:Qwen/Qwen3-4B-Instruct-2507", root=tmp_path)

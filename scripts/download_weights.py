@@ -21,6 +21,7 @@ import json
 import subprocess
 import sys
 import tarfile
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -98,7 +99,18 @@ def main(argv=None) -> int:
         if not path.exists() or sha256(path) != asset["sha256"]:
             print(f"downloading {asset['file']} ({asset['size_mb']} MB)")
             tag = asset.get("tag", manifest["tag"])
-            download(f"https://github.com/{repo}/releases/download/{tag}/{asset['file']}", path)
+            url = f"https://github.com/{repo}/releases/download/{tag}/{asset['file']}"
+            try:
+                download(url, path)
+            except urllib.error.HTTPError as e:
+                print(f"could not download {asset['file']}: the server answered {e.code}. Check that release {tag} of "
+                      f"{repo} exists and is public. You can also fetch {url} in a browser, put the file in "
+                      f"{archives.relative_to(ROOT).as_posix()}/ and run this script again.", file=sys.stderr)
+                return 1
+            except urllib.error.URLError as e:
+                print(f"could not reach github.com to download {asset['file']} ({e.reason}). Check your connection and "
+                      f"run this script again; files already downloaded are kept.", file=sys.stderr)
+                return 1
         digest = sha256(path)
         if digest != asset["sha256"]:
             print(f"checksum mismatch for {asset['file']}: {digest}", file=sys.stderr)
