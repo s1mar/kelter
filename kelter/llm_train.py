@@ -79,6 +79,117 @@ def pad_long(out, by_src, args, counts):
     return res
 
 
+SENTINEL = "checkpoints/r2/model.pt"  # a fixed large file whose sha256 is recorded in its config.json
+
+
+def _hash_cached(path: Path) -> str:
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _hash_unbuffered(path: Path):
+    """sha256 read straight from disk, bypassing the file cache (Windows FILE_FLAG_NO_BUFFERING); None elsewhere.
+    Opening a file this way also drops its stale cached pages."""
+    import os
+    if os.name != "nt":
+        return None
+    import ctypes
+    import hashlib
+    from ctypes import wintypes
+    k = ctypes.WinDLL("kernel32", use_last_error=True)
+    k.CreateFileW.restype = wintypes.HANDLE
+    k.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, ctypes.c_void_p,
+                              wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+    k.VirtualAlloc.restype = ctypes.c_void_p
+    k.VirtualAlloc.argtypes = [ctypes.c_void_p, ctypes.c_size_t, wintypes.DWORD, wintypes.DWORD]
+    k.VirtualFree.argtypes = [ctypes.c_void_p, ctypes.c_size_t, wintypes.DWORD]
+    k.ReadFile.argtypes = [wintypes.HANDLE, ctypes.c_void_p, wintypes.DWORD,
+                           ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p]
+    k.CloseHandle.argtypes = [wintypes.HANDLE]
+    size = Path(path).stat().st_size
+    hnd = k.CreateFileW(str(path), 0x80000000, 0x1, None, 3, 0x20000000 | 0x08000000, None)  # read, no buffering
+    if hnd is None or hnd == wintypes.HANDLE(-1).value:
+        raise OSError(ctypes.get_last_error(), "CreateFileW failed", str(path))
+    n = 1 << 20
+    buf = k.VirtualAlloc(None, n, 0x3000, 0x04)  # page-aligned, which meets the sector alignment rule
+    try:
+        h, left, got = hashlib.sha256(), size, wintypes.DWORD(0)
+        while left > 0:
+            if not k.ReadFile(hnd, buf, n, ctypes.byref(got), None):
+                raise OSError(ctypes.get_last_error(), "ReadFile failed", str(path))
+            if got.value == 0:
+                break
+            take = min(got.value, left)
+            h.update(ctypes.string_at(buf, take))
+            left -= take
+        return h.hexdigest()
+    finally:
+        k.VirtualFree(buf, 0, 0x8000)
+        k.CloseHandle(hnd)
+
+
+def sentinel_probe(path: Path, expected: str) -> dict:
+    """Hash the file through the file cache; on a mismatch also hash it
+    straight from disk and then through the cache again, so a stale cached page (disk right, re-read right) can be
+    told from a live flip in memory (disk right, re-read still wrong) and from a bad disk (disk wrong)."""
+    cached = _hash_cached(path)
+    rec = {"cached": cached[:12], "ok": cached == expected}
+    if rec["ok"]:
+        return rec
+    disk = _hash_unbuffered(path)
+    again = _hash_cached(path)
+    rec.update({"unbuffered": disk[:12] if disk else None, "cached_again": again[:12]})
+    if disk is None:
+        rec["kind"] = "unknown (no unbuffered read on this platform)"
+    elif disk != expected:
+        rec["kind"] = "disk"
+    elif again == expected:
+        rec["kind"] = "stale cache, dropped by the unbuffered read"
+    else:
+        rec["kind"] = "memory (live flip)"
+    return rec
+
+
+def sentinel_check(path: Path, expected: str) -> bool:
+    """Re-hash a fixed file; a mismatch means memory or disk returned bad data."""
+    return _hash_cached(path) == expected
+
+
+def save_state(path: Path, model, opt, sched, extra: dict) -> None:
+    """Trainable parameters, optimizer, scheduler, RNG state and loop counters in
+    one file, written to a temporary name and renamed so an interrupted save leaves the last one."""
+    import os
+    import torch
+    state = {"params": {n: p.detach().cpu() for n, p in model.named_parameters() if p.requires_grad},
+             "opt": opt.state_dict(), "sched": sched.state_dict(), "extra": extra,
+             "rng_cpu": torch.get_rng_state(),
+             "rng_cuda": torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    torch.save(state, tmp)
+    os.replace(tmp, path)
+
+
+def load_state(path: Path, model, opt, sched) -> dict:
+    """Inverse of save_state; returns the loop counters."""
+    import torch
+    state = torch.load(path, map_location="cpu", weights_only=False)
+    named = dict(model.named_parameters())
+    with torch.no_grad():
+        for n, v in state["params"].items():
+            named[n].copy_(v.to(named[n].device))
+    opt.load_state_dict(state["opt"])
+    sched.load_state_dict(state["sched"])
+    torch.set_rng_state(state["rng_cpu"])
+    if state["rng_cuda"] is not None and torch.cuda.is_available():
+        torch.cuda.set_rng_state_all(state["rng_cuda"])
+    return state["extra"]
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--name", required=True)
@@ -103,6 +214,11 @@ def main(argv=None) -> int:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--limit", type=int, default=None, help="debug only: examples")
     ap.add_argument("--witness-ckpt", default="checkpoints/r2")
+    ap.add_argument("--ckpt-every", type=int, default=50, help="optimizer steps between resume states; 0 is off")
+    ap.add_argument("--power-mode", choices=["quiet", "balance"], default=None,
+                    help="laptop power mode as read back before the run; recorded in the results file")
+    ap.add_argument("--sentinel", default=SENTINEL, help="file re-hashed at every resume save; '' is off")
+    ap.add_argument("--resume", action="store_true", help="continue from checkpoints/<name>/resume/state.pt")
     args = ap.parse_args(argv)
 
     import torch
@@ -163,9 +279,27 @@ def main(argv=None) -> int:
     pad = tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id
     model.train()
     log, t0, run_loss, run_n, step = [], time.time(), 0.0, 0, 0
+    state_path = ROOT / "checkpoints" / args.name / "resume" / "state.pt"
+    sent_path = ROOT / args.sentinel if args.sentinel else None
+    sent_hash = json.loads((sent_path.parent / "config.json").read_text(encoding="utf-8"))["model_hash"] if sent_path else None
+    if sent_path:
+        pr = sentinel_probe(sent_path, sent_hash)
+        if not pr["ok"]:
+            raise SystemExit(f"sentinel {args.sentinel} does not hash to its recorded sha256 before training ({pr}); not starting")
+    start_bi, resumed = 0, []
+    if args.resume and state_path.exists():
+        x = load_state(state_path, model, opt, sched)
+        start_bi, step, run_loss, run_n, log = x["next_bi"], x["step"], x["run_loss"], x["run_n"], x["log"]
+        t0 = time.time() - x["elapsed_s"]
+        resumed = x.get("resumed", []) + [step]
     (ROOT / "notes").mkdir(exist_ok=True)
-    notes = (ROOT / "notes" / f"train_{args.name}.log").open("w", encoding="utf-8")
+    notes = (ROOT / "notes" / f"train_{args.name}.log").open("a" if resumed else "w", encoding="utf-8")
+    if resumed:
+        notes.write(json.dumps({"resumed_at_step": step, "next_batch": start_bi}) + "\n")
+        notes.flush()
     for bi, b in enumerate(batches):
+        if bi < start_bi:
+            continue
         L = max(len(ex[i][0]) for i in b)
         ids = torch.full((len(b), L), pad, dtype=torch.long)
         att = torch.zeros((len(b), L), dtype=torch.long)
@@ -197,18 +331,33 @@ def main(argv=None) -> int:
                 notes.write(json.dumps(rec) + "\n")
                 notes.flush()
                 run_loss, run_n = 0.0, 0
+            if args.ckpt_every and step % args.ckpt_every == 0 and step < steps:
+                if sent_path:
+                    pr = sentinel_probe(sent_path, sent_hash)
+                    notes.write(json.dumps({"step": step, "sentinel": "ok" if pr["ok"] else "MISMATCH", **pr}) + "\n")
+                    notes.flush()
+                    if not pr["ok"]:
+                        notes.close()
+                        raise SystemExit(f"sentinel {args.sentinel} hashed differently at step {step} ({pr.get('kind')}): memory or disk returned "
+                                         "bad data. Stopped without writing a resume state; the last good one is kept.")
+                save_state(state_path, model, opt, sched,
+                           {"next_bi": bi + 1, "step": step, "run_loss": run_loss, "run_n": run_n, "log": log,
+                            "elapsed_s": time.time() - t0, "resumed": resumed})
     notes.close()
     ck = ROOT / "checkpoints" / args.name
     ck.mkdir(parents=True, exist_ok=True)
     model.save_pretrained(str(ck / "adapter"))
+    if state_path.exists():
+        state_path.unlink()  # the finished adapter supersedes the resume state
     cfg = {"llm": {"base": args.base, "qlora_train": bool(args.qlora), "max_len": args.max_len, "lora_r": args.r,
                    "lora_alpha": args.alpha, "lora_dropout": args.dropout, "token_budget": 8192},
            "infer_max_len": args.infer_max_len, "corpus": args.corpus, "witness_ckpt": args.witness_ckpt}
     (ck / "config.json").write_text(json.dumps(cfg, indent=2), encoding="utf-8")
     res = {"name": args.name, "args": vars(args), "counts": counts, "n_examples": len(ex), "n_batches": len(batches),
-           "steps": steps, "log": log, "train_s": round(time.time() - t0, 1),
+           "steps": steps, "log": log, "resumed_at_steps": resumed, "train_s": round(time.time() - t0, 1),
+           "power_mode": args.power_mode or "unrecorded",
            "command": "python -m kelter.llm_train " + " ".join(f"--{k.replace('_', '-')} {v}" for k, v in vars(args).items()
-                                                                     if v not in (None, False) and k != "qlora") + (" --qlora" if args.qlora else "")}
+                                                                     if v not in (None, False) and k not in ("qlora", "resume")) + (" --qlora" if args.qlora else "")}
     (ROOT / "results" / "train").mkdir(parents=True, exist_ok=True)
     (ROOT / "results" / "train" / f"{args.name}.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
     print(json.dumps({k: res[k] for k in ("n_examples", "steps", "train_s")}))

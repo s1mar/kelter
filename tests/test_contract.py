@@ -464,3 +464,30 @@ def test_missing_weights_message(tmp_path):
         check_weights("checkpoints/Q1", root=tmp_path)
     assert "adapter" in str(e.value) and "checkpoints/r2/config.json" in str(e.value)
     check_weights("qwen:Qwen/Qwen3-4B-Instruct-2507", root=tmp_path)
+
+
+def test_gpu_messages(tmp_path, monkeypatch):
+    """No usable GPU, or too little free memory, gives one line with the command to run instead."""
+    import json as _json
+    import pytest
+    from kelter import server
+    monkeypatch.delenv("KELTER_DEVICE", raising=False)
+    ck = tmp_path / "checkpoints" / "Q1"
+    ck.mkdir(parents=True)
+    (ck / "config.json").write_text(_json.dumps({"llm": {}}))
+    monkeypatch.setattr(server, "_cuda_free_gb", lambda: None)
+    with pytest.raises(server.MissingWeights) as e:
+        server.check_device("checkpoints/Q1", root=tmp_path)
+    assert "no usable CUDA GPU" in str(e.value) and "--variant lower-latency" in str(e.value)
+    monkeypatch.setattr(server, "_cuda_free_gb", lambda: (3.2, 12.0))
+    with pytest.raises(server.MissingWeights) as e:
+        server.check_device("checkpoints/Q1", root=tmp_path)
+    assert "3.2 GB of 12.0 GB is free" in str(e.value) and "nvidia-smi" in str(e.value)
+    monkeypatch.setattr(server, "_cuda_free_gb", lambda: (11.0, 12.0))
+    server.check_device("checkpoints/Q1", root=tmp_path)
+    (ck / "config.json").write_text(_json.dumps({}))  # encoder variant: no GPU needed
+    monkeypatch.setattr(server, "_cuda_free_gb", lambda: None)
+    server.check_device("checkpoints/Q1", root=tmp_path)
+    monkeypatch.setenv("KELTER_DEVICE", "cpu")
+    (ck / "config.json").write_text(_json.dumps({"llm": {}}))
+    server.check_device("checkpoints/Q1", root=tmp_path)

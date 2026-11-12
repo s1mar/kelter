@@ -27,7 +27,7 @@ kelter answers more held-out questions correctly than the other small systems, i
 
 ## Quick start
 
-Windows or Linux with an NVIDIA GPU with 12 GB of memory, or a Mac with Apple Silicon (slower, untested). Python 3.12.
+Python 3.12 and an NVIDIA GPU with 12 GB of memory (the default model needs about 9 GB of it free). Tested on Windows 11. On Linux, installation and the CPU test suite run on Ubuntu 24.04 in CI, but the server has not been run end to end there. A Mac with Apple Silicon should work, slower, and is untested. Without a GPU, start the smaller model with `--variant lower-latency`.
 
 ```bash
 git clone https://github.com/s1mar/kelter.git

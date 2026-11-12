@@ -285,6 +285,64 @@ def check_weights(ckpt: str, root: Optional[Path] = None) -> None:
                              f"checkpoints/ as the README's quick start says, or pass --ckpt <checkpoint dir>.")
 
 
+LLM_GPU_GB = 9.0  # free GPU memory an LLM variant needs: peak 8.82 GB at 8,000 tokens, plus margin
+
+
+def _cuda_free_gb():
+    """(free, total) GiB on GPU 0, or None without a usable CUDA GPU. Device-wide use comes from
+    nvidia-smi, since torch.cuda.mem_get_info can report memory other processes hold as free when
+    the Windows driver oversubscribes it; torch's figure is the fallback."""
+    import subprocess
+    import torch
+    if not torch.cuda.is_available():
+        return None
+    try:
+        out = subprocess.run(["nvidia-smi", "--query-gpu=memory.used,memory.total", "--format=csv,noheader,nounits",
+                              "-i", "0"], capture_output=True, text=True, timeout=10).stdout
+        used, total = (float(x) / 1024 for x in out.strip().split(","))
+        return total - used, total
+    except (OSError, ValueError, subprocess.SubprocessError):
+        free, total = torch.cuda.mem_get_info(0)
+        return free / 2**30, total / 2**30
+
+
+def check_device(ckpt: str, root: Optional[Path] = None) -> None:
+    """Before loading an LLM variant: a one-line error when there is no usable GPU or too little
+    free GPU memory, saying what to run instead. KELTER_DEVICE set explicitly skips the check."""
+    if ckpt.startswith("qwen:") or os.environ.get("KELTER_DEVICE"):
+        return
+    base = Path(root) if root else Path.cwd()
+    ck = Path(ckpt) if Path(ckpt).is_absolute() else base / ckpt
+    cfg = json.loads((ck / "config.json").read_text(encoding="utf-8"))
+    if "llm" not in cfg:
+        return
+    gpu = _cuda_free_gb()
+    if gpu is None:
+        raise MissingWeights(f"kelter: {ckpt} runs a 4B language model and needs an NVIDIA GPU with about "
+                             f"{LLM_GPU_GB:.0f} GB free, and no usable CUDA GPU was found. Run the CPU variant with "
+                             "`python -m kelter.server --variant lower-latency`, or set KELTER_DEVICE=cpu to run this one "
+                             "on the CPU anyway (much slower).")
+    free, total = gpu
+    if free < LLM_GPU_GB:
+        raise MissingWeights(f"kelter: {ckpt} needs about {LLM_GPU_GB:.1f} GB of free GPU memory; {free:.1f} GB of "
+                             f"{total:.1f} GB is free. Close other programs using the GPU (`nvidia-smi` lists them) or run "
+                             "`python -m kelter.server --variant lower-latency`.")
+
+
+def _load(ckpt: str):
+    """check_weights, check_device, then load_engine, turning a GPU out-of-memory error into one line."""
+    check_weights(ckpt)
+    check_device(ckpt)
+    from kelter.engine import load_engine
+    try:
+        return load_engine(ckpt)
+    except RuntimeError as e:  # torch.cuda.OutOfMemoryError is a RuntimeError
+        if "out of memory" not in str(e).lower():
+            raise
+        raise MissingWeights(f"kelter: the GPU ran out of memory while loading {ckpt}. Close other programs using the "
+                             "GPU (`nvidia-smi` lists them) or run `python -m kelter.server --variant lower-latency`.") from None
+
+
 def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
     app = FastAPI(title="kelter", description="TypeSafe System One compatible server")
     lock = threading.Lock()  # one decide() at a time; the engine owns the GPU
@@ -350,10 +408,8 @@ class _LazyApp:
     def _build(self) -> FastAPI:
         with self._lock:
             if self._app is None:
-                from kelter.engine import load_engine  # lazy: tests never import it
-                name, ckpt = resolve_variant(os.environ.get("KELTER_VARIANT"), os.environ.get("KELTER_CKPT"))
-                check_weights(ckpt)
-                self._app = create_app(load_engine(ckpt), name)
+                name, ckpt = resolve_variant(os.environ.get("KELTER_VARIANT"), os.environ.get("KELTER_CKPT"))  # lazy: tests never load
+                self._app = create_app(_load(ckpt), name)
             return self._app
 
     async def __call__(self, scope, receive, send):
@@ -371,11 +427,9 @@ def main(argv: Optional[List[str]] = None) -> None:
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--host", default="127.0.0.1")
     args = ap.parse_args(argv)
-    from kelter.engine import load_engine
     import uvicorn
     name, ckpt = resolve_variant(args.variant, args.ckpt)
-    check_weights(ckpt)
-    uvicorn.run(create_app(load_engine(ckpt), name), host=args.host, port=args.port)
+    uvicorn.run(create_app(_load(ckpt), name), host=args.host, port=args.port)
 
 
 if __name__ == "__main__":
