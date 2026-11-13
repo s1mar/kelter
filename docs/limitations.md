@@ -1,0 +1,15 @@
+# Limitations
+
+Everything we know kelter does badly or have not tested, with the numbers.
+
+## Limitations
+
+- JevBench's hard tier is the weak spot: accuracy 0.568, and the model is overconfident there (mean top probability 0.657). The two padding and long-context training rounds tried so far did not improve it; they are recorded in `docs/results.md`.
+- Null recall is reported on two test sets. The corrected set was defined after looking at test diagnostics; the original set gives 0.960.
+- The action rule is conservative and its thresholds were not tuned, so it defers most held-out questions, and it defers every request that carries no provenance tags. It acts only when one option is left in the 95% set and the evidence is admissible: the spans give the same answer alone, masking them changes it, and their provenance is allowed for that kind of option. It defers when "none of the options" wins or no evidence is admissible, and escalates when the evidence is admissible but more than one option is left or untrusted text moved the answer too far. Treat `act` as a strong signal and `defer` as the default, not as a judgment that the answer is wrong. A looser rule that also acted on high confidence without evidence was tested and not shipped: it acted on 2,217 of 3,340 held-out questions at the same accuracy, but acted on planted text in 19 of 3,120 cases (`docs/results.md`).
+- kelter trusts the provenance labels you supply. Text labelled `user` or `system` counts as trusted. Only options you mark `destructive` (in `verdict_classes`) are limited to user or system evidence and to a small budget of influence from untrusted text; other options can rest on tool output. So label text from tools, web pages, files and other models as `tool_output` or `retrieved_doc`, and mark every irreversible option `destructive`. When planted text naming a wrong option carries a trusted label, the default variant acts on the wrong option in 4 of 3,120 test cases and lower-latency in 6 of 3,120 (`results/eval/engine_Q1base.json`, `results/eval/engine_E1base.json`).
+- The default variant needs a GPU: the engine's four passes take 11.5 s on CPU with int8 quantization. The lower-latency variant runs on CPU in about 3 s.
+- Calibration on JevBench's public tiers is worse than on our held-out data (ECE 0.038 to 0.124 by tier); the temperature was fitted on different kinds of text.
+- Latency was measured on one laptop GPU shared with the desktop. The figures in its highest power mode are the fastest it gets; in the balanced mode the default variant's decision takes 688 ms instead of 542 ms (`results/eval/latency_Q1_balance.json`). The lower-latency variant was measured in the highest mode only.
+- The injection guarantee was tested on synthetic shell-gating and account-deletion items, not on real agent traces.
+- The evidence spans come from the encoder, not from the Qwen model, so they show what the encoder relied on; the necessity check then measures whether masking them changes the Qwen model's answer (0.586 of e-SNLI answers change, against 0.362 for a random mask of the same size).
