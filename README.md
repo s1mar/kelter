@@ -4,10 +4,9 @@
 
 Give kelter some text and a multiple-choice question. It picks an answer, shows you the words it based that answer on, and tells you whether it is safe to act on. It runs on your own computer: no API key, no cost per call.
 
-```
-"Customer: I forgot my password and cannot log in to my account."
-Which team should handle this?   ->   account   (99% sure, safe to act)
-```
+<img alt="Two real kelter answers: a clear support ticket is routed to the account team, 99% sure, action act, with the words it relied on highlighted; a vague ticket gets the action defer." src="docs/preview.svg" width="920">
+
+Both answers above are real: they are the two examples that ship with kelter (`results/examples/`).
 
 ## Why use it
 
@@ -24,7 +23,16 @@ Good for routing support tickets, checking whether an agent's next step is safe,
   <img alt="kelter against four other systems on accuracy, calibration error, order sensitivity, injection success and null detection, plus its JevBench public-tier accuracy" src="docs/benchmark.svg" width="960">
 </picture>
 
-On our test questions kelter gets more right than the other small models we tried, and its confidence numbers are more accurate. The side-by-side table is in [results/baselines_table.md](results/baselines_table.md), and every number is in [docs/results.md](docs/results.md).
+On the same test questions, against four other small systems (the best of the four on each line):
+
+| | kelter | Best of the other four |
+|---|---|---|
+| Right answers | **91%** | 81% (Qwen2.5-1.5B) |
+| Confidence error, lower is better | **1.7%** | 5.0% (Kev 0.8B) |
+| Fooled by text injected to steer it | **0.8%** | 3.4% (a TF-IDF baseline that gets only 26% right); 15% to 69% for the three language models |
+| Spots a question with no right answer | **97%** | 44% (Qwen2.5-1.5B) |
+
+kelter's default model is larger than these (4B parameters); its small variant gets 69% right. The four are Qwen2.5-1.5B, Kev 0.8B, Laya and a TF-IDF baseline. Every number, with its source file, is in [docs/results.md](docs/results.md) and [results/baselines_table.md](results/baselines_table.md).
 
 ## Try it
 
