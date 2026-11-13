@@ -171,6 +171,7 @@ class Engine:
             nec = wm is not None and verdict_of(wm) != v
             nec_needed = rule["necessity"] == "gate"
             admissible = bool(w) and in_bounds and prov_ok and suff and (nec or not nec_needed)
+            basis = "witness" if admissible else None  # what an act rests on; None when nothing is admissible
 
             def p_of(x):
                 if x is None:
@@ -209,6 +210,7 @@ class Engine:
                     "provenance_allowed": prov_ok,
                     "verdict_class": cls,
                     "admissible": admissible,
+                    "basis": basis,
                 },
                 "set": cset,
                 "coverage_level": 1.0 - self.alpha if dom != "none" else None,

@@ -1,0 +1,105 @@
+{
+  "name": "defer",
+  "request": {
+    "model": "kelter",
+    "state": "Customer: Something is wrong, please help.",
+    "provenance": [
+      {
+        "start": 0,
+        "end": 42,
+        "type": "user"
+      }
+    ],
+    "questions": {
+      "route": {
+        "type": "choice",
+        "instructions": "Route the support ticket to the team that should handle it.",
+        "criteria": {
+          "billing": "Charges, refunds, invoices and payment problems.",
+          "shipping": "Delivery status, lost or late packages.",
+          "account": "Login, password and profile problems.",
+          "technical": "Bugs, crashes and errors in the app.",
+          "other": "Anything that fits none of the teams above."
+        }
+      }
+    }
+  },
+  "response": {
+    "model": "kelter-7a49107fda69",
+    "answers": {
+      "route": {
+        "type": "choice",
+        "choice": "other",
+        "confidence": 0.37202488141777096,
+        "probabilities": {
+          "billing": 0.0036548057618718717,
+          "shipping": 0.004733496897016538,
+          "account": 0.03747331964835898,
+          "technical": 0.4565184725585358,
+          "other": 0.4976199051342168
+        },
+        "null_probability": 0.09538024663925171,
+        "witness": [],
+        "verifier": {
+          "sufficiency": false,
+          "necessity": false,
+          "necessity_required": true,
+          "witness_only_p": null,
+          "witness_masked_p": null,
+          "untrusted_masked_p": null,
+          "untrusted_influence": 0.0,
+          "provenance_allowed": false,
+          "verdict_class": "default",
+          "admissible": false,
+          "basis": null
+        },
+        "set": [
+          "other",
+          "technical",
+          "__null__",
+          "account"
+        ],
+        "coverage_level": 0.95,
+        "action": "defer",
+        "receipt": {
+          "model_hash": "7a49107fda6973856a105bfe01f1b428eca4fa01554859d743fb8450de0e6bae",
+          "state_hash": "d4ae267f0c596651cd9e6c3ea980fca5a8ff3a66e92affef5b80e0508f90571f",
+          "option_set_hash": "294fd1fca25f9b247c5743af7d15b8e95945648de8838b09d1fafab67f48f190",
+          "policy_table_id": "default-2026-10-26",
+          "policy_table_sha256": "d3337667c859774fd8fe5a3996c0ed299c372f6da1716bb4f845c75b26eef3b3",
+          "conformal": {
+            "alpha": 0.05,
+            "domain": "policy",
+            "threshold": 0.9913629936054349
+          },
+          "logits": {
+            "full": [
+              19.375,
+              16.375,
+              16.0,
+              23.0,
+              23.125,
+              20.875
+            ],
+            "witness_only": null,
+            "witness_masked": null,
+            "untrusted_masked": null
+          },
+          "order": [
+            "account",
+            "shipping",
+            "billing",
+            "technical",
+            "other"
+          ]
+        },
+        "variant": "default"
+      }
+    },
+    "usage": {
+      "input_tokens": 120,
+      "output_tokens": 0
+    }
+  },
+  "command": "python -m kelter.server --port 8765, then python -m kelter.examples"
+}

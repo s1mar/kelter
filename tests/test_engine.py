@@ -81,6 +81,7 @@ def test_same_text_in_user_segment_is_admissible_and_acts():
     res = engine(ScriptedPredictor()).decide([r])[0]
     assert res["verifier"]["admissible"] is True
     assert res["action"] == "act"
+    assert res["verifier"]["basis"] == "witness"
     assert res["set"] == ["allow"]
 
 
@@ -109,6 +110,7 @@ def test_no_witness_defers():
     r = make_rec([("User: hello", "user")])
     res = engine(ScriptedPredictor()).decide([r])[0]
     assert res["verdict"] == "deny" and res["witness"] == [] and res["action"] == "defer"
+    assert res["verifier"]["basis"] is None
 
 
 def test_receipt_fields():

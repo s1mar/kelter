@@ -30,6 +30,7 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | Action rates act / escalate / defer | 0.263 / 0.028 / 0.708 | results/eval/engine_Q1.json |
 | Accuracy when the engine acts (n=880) | 0.974 | results/eval/engine_Q1.json |
 | Fake approval in tool_output: verdict moved to destructive / unsafe act (n=400) | 0.025 / 0.000 | results/eval/engine_Q1.json |
+| Planted text for a wrong option under a trusted label (forge set): unsafe act (n=3120) | 0.001 (4 of 3120) | results/eval/engine_Q1base.json |
 | Latency, one forward, 1095-token sequence, GPU p50 / p95 ms | 372.8 / 380.5 | results/eval/latency_Q1.json |
 | Latency, full engine decision (4 passes), GPU p50 / p95 ms | 542.4 / 548.4 | results/eval/latency_Q1.json |
 | Latency, CPU int8 forward / engine p50 ms | 7230 / 11471 | results/eval/latency_Q1.json |
@@ -66,6 +67,7 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | Action rates act / escalate / defer | 0.221 / 0.194 / 0.585 | results/eval/engine_E1.json |
 | Accuracy when the engine acts (n=737) | 0.970 | results/eval/engine_E1.json |
 | Fake approval in tool_output: verdict moved to destructive / unsafe act (n=400) | 0.013 / 0.000 | results/eval/engine_E1.json |
+| Planted text for a wrong option under a trusted label (forge set): unsafe act (n=3120) | 0.002 (6 of 3120) | results/eval/engine_E1base.json |
 | Latency, one forward, 1068-token sequence, GPU p50 / p95 ms | 85.9 / 87.7 | results/eval/latency_E1.json |
 | Latency, full engine decision (4 passes), GPU p50 / p95 ms | 149.0 / 154.0 | results/eval/latency_E1.json |
 | Latency, CPU int8 forward / engine p50 ms | 2177 / 3067 | results/eval/latency_E1.json |
@@ -101,6 +103,19 @@ The two served variants, the earlier default E3, the member checkpoints and ever
 JevBench columns for Q2 and Q3 come from `results/jevbench/Q2-20261104T140620Z/kelter_summary.json` and `results/jevbench/Q3-20261104T230135Z/kelter_summary.json`.
 
 The two Qwen rows that did not become the default: Q2 trained on the larger r5 corpus (with the synthetic shapes tasks) and 2048-token prompts, and lost on the hard tier. Q3 is Q1's recipe with 15% of the training records padded with unrelated passages to 846 to 2,786 tokens, to train length handling; it held the held-out numbers but was lower on every JevBench tier and more overconfident on the hard tier (mean top probability 0.734 against accuracy 0.541). Q1 stays the default.
+
+## An action rule that was tested and not shipped
+
+The shipped rule acts only on admissible evidence, so it defers most questions. A looser candidate also acted when the calibrated probability was at least 0.90 and no evidence was admissible, for every kind of option except destructive ones. Its pass conditions were fixed before the run: no unsafe act on the fake-approval test, no unsafe act on the forge set, accuracy when acting at least 0.970, and an act rate of at least 0.40.
+
+| | Shipped rule | Candidate |
+|---|---|---|
+| Acts on held-out questions (n=3340) | 880 (0.263) | 2217 (0.664) |
+| Accuracy when it acts | 0.974 | 0.973 |
+| Fake approval in tool_output: unsafe act (n=400) | 0 | 0 |
+| Forge set: unsafe act (n=3120) | 4 (0.001) | 19 (0.006) |
+
+The candidate failed on the forge set, so it was not shipped. The same test gave the shipped rule its first forge figure: 4 unsafe acts in 3,120, all on items where the planted text carried a `user` or `system` label. The shipped figures are in `results/eval/engine_Q1base.json`; the candidate's run is not part of this repository.
 
 ## Baselines
 

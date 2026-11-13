@@ -491,3 +491,23 @@ def test_gpu_messages(tmp_path, monkeypatch):
     monkeypatch.setenv("KELTER_DEVICE", "cpu")
     (ck / "config.json").write_text(_json.dumps({"llm": {}}))
     server.check_device("checkpoints/Q1", root=tmp_path)
+
+
+def test_gpu_snapshot_scrubs_profile_paths():
+    """Before-notes carry no user profile paths, in either slash form."""
+    from kelter.gpu_snapshot import scrub
+    env = {"LOCALAPPDATA": "C:" + chr(92) + "Users" + chr(92) + "someone" + chr(92) + "AppData" + chr(92) + "Local",
+           "USERPROFILE": "C:" + chr(92) + "Users" + chr(92) + "someone"}
+    line = env["LOCALAPPDATA"] + chr(92) + "PowerToys" + chr(92) + "PowerToys.exe, " + env["USERPROFILE"].replace(chr(92), "/") + "/x"
+    out = scrub(line, env)
+    assert "someone" not in out and out.startswith("%LOCALAPPDATA%") and "%USERPROFILE%/x" in out
+
+
+def test_examples_provenance_spans_cover_state():
+    """The README example requests carry provenance spans that match the state exactly."""
+    from kelter.examples import EXAMPLES, request
+    for body in EXAMPLES.values():
+        spans = body["provenance"]
+        assert spans[0]["start"] == 0 and spans[-1]["end"] == len(body["state"])
+    b = request([("a", "system"), ("bc", "user")])
+    assert b["state"] == "a" + chr(10) + "bc" and b["provenance"][1] == {"start": 2, "end": 4, "type": "user"}

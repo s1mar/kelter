@@ -13,7 +13,7 @@ Agents and apps make small decisions all the time: is this ticket about billing,
 - **Calibrated.** When it says 90%, it is right about 90% of the time (expected calibration error 0.017 on held-out data).
 - **Shows its evidence.** Every answer comes with the spans of the input it relied on, and a check that masking those spans changes the answer.
 - **Knows when nothing fits.** A null probability says how likely it is that none of the options is right. It catches 97% of unanswerable held-out questions at a 5% false-positive rate.
-- **Resists injected text.** You can tag which parts of the input came from the user, a tool, a document or the system. Text from a tool's output cannot approve a destructive action on its own. In 400 test cases with a planted fake approval, it never acted unsafely.
+- **Resists injected text.** You can tag which parts of the input came from the user, a tool, a document or the system. Text from a tool's output cannot approve a destructive action on its own. In 400 test cases with a planted fake approval, it never acted unsafely. This protection rests on the labels you supply; see Limitations.
 - **Tells you what to do next.** Each answer carries an action: `act`, `escalate` or `defer`. On held-out data it acts on about a quarter of questions and is right 97% of the time when it does.
 
 ## How it compares
@@ -41,21 +41,39 @@ python -m venv .venv
 
 On Linux and macOS use `.venv/bin/python`. On a Mac, install torch from PyPI without the CUDA index. The weights download is about 740 MB for the default model (the adapter and the encoder). The first start also downloads the Qwen3-4B base model from Hugging Face, about 8 GB, pinned to the revision named in the checkpoint; later starts use the local copy.
 
-Then ask it something:
+Then, in a second terminal, send the two built-in examples:
 
 ```bash
-curl -s http://127.0.0.1:8765/v1/systemone -H "Content-Type: application/json" -d '{
-  "model": "kelter",
-  "state": "I was charged twice for my subscription this month. Please refund the extra charge.",
-  "questions": {
-    "tone":    {"type": "choice", "instructions": "What is the tone?",
-                "criteria": {"angry": "upset or hostile", "calm": "neutral", "excited": "eager"}},
-    "urgency": {"type": "score",  "instructions": "How urgent is this?",
-                "criteria": ["Can wait", "This week", "Today"]},
-    "billing": {"type": "noul",   "instructions": "Is this about billing?"}
-  }
-}'
+.venv/Scripts/python -m kelter.examples
 ```
+
+It prints the action, what the action rests on, and the chosen option for each:
+
+```
+act act witness account
+defer defer None other
+```
+
+The first example is a support ticket that kelter routes and acts on. This is the request it sends to `/v1/systemone` (any HTTP client can post the same body):
+
+```json
+{"model": "kelter",
+ "state": "Customer: I forgot my password and cannot log in to my account.",
+ "provenance": [{"start": 0, "end": 63, "type": "user"}],
+ "questions": {"route": {"type": "choice",
+   "instructions": "Route the support ticket to the team that should handle it.",
+   "criteria": {"billing": "Charges, refunds, invoices and payment problems.",
+                "shipping": "Delivery status, lost or late packages.",
+                "account": "Login, password and profile problems.",
+                "technical": "Bugs, crashes and errors in the app.",
+                "other": "Anything that fits none of the teams above."}}}}
+```
+
+The answer chooses `account` with confidence 0.994 and `action` `act`. Its evidence is the two spans " I forgot my password" and " cannot log in to my account.", both from the user: they give the same answer on their own, masking them changes it, and no other option is left in the 95% set.
+
+The second example asks the same question about "Customer: Something is wrong, please help." and comes back as `defer`: there is no evidence span to rest on, and four options are still possible. Deferring is the common case. On held-out data the engine acts on 880 of 3,340 questions. The full requests and responses are in `results/examples/`.
+
+Besides `choice`, a question can be a `score` (an ordered scale) or a `noul` (yes or no); `docs/typesafe-contract.md` has all three.
 
 Each answer has the standard TypeSafe fields (the chosen option, a probability per option, a confidence) plus these:
 
@@ -64,7 +82,7 @@ Each answer has the standard TypeSafe fields (the chosen option, a probability p
 | `action` | `act`, `escalate` or `defer` |
 | `null_probability` | chance that no option fits |
 | `witness` | the input spans the answer rests on, with their provenance |
-| `verifier` | whether that evidence is allowed to count, given where it came from |
+| `verifier` | whether that evidence is allowed to count, given where it came from, and `basis`: what an `act` rests on |
 | `set`, `coverage_level` | the options that cannot be ruled out at 95% coverage |
 | `receipt`, `variant` | a record of the decision and which model answered |
 
@@ -81,6 +99,7 @@ The action is strict. It is `act` only when the evidence is admissible and maski
 | Null recall at 5% false positives | 0.968 | 0.775 |
 | Calibration error (15 bins) | 0.017 | 0.042 |
 | Accuracy when it acts | 0.974 | 0.970 |
+| Wrong option acted on, planted text under a trusted label (3,120 cases) | 4 (0.001) | 6 (0.002) |
 | Decision latency, laptop GPU (p50) | 542 ms | 149 ms |
 | Weights | 126 MB adapter + 607 MB encoder, plus the 8 GB base download | 4.0 GB |
 
@@ -119,7 +138,8 @@ The first command downloads the public datasets listed in `THIRD-PARTY.md` and w
 
 - JevBench's hard tier is the weak spot: accuracy 0.568, and the model is overconfident there (mean top probability 0.657). The two padding and long-context training rounds tried so far did not improve it; they are recorded in `docs/results.md`.
 - Null recall is reported on two test sets. The corrected set was defined after looking at test diagnostics; the original set gives 0.960.
-- The action rule is conservative and its thresholds were not tuned, so it defers most held-out questions, and it defers every request that carries no provenance tags. Treat `act` as a strong signal and `defer` as the default, not as a judgment that the answer is wrong.
+- The action rule is conservative and its thresholds were not tuned, so it defers most held-out questions, and it defers every request that carries no provenance tags. It acts only when one option is left in the 95% set and the evidence is admissible: the spans give the same answer alone, masking them changes it, and their provenance is allowed for that kind of option. It defers when "none of the options" wins or no evidence is admissible, and escalates when the evidence is admissible but more than one option is left or untrusted text moved the answer too far. Treat `act` as a strong signal and `defer` as the default, not as a judgment that the answer is wrong. A looser rule that also acted on high confidence without evidence was tested and not shipped: it acted on 2,217 of 3,340 held-out questions at the same accuracy, but acted on planted text in 19 of 3,120 cases (`docs/results.md`).
+- kelter trusts the provenance labels you supply. Text labelled `user` or `system` counts as trusted. Only options you mark `destructive` (in `verdict_classes`) are limited to user or system evidence and to a small budget of influence from untrusted text; other options can rest on tool output. So label text from tools, web pages, files and other models as `tool_output` or `retrieved_doc`, and mark every irreversible option `destructive`. When planted text naming a wrong option carries a trusted label, the default variant acts on the wrong option in 4 of 3,120 test cases and lower-latency in 6 of 3,120 (`results/eval/engine_Q1base.json`, `results/eval/engine_E1base.json`).
 - The default variant needs a GPU: the engine's four passes take 11.5 s on CPU with int8 quantization. The lower-latency variant runs on CPU in about 3 s.
 - Calibration on JevBench's public tiers is worse than on our held-out data (ECE 0.038 to 0.124 by tier); the temperature was fitted on different kinds of text.
 - Latency was measured on one laptop GPU shared with the desktop, in its highest power mode.
