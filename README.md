@@ -120,7 +120,7 @@ The server speaks the same `/v1/systemone` API as TypeSafe's Jev, so a client wr
 | | Main model | Smaller model |
 |---|---|---|
 | **Windows** with an NVIDIA GPU | tested | tested |
-| **Linux** | needs an NVIDIA GPU; not yet run there | tested, on the CPU |
+| **Linux** | tested on the CPU (very slow); on an NVIDIA GPU not yet run there | tested, on the CPU |
 | **Mac** (Apple Silicon) | not yet run there | tested, on the CPU |
 
 On a Mac, three commands get you answers, no GPU setup needed:

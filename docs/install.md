@@ -4,7 +4,7 @@ Two ways to install: from a clone (the README's quick start) or as a package. Th
 
 ## Platforms
 
-The main model needs Python 3.12 and an NVIDIA GPU with 12 GB of memory (about 9 GB of it free). It has been run on Windows 11.
+The main model needs Python 3.12 and an NVIDIA GPU with 12 GB of memory (about 9 GB of it free). It has been run on a GPU on Windows 11. On Linux it has been run end to end on the CPU only (one answer took about eight minutes on a test machine, so this proves the code path, not a way to use it); Linux with an NVIDIA GPU has not been run.
 
 The smaller model (`--variant lower-latency`) needs no GPU. It has been run end to end, from install to answers, on Windows 11, on Ubuntu 24.04 and on an Apple Silicon Mac (macOS 26), on the CPU each time: about 6 seconds for the two example questions on a laptop, 12 on the Linux test machine and 44 on the Mac test machine.
 
