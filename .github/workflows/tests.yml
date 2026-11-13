@@ -27,3 +27,45 @@ jobs:
           KELTER_DEVICE: cpu
           CUDA_VISIBLE_DEVICES: ""
         run: python -m pytest -q
+
+  wheel:
+    # build the wheel, install it with CPU torch into a fresh venv outside the checkout, run kelter there
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build wheel and sdist, twine check
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build --outdir "$RUNNER_TEMP/dist" .
+          python -m twine check "$RUNNER_TEMP"/dist/*
+      - name: Install the wheel into a fresh venv (CPU torch first)
+        run: |
+          python -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/python" -m pip install --upgrade pip
+          "$RUNNER_TEMP/venv/bin/python" -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu
+          "$RUNNER_TEMP/venv/bin/python" -m pip install "$RUNNER_TEMP"/dist/*.whl
+      - name: kelter --version, kelter, kelter serve without weights
+        working-directory: ${{ runner.temp }}
+        env:
+          KELTER_HOME: ${{ runner.temp }}/kelter-home
+          CUDA_VISIBLE_DEVICES: ""
+        run: |
+          K="$RUNNER_TEMP/venv/bin/kelter"
+          test "$("$K" --version)" = "kelter $(grep -m1 '^version' "$GITHUB_WORKSPACE/pyproject.toml" | cut -d'"' -f2)"
+          "$K" | tee status.txt
+          grep -q "installed package" status.txt
+          grep -q "Next: kelter download" status.txt
+          set +e
+          "$K" serve > serve.txt 2>&1
+          code=$?
+          set -e
+          cat serve.txt
+          test "$code" -ne 0
+          test "$(wc -l < serve.txt)" -eq 1
+          grep -q "weights not found" serve.txt
+          grep -q "kelter download" serve.txt
+          grep -q "$KELTER_HOME/checkpoints" serve.txt

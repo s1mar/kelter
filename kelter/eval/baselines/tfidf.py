@@ -173,6 +173,8 @@ class TfidfAdapter:
 
 
 if __name__ == "__main__":
+    from kelter import paths
+    paths.require_checkout("evaluation (python -m kelter.eval.baselines.tfidf)")
     # Smoke test: fit on 2000 records, predict 50 dev records.
     dev = [json.loads(l) for _, l in zip(range(400), open(ROOT / "data" / "built" / "dev.jsonl", encoding="utf-8"))]
     dev = [r for r in dev if not r["null"]][:50]

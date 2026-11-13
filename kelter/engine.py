@@ -44,7 +44,8 @@ def sha256(s: str) -> str:
 def load_policy(path: Optional[Path] = None) -> Dict[str, Any]:
     """Load the policy table and check it against its signature file
     (<name>.sha256 holding the sha256 of the canonical JSON)."""
-    path = path or ROOT / "policy_table.json"
+    from kelter import paths
+    path = path or paths.asset("policy_table.json")
     table = json.loads(path.read_text(encoding="utf-8"))
     sig_path = path.with_suffix(".sha256")
     digest = sha256(canonical_json(table))

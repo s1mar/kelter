@@ -132,8 +132,8 @@ class LLMPredictor:
         self.witness_pred = None
         if witness and self.cfg.get("witness_ckpt"):
             from kelter.model import Predictor
-            root = Path(__file__).resolve().parents[1]
-            self.witness_pred = Predictor(str(root / self.cfg["witness_ckpt"]), device=self.device)
+            from kelter import paths
+            self.witness_pred = Predictor(str(paths.under_home(self.cfg["witness_ckpt"])), device=self.device)
 
     def _chunked(self, p: List[int]):
         """Last-position letter logits of one long prompt, prefilled in chunks of

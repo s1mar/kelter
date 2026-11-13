@@ -116,4 +116,6 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
+    from kelter import paths
+    paths.require_checkout("ensemble fitting (python -m kelter.ensemble_select)")
     raise SystemExit(main())

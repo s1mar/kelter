@@ -1,9 +1,49 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "kelter"
-version = "0.2.3"
+version = "0.3.0"
 description = "A small local decision model: calibrated multiple-choice verdicts with evidence spans, a null option and an act/escalate/defer action, served on the /v1/systemone API."
+readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "WEIGHTS-LICENSE.md"]
+# Lower bounds from requirements.txt; requirements-lock.txt pins every version for reproduction.
+# Install a CUDA build of torch first from the PyTorch index: PyPI's Windows torch is CPU-only.
+dependencies = [
+    "torch>=2.11.0",
+    "numpy>=2.5.4",
+    "transformers>=5.20.2",
+    "peft>=0.21.2",
+    "scikit-learn>=1.9.1",
+    "fastapi>=0.162.0",
+    "pydantic>=2.14.1",
+    "uvicorn[standard]>=0.54.0",
+]
+
+[project.optional-dependencies]
+train = [
+    "datasets>=5.1.0",
+    "accelerate>=1.15.0",
+    "bitsandbytes>=0.50.2",
+    "sentence-transformers>=6.2.0",
+    "pandas>=3.1.0",
+    "pyarrow>=26.0.0",
+]
+eval = [
+    "datasets>=5.1.0",
+    "pandas>=3.1.0",
+    "pyarrow>=26.0.0",
+    "typesafe-sdk>=0.7.5",
+    "tenacity>=9.2.1",
+    "httpx>=0.28.1",
+]
+dev = ["pytest>=9.1.1", "build", "twine"]
+
+[project.scripts]
+kelter = "kelter.cli:main"
 
 [tool.setuptools.packages.find]
 include = ["kelter*"]

@@ -17,3 +17,6 @@ data/built_r5/
 data/built_r1/
 data/built_r6/
 weights/archives/
+dist/
+build/
+*.egg-info/

@@ -239,7 +239,8 @@ def build_answer(q: Any, rec: Dict[str, Any], result: Dict[str, Any]) -> Dict[st
 
 # ---------------------------------------------------------------- app
 def resolve_variant(variant: Optional[str] = None, ckpt: Optional[str] = None) -> tuple:
-    """(variant name, checkpoint path). An explicit ckpt wins over the variant."""
+    """(variant name, checkpoint path). An explicit ckpt wins over the variant and stays as typed (relative to the
+    current directory); a variant's checkpoint is the relative path in VARIANTS (see default_ckpt_path)."""
     if ckpt:
         norm = Path(ckpt).as_posix().rstrip("/")
         for name, path in VARIANTS.items():
@@ -256,11 +257,20 @@ class MissingWeights(SystemExit):
     """Raised before loading when a checkpoint's files are absent, with what to do next."""
 
 
+def default_ckpt_path(ckpt: str) -> str:
+    """A variant's checkpoint under the writable folder (kelter.paths.home: the checkout root in a checkout)."""
+    from kelter import paths
+    return str(paths.under_home(ckpt))
+
+
 def check_weights(ckpt: str, root: Optional[Path] = None) -> None:
-    """A one-line error naming the missing files and the next step, instead of a traceback."""
+    """A one-line error naming the missing files and the next step, instead of a traceback. The witness checkpoint
+    a config names is looked up under root, else under the writable folder (kelter.paths.home)."""
+    from kelter import paths
     if ckpt.startswith("qwen:"):
         return
     base = Path(root) if root else Path.cwd()
+    wbase = Path(root) if root else paths.home()
     ck = Path(ckpt) if Path(ckpt).is_absolute() else base / ckpt
     missing = []
 
@@ -278,11 +288,14 @@ def check_weights(ckpt: str, root: Optional[Path] = None) -> None:
         if "llm" in c and not (ck / "adapter").exists():
             missing.append(shown(ck / "adapter"))
         wit = c.get("witness_ckpt")
-        if wit and not ((base / wit) / "config.json").exists():
-            missing.append(shown(base / wit / "config.json"))
+        if wit and not ((wbase / wit) / "config.json").exists():
+            missing.append(shown(wbase / wit / "config.json"))
     if missing:
-        raise MissingWeights(f"kelter: weights not found ({', '.join(missing)}). Download the release weights into "
-                             f"checkpoints/ as the README's quick start says, or pass --ckpt <checkpoint dir>.")
+        if paths.is_checkout() and not os.environ.get("KELTER_HOME"):
+            raise MissingWeights(f"kelter: weights not found ({', '.join(missing)}). Download the release weights into "
+                                 f"checkpoints/ as the README's quick start says, or pass --ckpt <checkpoint dir>.")
+        raise MissingWeights(f"kelter: weights not found ({', '.join(missing)}). Run `{paths.command('download')}` to "
+                             f"put them in {paths.home() / 'checkpoints'}, or pass --ckpt <checkpoint dir>.")
 
 
 LLM_GPU_GB = 9.0  # free GPU memory an LLM variant needs: peak 8.82 GB at 8,000 tokens, plus margin
@@ -318,15 +331,28 @@ def check_device(ckpt: str, root: Optional[Path] = None) -> None:
         return
     gpu = _cuda_free_gb()
     if gpu is None:
-        raise MissingWeights(f"kelter: {ckpt} runs a 4B language model and needs an NVIDIA GPU with about "
+        raise MissingWeights(f"kelter: {_rel(ckpt)} runs a 4B language model and needs an NVIDIA GPU with about "
                              f"{LLM_GPU_GB:.0f} GB free, and no usable CUDA GPU was found. Run the CPU variant with "
-                             "`python -m kelter.server --variant lower-latency`, or set KELTER_DEVICE=cpu to run this one "
+                             f"`{_serve()} --variant lower-latency`, or set KELTER_DEVICE=cpu to run this one "
                              "on the CPU anyway (much slower).")
     free, total = gpu
     if free < LLM_GPU_GB:
-        raise MissingWeights(f"kelter: {ckpt} needs about {LLM_GPU_GB:.1f} GB of free GPU memory; {free:.1f} GB of "
+        raise MissingWeights(f"kelter: {_rel(ckpt)} needs about {LLM_GPU_GB:.1f} GB of free GPU memory; {free:.1f} GB of "
                              f"{total:.1f} GB is free. Close other programs using the GPU (`nvidia-smi` lists them) or run "
-                             "`python -m kelter.server --variant lower-latency`.")
+                             f"`{_serve()} --variant lower-latency`.")
+
+
+def _rel(ckpt: str) -> str:
+    """A checkpoint path as shown in messages: relative to the current directory when it is under it."""
+    try:
+        return Path(ckpt).resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return Path(ckpt).as_posix()
+
+
+def _serve() -> str:
+    from kelter import paths
+    return paths.command("serve")
 
 
 def _load(ckpt: str):
@@ -409,6 +435,7 @@ class _LazyApp:
         with self._lock:
             if self._app is None:
                 name, ckpt = resolve_variant(os.environ.get("KELTER_VARIANT"), os.environ.get("KELTER_CKPT"))  # lazy: tests never load
+                ckpt = ckpt if os.environ.get("KELTER_CKPT") else default_ckpt_path(ckpt)
                 self._app = create_app(_load(ckpt), name)
             return self._app
 
@@ -429,6 +456,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     args = ap.parse_args(argv)
     import uvicorn
     name, ckpt = resolve_variant(args.variant, args.ckpt)
+    ckpt = ckpt if args.ckpt else default_ckpt_path(ckpt)
     uvicorn.run(create_app(_load(ckpt), name), host=args.host, port=args.port)
 
 

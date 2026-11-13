@@ -47,11 +47,12 @@ Then, in a second terminal, send the two built-in examples:
 .venv/Scripts/python -m kelter.examples
 ```
 
-It prints the action, what the action rests on, and the chosen option for each:
+It prints the action, what the action rests on, and the chosen option for each, then where it saved the full responses:
 
 ```
 act act witness account
 defer defer None other
+kelter: responses written to <this folder>/results/examples
 ```
 
 The first example is a support ticket that kelter routes and acts on. This is the request it sends to `/v1/systemone` (any HTTP client can post the same body):
@@ -89,6 +90,37 @@ Each answer has the standard TypeSafe fields (the chosen option, a probability p
 The `model` field is required by the API and can be any name. Clients that do not know the extra fields ignore them.
 
 The action is strict. It is `act` only when the evidence is admissible and masking it changes the answer, so text with no provenance tags, or text that states the same thing twice, comes back as `defer` even at high confidence. The `verifier` field says which check held it back. To tag provenance, add a `provenance` list of `{"start", "end", "type"}` character ranges to the request; types are `user`, `tool_output`, `retrieved_doc`, `system` and `unknown`. The full field-by-field contract is in `docs/typesafe-contract.md`.
+
+## Install as a package
+
+From version 0.3.0 kelter also installs as a package, so you can serve it without keeping a clone around. It is not on PyPI yet. Build the wheel once from a clone:
+
+```bash
+python -m pip install build
+python -m build
+```
+
+That writes `dist/kelter-0.3.0-py3-none-any.whl`. In a new environment, install a CUDA build of torch first (the torch that PyPI offers for Windows is CPU-only), then the wheel:
+
+```bash
+python -m venv kelter-env
+kelter-env/Scripts/python -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+kelter-env/Scripts/python -m pip install dist/kelter-0.3.0-py3-none-any.whl
+```
+
+Then use the `kelter` command, found in `kelter-env/Scripts/` (`kelter-env/bin/` on Linux and macOS):
+
+| Command | What it does |
+|---|---|
+| `kelter` | says where its folder is, which weights are there, whether a GPU was found, and what to run next |
+| `kelter download` | fetches the default variant's weights; add `--variant lower-latency` for the smaller model, which also runs without a GPU |
+| `kelter serve` | starts the server, with the same flags as `python -m kelter.server` |
+| `kelter examples` | sends the two quick-start examples to the running server and saves the responses |
+| `kelter --version` | prints the version |
+
+The installed package keeps weights and outputs in one folder: `%LOCALAPPDATA%\kelter` on Windows, `~/.local/share/kelter` on Linux and `~/Library/Application Support/kelter` on macOS. Set `KELTER_HOME` to use another. If a download fails, `kelter download` says where to put a weight file you fetched yourself; a file already there with the right checksum is used as it is.
+
+In a clone nothing changes: the folder is the clone, and `python scripts/download_weights.py` does what `kelter download` does. Training and evaluation run from a clone only, and say so in one line if you try them from the installed package.
 
 ## Two variants
 

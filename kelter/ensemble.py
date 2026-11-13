@@ -86,8 +86,9 @@ class Ensemble:
         from kelter.device import default_device
         from kelter.model import Predictor
         device = device or default_device()
-        self.spec = json.loads((OUT / f"{name}.json").read_text(encoding="utf-8"))
-        ck = ROOT / "checkpoints"
+        from kelter import paths
+        self.spec = json.loads(paths.asset(f"results/ensemble/{name}.json").read_text(encoding="utf-8"))
+        ck = paths.home() / "checkpoints"
         self.opt = Predictor(str(ck / self.spec["options"]), device=device)
         # a null member that is also the option checkpoint shares its model and its forward pass (E2: r2)
         self.nulls = {c: self.opt if c == self.spec["options"] else Predictor(str(ck / c), device=device)
@@ -97,7 +98,7 @@ class Ensemble:
         self.stacker = None
         if self.spec.get("stacker"):  # stacked: a classifier over the members' quantiles replaces their mean
             import pickle
-            st = ROOT / self.spec["stacker"]
+            st = paths.under_home(self.spec["stacker"])
             if hashlib.sha256(st.read_bytes()).hexdigest() != self.spec["stacker_sha256"]:
                 raise ValueError(f"{st} does not match stacker_sha256 in the spec")
             self.stacker = pickle.loads(st.read_bytes())
@@ -228,4 +229,6 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
+    from kelter import paths
+    paths.require_checkout("ensemble fitting (python -m kelter.ensemble)")
     raise SystemExit(main())

@@ -318,4 +318,6 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
+    from kelter import paths
+    paths.require_checkout("training (python -m kelter.train)")
     raise SystemExit(main())

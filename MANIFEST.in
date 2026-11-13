@@ -1,0 +1,9 @@
+# sdist: the package, the files setup.py copies into kelter/_assets, and the license files.
+include LICENSE WEIGHTS-LICENSE.md README.md setup.py
+include policy_table.json policy_table.sha256
+include weights/MANIFEST.json
+include results/ensemble/E1.json results/ensemble/E3.json
+prune tests
+prune notes
+prune checkpoints
+global-exclude __pycache__ *.py[cod]

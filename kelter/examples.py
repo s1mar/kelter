@@ -1,9 +1,10 @@
 """Quick-start examples, sent to a running server and saved with the real responses.
 
-  python -m kelter.server --port 8765          (in another shell)
-  python -m kelter.examples --url http://127.0.0.1:8765
+  python -m kelter.server --port 8765          (in another shell; installed: kelter serve)
+  python -m kelter.examples --url http://127.0.0.1:8765   (installed: kelter examples)
 
-Writes results/examples/<name>.json for each example: the request, the full response and the command.
+Writes results/examples/<name>.json under the writable folder (kelter.paths.home: the clone, or a per-user folder for
+an installed package) for each example: the request, the full response and the command.
 `act` is a support ticket the shipped engine routes and acts on (witness basis: the evidence spans pass the
 sufficiency and necessity checks); `defer` is a ticket too vague to route, where it finds no evidence span and defers.
 """
@@ -12,9 +13,7 @@ from __future__ import annotations
 import argparse
 import json
 import urllib.request
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
 
 QUESTION = {"type": "choice",
             "instructions": "Route the support ticket to the team that should handle it.",
@@ -50,11 +49,12 @@ def post(url, body):
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(prog="kelter examples")
     ap.add_argument("--url", default="http://127.0.0.1:8765")
     ap.add_argument("--only", nargs="*", default=None)
     a = ap.parse_args(argv)
-    d = ROOT / "results" / "examples"
+    from kelter import paths
+    d = paths.home() / "results" / "examples"
     d.mkdir(parents=True, exist_ok=True)
     for name, body in EXAMPLES.items():
         if a.only and name not in a.only:
@@ -65,6 +65,7 @@ def main(argv=None) -> int:
                "command": "python -m kelter.server --port 8765, then python -m kelter.examples"}
         (d / f"{name}.json").write_text(json.dumps(out, indent=2), encoding="utf-8")
         print(name, ans.get("action"), (ans.get("verifier") or {}).get("basis"), ans.get("choice"))
+    print(f"kelter: responses written to {d}")
     return 0
 
 
