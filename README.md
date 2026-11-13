@@ -148,4 +148,8 @@ The first command downloads the public datasets listed in `THIRD-PARTY.md` and w
 
 ## License
 
-Code: Apache 2.0 (see `LICENSE`). The Qwen3-4B base model is Apache 2.0. The training data carries its own licenses, listed in `THIRD-PARTY.md`; some of it is share-alike, which may extend to the weights. Check that file before redistributing the weights.
+Code: Apache 2.0 (see `LICENSE`).
+
+Weights: CC BY-SA 4.0 (see `WEIGHTS-LICENSE.md`). You may use them, including commercially. If you share the weights or weights made from them, give credit and use the same license. They carry this license because some of the training data is share-alike.
+
+The Qwen3-4B base model is downloaded separately and is Apache 2.0. The training data keeps its own licenses, listed in `THIRD-PARTY.md`.

@@ -1,6 +1,8 @@
 {
   "tag": "v0.2.0",
   "repo": "s1mar/kelter",
+  "license": "CC-BY-SA-4.0",
+  "license_file": "WEIGHTS-LICENSE.md",
   "note": "One tar per checkpoint directory, unpacked into checkpoints/ by scripts/download_weights.py. An asset's own tag names the release it is attached to; assets without one are on the manifest's tag. The default variant also needs the base model Qwen/Qwen3-4B-Instruct-2507, which transformers downloads from Hugging Face at first run (about 8 GB), pinned to the revision in checkpoints/Q1/config.json.",
   "variants": {
     "default": [
