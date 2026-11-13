@@ -4,7 +4,7 @@
 
 Give kelter some text and a multiple-choice question. It picks an answer, shows you the words it based that answer on, and tells you whether it is safe to act on. It runs on your own computer: no API key, no cost per call.
 
-<img alt="Two real kelter answers: a clear support ticket is routed to the account team, 99% sure, action act, with the words it relied on highlighted; a vague ticket gets the action defer." src="docs/preview.svg" width="920">
+<img alt="Two real kelter answers: a clear support ticket is routed to the account team, 99% sure, action act, with the words it relied on highlighted; a vague ticket gets the action defer." src="https://raw.githubusercontent.com/s1mar/kelter/main/docs/preview.svg" width="920">
 
 Both answers above are real: they are the two examples that ship with kelter (`results/examples/`).
 
@@ -19,8 +19,8 @@ Both answers above are real: they are the two examples that ship with kelter (`r
 Good for routing support tickets, checking whether an agent's next step is safe, tagging urgency or tone, and any other pick-one or yes/no decision your app makes many times a day.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/benchmark-dark.svg">
-  <img alt="kelter against four other systems on accuracy, calibration error, order sensitivity, injection success and null detection, plus its JevBench public-tier accuracy" src="docs/benchmark.svg" width="960">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/s1mar/kelter/main/docs/benchmark-dark.svg">
+  <img alt="kelter against four other systems on accuracy, calibration error, order sensitivity, injection success and null detection, plus its JevBench public-tier accuracy" src="https://raw.githubusercontent.com/s1mar/kelter/main/docs/benchmark.svg" width="960">
 </picture>
 
 On the same test questions, against four other small systems (the best of the four on each line):
@@ -32,7 +32,7 @@ On the same test questions, against four other small systems (the best of the fo
 | Fooled by text injected to steer it | **0.8%** | 3.4% (a TF-IDF baseline that gets only 26% right); 15% to 69% for the three language models |
 | Spots a question with no right answer | **97%** | 44% (Qwen2.5-1.5B) |
 
-kelter's default model is larger than these (4B parameters); its small variant gets 69% right. The four are Qwen2.5-1.5B, Kev 0.8B, Laya and a TF-IDF baseline. Every number, with its source file, is in [docs/results.md](docs/results.md) and [results/baselines_table.md](results/baselines_table.md).
+kelter's default model is larger than these (4B parameters); its small variant gets 69% right. The four are Qwen2.5-1.5B, Kev 0.8B, Laya and a TF-IDF baseline. Every number, with its source file, is in [docs/results.md](https://github.com/s1mar/kelter/blob/main/docs/results.md) and [results/baselines_table.md](https://github.com/s1mar/kelter/blob/main/results/baselines_table.md).
 
 ## Try it
 
@@ -71,7 +71,7 @@ defer defer None other
 kelter: responses written to <this folder>/results/examples
 ```
 
-Each line reads: example name, what to do, what the answer rests on, the chosen option. The first ticket ("I forgot my password") was clear, so kelter chose `account` and said `act`. The second ("Something is wrong, please help") was too vague, so it said `defer`. That is normal: kelter acts on about one question in four, and is right 97% of the time when it does. A full real response is in [results/examples/act.json](results/examples/act.json).
+Each line reads: example name, what to do, what the answer rests on, the chosen option. The first ticket ("I forgot my password") was clear, so kelter chose `account` and said `act`. The second ("Something is wrong, please help") was too vague, so it said `defer`. That is normal: kelter acts on about one question in four, and is right 97% of the time when it does. A full real response is in [results/examples/act.json](https://github.com/s1mar/kelter/blob/main/results/examples/act.json).
 
 ### No GPU
 
@@ -113,7 +113,7 @@ print(answer["choice"], answer["action"])   # account act
 
 `provenance` tells kelter where each part of the text came from (`user`, `system`, `tool_output`, `retrieved_doc`). Always send it: without it kelter cannot check its evidence and will answer `defer`.
 
-The server speaks the same `/v1/systemone` API as TypeSafe's Jev, so a client written for that only needs a new address. Besides `choice` there are `score` (a scale) and `noul` (yes or no) questions. The full reference is [docs/typesafe-contract.md](docs/typesafe-contract.md).
+The server speaks the same `/v1/systemone` API as TypeSafe's Jev, so a client written for that only needs a new address. Besides `choice` there are `score` (a scale) and `noul` (yes or no) questions. The full reference is [docs/typesafe-contract.md](https://github.com/s1mar/kelter/blob/main/docs/typesafe-contract.md).
 
 ## Reading the answer
 
@@ -136,7 +136,7 @@ The server speaks the same `/v1/systemone` API as TypeSafe's Jev, so a client wr
 
 For the smaller one, add `--variant lower-latency` to both the download and the server commands. It is more cautious: it sends the first example ticket to `escalate` instead of `act`.
 
-Would you rather have a `kelter` command than a clone? See [docs/install.md](docs/install.md).
+Would you rather have a `kelter` command than a clone? See [docs/install.md](https://github.com/s1mar/kelter/blob/main/docs/install.md).
 
 ## Good to know
 
@@ -145,14 +145,14 @@ Would you rather have a `kelter` command than a clone? See [docs/install.md](doc
 - **Long, tricky inputs are its weak spot.** On the hardest public benchmark tier it gets 57% right.
 - **Where it has been run.** The main model: one Windows 11 laptop with an NVIDIA GPU. The smaller model: also end to end on Linux and on an Apple Silicon Mac, on the CPU. On a Mac the Apple GPU is off by default, because it failed in our test.
 
-The full list, with numbers, is in [docs/limitations.md](docs/limitations.md).
+The full list, with numbers, is in [docs/limitations.md](https://github.com/s1mar/kelter/blob/main/docs/limitations.md).
 
 ## Learn more
 
-- [How it works, and training your own](docs/how-it-works.md)
-- [All results](docs/results.md)
-- [Installing as a package, platforms, the two sizes in detail](docs/install.md)
-- [API reference](docs/typesafe-contract.md)
+- [How it works, and training your own](https://github.com/s1mar/kelter/blob/main/docs/how-it-works.md)
+- [All results](https://github.com/s1mar/kelter/blob/main/docs/results.md)
+- [Installing as a package, platforms, the two sizes in detail](https://github.com/s1mar/kelter/blob/main/docs/install.md)
+- [API reference](https://github.com/s1mar/kelter/blob/main/docs/typesafe-contract.md)
 
 ## License
 

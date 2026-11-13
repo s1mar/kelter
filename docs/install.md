@@ -19,12 +19,12 @@ python -m pip install build
 python -m build
 ```
 
-That writes `dist/kelter-0.3.1-py3-none-any.whl`. In a new environment, install a CUDA build of torch first (the torch that PyPI offers for Windows is CPU-only), then the wheel:
+That writes `dist/kelter-0.3.2-py3-none-any.whl`. In a new environment, install a CUDA build of torch first (the torch that PyPI offers for Windows is CPU-only), then the wheel:
 
 ```bash
 python -m venv kelter-env
 kelter-env/Scripts/python -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
-kelter-env/Scripts/python -m pip install dist/kelter-0.3.1-py3-none-any.whl
+kelter-env/Scripts/python -m pip install dist/kelter-0.3.2-py3-none-any.whl
 ```
 
 Then use the `kelter` command, found in `kelter-env/Scripts/` (`kelter-env/bin/` on Linux and macOS):

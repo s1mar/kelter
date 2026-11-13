@@ -4,12 +4,23 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kelter"
-version = "0.3.1"
+version = "0.3.2"
 description = "A small local decision model: calibrated multiple-choice verdicts with evidence spans, a null option and an act/escalate/defer action, served on the /v1/systemone API."
 readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"
 license-files = ["LICENSE", "WEIGHTS-LICENSE.md"]
+keywords = ["llm", "local-ai", "decision-making", "calibration", "guardrails", "prompt-injection", "classification"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 # Lower bounds from requirements.txt; requirements-lock.txt pins every version for reproduction.
 # Install a CUDA build of torch first from the PyTorch index: PyPI's Windows torch is CPU-only.
 dependencies = [
@@ -22,6 +33,12 @@ dependencies = [
     "pydantic>=2.14.1",
     "uvicorn[standard]>=0.54.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/s1mar/kelter"
+Documentation = "https://github.com/s1mar/kelter/blob/main/docs/install.md"
+Issues = "https://github.com/s1mar/kelter/issues"
+Changelog = "https://github.com/s1mar/kelter/releases"
 
 [project.optional-dependencies]
 train = [

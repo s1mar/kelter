@@ -1,0 +1,44 @@
+name: publish
+
+# Manual only, and only from a version tag: run it with
+#   gh workflow run publish.yml --ref v0.3.2
+# It uploads to PyPI through trusted publishing (no token is stored anywhere).
+# A release or a tag on its own never publishes.
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: The tag must match the version in pyproject.toml
+        run: |
+          VERSION=$(grep -m1 '^version' pyproject.toml | cut -d'"' -f2)
+          echo "ref $GITHUB_REF, version $VERSION"
+          test "$GITHUB_REF" = "refs/tags/v$VERSION"
+      - name: Build and check
+        run: |
+          python -m pip install --upgrade pip build twine
+          python -m build
+          python -m twine check --strict dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
