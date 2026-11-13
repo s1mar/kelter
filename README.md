@@ -55,6 +55,8 @@ defer defer None other
 kelter: responses written to <this folder>/results/examples
 ```
 
+Those lines are from the default variant. The smaller `lower-latency` variant is more cautious with the first ticket: it also picks `account` but returns `escalate`, because it cannot rule out `other`.
+
 The first example is a support ticket that kelter routes and acts on. This is the request it sends to `/v1/systemone` (any HTTP client can post the same body):
 
 ```json
