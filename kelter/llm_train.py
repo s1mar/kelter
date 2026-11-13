@@ -79,6 +79,13 @@ def pad_long(out, by_src, args, counts):
     return res
 
 
+# The sentinel is a corruption canary, not part of the model or of training. During development a machine
+# returned wrong bytes when a file was read back (a single flipped bit in memory, with the disk correct).
+# A training run that keeps going on
+# corrupted memory would write a corrupted adapter, so the run re-hashes one fixed large file whose sha256 is on
+# record (model_hash in the config.json beside it) before training and at every resume save, writes the result
+# into the step log, and stops without saving state if the hash is ever wrong. It reads the file and changes
+# nothing: removing it would not change what a healthy run computes.
 SENTINEL = "checkpoints/r2/model.pt"  # a fixed large file whose sha256 is recorded in its config.json
 
 
@@ -111,10 +118,13 @@ def _hash_unbuffered(path: Path):
                            ctypes.POINTER(wintypes.DWORD), ctypes.c_void_p]
     k.CloseHandle.argtypes = [wintypes.HANDLE]
     size = Path(path).stat().st_size
+    # CreateFileW arguments: 0x80000000 = GENERIC_READ, 0x1 = FILE_SHARE_READ, 3 = OPEN_EXISTING,
+    # 0x20000000 = FILE_FLAG_NO_BUFFERING (skip the file cache), 0x08000000 = FILE_FLAG_SEQUENTIAL_SCAN.
     hnd = k.CreateFileW(str(path), 0x80000000, 0x1, None, 3, 0x20000000 | 0x08000000, None)  # read, no buffering
     if hnd is None or hnd == wintypes.HANDLE(-1).value:
         raise OSError(ctypes.get_last_error(), "CreateFileW failed", str(path))
     n = 1 << 20
+    # VirtualAlloc: 0x3000 = MEM_COMMIT (0x1000) | MEM_RESERVE (0x2000); 0x04 = PAGE_READWRITE.
     buf = k.VirtualAlloc(None, n, 0x3000, 0x04)  # page-aligned, which meets the sector alignment rule
     try:
         h, left, got = hashlib.sha256(), size, wintypes.DWORD(0)
@@ -128,7 +138,7 @@ def _hash_unbuffered(path: Path):
             left -= take
         return h.hexdigest()
     finally:
-        k.VirtualFree(buf, 0, 0x8000)
+        k.VirtualFree(buf, 0, 0x8000)  # 0x8000 = MEM_RELEASE (the size argument must then be 0)
         k.CloseHandle(hnd)
 
 

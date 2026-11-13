@@ -37,6 +37,10 @@ def nll_at(logits_rows, golds, T):
     return tot / len(golds)
 
 
+# The gold label of a record appears below as `rec["gold"] if isinstance(rec["gold"], str) else max(rec["gold"],
+# key=rec["gold"].get)`: gold is either one option name (a string) or a soft distribution {option name: probability}
+# (a dict); in the second case the label used here is the most probable name (the first one on a tie). Null
+# records are handled before this expression, as the null label, or left out.
 def gold_pos(rec, out):
     """Position of the gold label in out['logits'] (canonical option order, null last)."""
     if rec["null"]:
@@ -46,6 +50,10 @@ def gold_pos(rec, out):
 
 
 def conformal_q(scores, alpha):
+    """Split-conformal threshold: the ceil((n + 1)(1 - alpha))-th smallest nonconformity score among the n
+    calibration scores. A label then enters the prediction set when 1 - p(label) <= q, which covers the gold label
+    with probability at least 1 - alpha on data like the calibration split. With too few scores (k > n) there is
+    no valid quantile, so q = 1.0: every label is in the set and the engine never acts on its own."""
     n = len(scores)
     k = math.ceil((n + 1) * (1 - alpha))
     if k > n:
@@ -71,6 +79,8 @@ def calibrate_null_head(pred, calib, ck, args) -> int:
 
     outs = pred.predict(calib, temperature=False)
     is_null = [bool(r["null"]) for r in calib]
+    # Temperature grid: 0.25 to 6.00 in steps of 0.05 (116 values). The upper bound is 6.0001 so 6.0 is included
+    # despite float rounding; round(., 2) removes the float noise so the stored T is a clean two-decimal number.
     grid = np.round(np.arange(0.25, 6.0001, 0.05), 2)
     by_type = collections.defaultdict(list)
     for r, o in zip(calib, outs):
@@ -180,7 +190,7 @@ def main(argv=None) -> int:
     by_type = collections.defaultdict(list)
     for r, o in zip(calib, outs):
         by_type[r["question"]["type"]].append((o["logits"], gold_pos(r, o)))
-    grid = np.round(np.arange(0.25, 6.0001, 0.05), 2)
+    grid = np.round(np.arange(0.25, 6.0001, 0.05), 2)  # same grid as calibrate_null_head: 0.25 to 6.00, step 0.05
     temps, report = {}, {"per_type": {}}
     for t, rows in by_type.items():
         lg = [x[0] for x in rows]

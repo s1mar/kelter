@@ -67,7 +67,8 @@ MAX_OPTIONS_TRAIN = 16
 EVAL_OPTIONS = 10
 SEED = 0
 
-# Training augmentation probabilities, applied independently per record.
+# Training augmentation probabilities, applied independently per record: each value is the chance that record gets
+# that augmentation (one extra copy of it, changed). The comments name the recipe that used a different value.
 AUG_P = {
     "remove_answer": 0.15,  # shipped r2; r3 0.35, r4 and r5 0.25
     "nudge": 0.10,
@@ -87,6 +88,12 @@ AUG_P = {
 # and r6 (r2's recipe with filtered nulls). E1 also draws on r3 and r5; `--recipe r3 --out data/built_r3`
 # and `--recipe r5 --out data/built_r5` rebuild their corpora for the card and the
 # leakage check (r5 trained on r4's data).
+# Each recipe names the training corpus of one released checkpoint and overrides the constants above:
+#   N_SHAPES             how many programmatic task-shape records (synthetic_shapes) are added; 0 adds none
+#   FILTER_TRAIN_NULLS   drop answer-removed nulls whose remaining options are too similar to the removed gold
+#                        (cosine >= 0.80, see filter_answer_removed), so a null is a real null
+#   swap_state, remove_answer, mask_random_nonwitness   replace the AUG_P value of the same name
+# r2 is the shipped default; r4 trained on r5's corpus.
 RECIPES = {
     "r1": {"N_SHAPES": 0, "FILTER_TRAIN_NULLS": False, "swap_state": 0.03, "mask_random_nonwitness": 0.0},
     "r2": {"N_SHAPES": 0, "FILTER_TRAIN_NULLS": False, "swap_state": 0.03},
@@ -128,6 +135,12 @@ def mask_random_nonwitness(rec: Dict[str, Any], rng: random.Random):
 
 
 def h01(s: str) -> float:
+    """A fixed pseudo-random number in [0, 1] for a string: the first 8 hex digits of its sha256, over 0xFFFFFFFF.
+    The same id always gives the same number, on every machine and every run, so it decides which split a record
+    lands in (below 0.9: train, else dev; below 0.5: calib, else test; below 0.33 with the "score" suffix: a
+    civil_comments item becomes a score item). The salts (the id suffixes such as "score"), the 8 digits and the
+    thresholds MUST NOT change: any change moves records between splits, so held-out items could end up in
+    training and every committed result would stop matching its data."""
     return int(hashlib.sha256(s.encode("utf-8")).hexdigest()[:8], 16) / 0xFFFFFFFF
 
 
@@ -195,6 +208,10 @@ def filter_answer_removed(recs: List[Dict[str, Any]], sim_max: float = 0.80) -> 
 
 
 def augment_train(recs: List[Dict[str, Any]], rng: random.Random) -> List[Dict[str, Any]]:
+    """Every record is kept; after it come the augmented copies it drew. Each augmentation is one rng.random() draw
+    against its AUG_P probability, in the fixed order below, followed by whatever the augmentation itself draws. The
+    order and the number of draws are part of the corpus: adding, removing or reordering one changes every record
+    after it, so the built data would no longer match the checkpoints trained on it."""
     by_domain = collections.defaultdict(list)
     for r in recs:
         if r["question"]["type"] == "choice":
@@ -219,7 +236,10 @@ def augment_train(recs: List[Dict[str, Any]], rng: random.Random) -> List[Dict[s
             cands.append(augment.mask_witness(r))
         if rng.random() < AUG_P["witness_only"]:
             cands.append(augment.witness_only(r))
-        if r["witness"] and AUG_P["mask_random_nonwitness"] > 0 and rng.random() < AUG_P["mask_random_nonwitness"]:  # r1: no draw
+        # `and` short-circuits: with no witness on the record, or with probability 0 (recipe r1, which predates this
+        # augmentation), rng.random() is not called at all, so nothing is drawn from the stream and every later draw
+        # is exactly what it was before the augmentation existed. Do not move this line or draw unconditionally.
+        if r["witness"] and AUG_P["mask_random_nonwitness"] > 0 and rng.random() < AUG_P["mask_random_nonwitness"]:
             cands.append(mask_random_nonwitness(r, rng))
         if rng.random() < AUG_P["mask_untrusted"]:
             cands.append(augment.mask_untrusted(r))

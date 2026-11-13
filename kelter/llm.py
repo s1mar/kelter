@@ -28,6 +28,9 @@ from typing import Any, Dict, List, Optional, Sequence
 
 LETTERS = string.ascii_uppercase
 NULL_TEXT = "None of the options: the text does not settle the question."
+# The null choice as shown to the LLM, as the last lettered option. It differs on purpose from kelter.model.NULL_TEXT
+# ("none of the options fit", tokenised after the [NULL] marker for the encoder checkpoints): each model family was
+# trained on its own wording, so changing either would change that family's answers.
 ANSWER_LINE = "Answer with the single letter of the best option."
 PREFILL_CHUNK = 1024  # tokens per prefill chunk; 0 is off
 
@@ -67,6 +70,10 @@ def build_prompt(tok, r: Dict[str, Any], order: Sequence[int], max_tokens: int) 
     if len(ids) <= max_tokens:
         return ids
     s = tok(r["state"], add_special_tokens=False)["input_ids"]
+    # s holds the state's tokens. Cut the overflow (prompt length minus the budget) out of the state, and take
+    # 16 tokens more as a margin for the " [...] " joiner and for decode/re-tokenise drift; never keep fewer
+    # than 32. Of the tokens kept, two thirds come from the start and the remaining third from the end.
+    # The final [-max_tokens:] below is a last guard that cuts from the left if the prompt is still too long.
     keep = max(32, len(s) - (len(ids) - max_tokens) - 16)
     head = (2 * keep) // 3
     state = tok.decode(s[:head]) + " [...] " + tok.decode(s[len(s) - (keep - head):])
@@ -128,6 +135,9 @@ class LLMPredictor:
             model = PeftModel.from_pretrained(model, str(ck / "adapter")).merge_and_unload()
         self.model = model.to(self.device).eval()
         self.letters = letter_ids(self.tok)
+        # model_hash goes into every receipt. With an adapter it is adapter_hash (the adapter files plus the
+        # "llm" config block). Without one it is only the sha256 of the base model's NAME, so it identifies which
+        # base was used, not its weights.
         self.model_hash = adapter_hash(ck) if (ck / "adapter").exists() else hashlib.sha256(L["base"].encode()).hexdigest()
         self.witness_pred = None
         if witness and self.cfg.get("witness_ckpt"):

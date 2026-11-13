@@ -94,6 +94,10 @@ def split_by_segments(span, provenance) -> List[Dict[str, Any]]:
 
 
 def verdict_of(out: Dict[str, Any]) -> str:
+    """The predicted label for one model output: the best option, or NULL when the null wins.
+    Output keys read: "probs" (option name -> probability), "null" (null score) and, for models with a
+    separate null head (r6 and later), "null_threshold". With a null head the null wins when its score
+    passes the threshold; without one it wins when it beats the best option's probability."""
     best = max(out["probs"], key=out["probs"].get)
     if "null_threshold" in out:  # separate null head (r6+)
         return NULL if out["null"] > out["null_threshold"] else best
@@ -126,11 +130,15 @@ class Engine:
         self.conformal = (cfg.get("conformal") or {}).get(str(alpha), {})
 
     def _class_of(self, rec: Dict[str, Any], verdict: str) -> str:
+        """The policy-table class of a verdict: the request's meta.verdict_class maps option name -> class
+        name. A verdict with no entry, or a class the policy table does not define, is "default"."""
         vc = (rec.get("meta") or {}).get("verdict_class") or {}
         c = vc.get(verdict, "default")
         return c if c in self.policy["classes"] else "default"
 
     def _q(self, rec) -> tuple:
+        """The conformal threshold q for a request, as (domain, q): the request's own domain if the
+        checkpoint was calibrated for it, else the "_global" threshold, else ("none", 1.0)."""
         dom = rec.get("domain", "")
         if dom in self.conformal:
             return dom, self.conformal[dom]
@@ -139,52 +147,69 @@ class Engine:
         return "none", 1.0  # no calibration: the set is every label, so nothing acts
 
     def decide(self, recs: List[Dict[str, Any]], canonical: bool = True) -> List[Dict[str, Any]]:
+        """Decide a batch of requests. In: records with state, provenance [start, end, type] segments,
+        options and optional meta.verdict_class and domain. Out: one result per record, in order, with
+        probs, verdict, witness pieces, the verifier block, the conformal set, the action and the receipt.
+
+        Four model passes per record, in this order (passes 2 to 4 are skipped when there is nothing to mask):
+          1. full input: gives the verdict and the witness (the evidence spans)
+          2. evidence only: everything except the witness is masked (sufficiency check)
+          3. evidence masked: the witness is masked (necessity check)
+          4. untrusted text masked: every segment of an untrusted provenance type is masked
+        Action ladder, first rule that fits wins:
+          null wins, or no admissible witness                     -> defer
+          untrusted influence over the class budget                   -> escalate
+          conformal set is not a single label (more than one option left) -> escalate
+          otherwise                                                   -> act
+        """
         full = self.pred.predict(recs, canonical=canonical)
         untrusted = set(self.policy["untrusted_types"])
-        variants, index = [], []
-        for i, (r, o) in enumerate(zip(recs, full)):
-            w = merge(o["witness"])
-            n = len(r["state"])
-            if w:
-                variants.append(mask_spans(r, complement(w, n)))
-                variants.append(mask_spans(r, w))
+        variants = []
+        for rec, full_out in zip(recs, full):
+            witness_spans = merge(full_out["witness"])
+            n = len(rec["state"])
+            if witness_spans:
+                variants.append(mask_spans(rec, complement(witness_spans, n)))
+                variants.append(mask_spans(rec, witness_spans))
             else:
                 variants.extend([None, None])
-            um = [[s, e] for s, e, t in r["provenance"] if t in untrusted]
-            variants.append(mask_spans(r, um) if um else None)
-            index.append(i)
-        todo = [v for v in variants if v is not None]
+            untrusted_spans = [[s, e] for s, e, t in rec["provenance"] if t in untrusted]
+            variants.append(mask_spans(rec, untrusted_spans) if untrusted_spans else None)
+        todo = [variant for variant in variants if variant is not None]
         outs = iter(self.pred.predict(todo, canonical=canonical)) if todo else iter([])
-        passes = [next(outs) if v is not None else None for v in variants]
+        passes = [next(outs) if variant is not None else None for variant in variants]
 
         results = []
-        for i, (r, o) in enumerate(zip(recs, full)):
-            wo, wm, um = passes[3 * i:3 * i + 3]
-            v = verdict_of(o)
-            win_p = o["null"] if v == NULL else (o.get("option_probs") or o["probs"])[v]
-            w = merge(o["witness"])
-            cls = self._class_of(r, v) if v != NULL else "default"
+        for i, (rec, full_out) in enumerate(zip(recs, full)):
+            # Relies on exactly three variants per record (evidence only, evidence masked, untrusted masked),
+            # appended in that order above; None marks a pass that was skipped.
+            witness_only, witness_masked, untrusted_masked = passes[3 * i:3 * i + 3]
+            verdict = verdict_of(full_out)
+            win_p = full_out["null"] if verdict == NULL else (full_out.get("option_probs") or full_out["probs"])[verdict]
+            witness_spans = merge(full_out["witness"])
+            cls = self._class_of(rec, verdict) if verdict != NULL else "default"
             rule = self.policy["classes"][cls]
-            pieces = [p for s in w for p in split_by_segments(s, r["provenance"])]
-            in_bounds = all(0 <= s < e <= len(r["state"]) for s, e in w)
+            pieces = [p for span in witness_spans for p in split_by_segments(span, rec["provenance"])]
+            in_bounds = all(0 <= s < e <= len(rec["state"]) for s, e in witness_spans)
             prov_ok = bool(pieces) and all(p["provenance"] in rule["allowed_witness_types"] for p in pieces)
-            suff = wo is not None and verdict_of(wo) == v
-            nec = wm is not None and verdict_of(wm) != v
+            suff = witness_only is not None and verdict_of(witness_only) == verdict
+            nec = witness_masked is not None and verdict_of(witness_masked) != verdict
             nec_needed = rule["necessity"] == "gate"
-            admissible = bool(w) and in_bounds and prov_ok and suff and (nec or not nec_needed)
+            admissible = bool(witness_spans) and in_bounds and prov_ok and suff and (nec or not nec_needed)
             basis = "witness" if admissible else None  # what an act rests on; None when nothing is admissible
 
             def p_of(x):
+                """Probability of the verdict in a pass output (the null score when the verdict is NULL); None if the pass was skipped."""
                 if x is None:
                     return None
-                if v == NULL:
+                if verdict == NULL:
                     return x["null"]
-                return (x.get("option_probs") or x["probs"]).get(v, 0.0)
+                return (x.get("option_probs") or x["probs"]).get(verdict, 0.0)
 
-            ui = 0.0 if um is None else max(0.0, win_p - p_of(um))
-            dom, q = self._q(r)
-            cset = conformal_set(o, q)
-            if v == NULL:
+            ui = 0.0 if untrusted_masked is None else max(0.0, win_p - p_of(untrusted_masked))
+            dom, q = self._q(rec)
+            cset = conformal_set(full_out, q)
+            if verdict == NULL:
                 action = "defer"
             elif not admissible:
                 action = "defer"
@@ -194,19 +219,19 @@ class Engine:
                 action = "escalate"
             else:
                 action = "act"
-            opt_hash = sha256(canonical_json(sorted([x["name"], x["description"]] for x in r["options"])))
+            opt_hash = sha256(canonical_json(sorted([x["name"], x["description"]] for x in rec["options"])))
             results.append({
-                "probs": o["probs"],
-                "null_probability": o["null"],
-                "verdict": v,
-                "witness": [dict(p, text=r["state"][p["start"]:p["end"]]) for p in pieces],
+                "probs": full_out["probs"],
+                "null_probability": full_out["null"],
+                "verdict": verdict,
+                "witness": [dict(p, text=rec["state"][p["start"]:p["end"]]) for p in pieces],
                 "verifier": {
                     "sufficiency": suff,
                     "necessity": nec,
                     "necessity_required": nec_needed,
-                    "witness_only_p": p_of(wo),
-                    "witness_masked_p": p_of(wm),
-                    "untrusted_masked_p": p_of(um),
+                    "witness_only_p": p_of(witness_only),
+                    "witness_masked_p": p_of(witness_masked),
+                    "untrusted_masked_p": p_of(untrusted_masked),
                     "untrusted_influence": ui,
                     "provenance_allowed": prov_ok,
                     "verdict_class": cls,
@@ -218,20 +243,20 @@ class Engine:
                 "action": action,
                 "receipt": {
                     "model_hash": getattr(self.pred, "model_hash", ""),
-                    "state_hash": sha256(r["state"]),
+                    "state_hash": sha256(rec["state"]),
                     "option_set_hash": opt_hash,
                     "policy_table_id": self.policy["id"],
                     "policy_table_sha256": self.policy["_sha256"],
                     "conformal": {"alpha": self.alpha, "domain": dom, "threshold": q},
                     "logits": {
-                        "full": o.get("logits"),
-                        "witness_only": None if wo is None else wo.get("logits"),
-                        "witness_masked": None if wm is None else wm.get("logits"),
-                        "untrusted_masked": None if um is None else um.get("logits"),
+                        "full": full_out.get("logits"),
+                        "witness_only": None if witness_only is None else witness_only.get("logits"),
+                        "witness_masked": None if witness_masked is None else witness_masked.get("logits"),
+                        "untrusted_masked": None if untrusted_masked is None else untrusted_masked.get("logits"),
                     },
-                    "order": o.get("order"),
+                    "order": full_out.get("order"),
                 },
-                "input_tokens": sum(int(x.get("n_tokens", 0)) for x in (o, wo, wm, um) if x is not None),
+                "input_tokens": sum(int(x.get("n_tokens", 0)) for x in (full_out, witness_only, witness_masked, untrusted_masked) if x is not None),
             })
         return results
 
@@ -249,7 +274,7 @@ class BareEngine:
 
 
 def load_engine(ckpt: str, alpha: float = 0.05):
-    """KELTER_DEVICE overrides the device (default: cuda, else mps, else cpu; kelter.device).
+    """KELTER_DEVICE overrides the device (default: cuda, else cpu; kelter.device).
     ckpt "qwen:<hf model id>" serves the zero-shot letter-logprob baseline as a BareEngine."""
     from kelter.device import default_device
     if ckpt.startswith("qwen:"):

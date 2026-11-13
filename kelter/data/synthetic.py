@@ -61,7 +61,15 @@ def mark(text: str) -> str:
 # ---------------------------------------------------------------- logic
 
 def tri(node: Node, st: Dict[str, Optional[bool]]):
-    """Three-valued evaluation. Returns (value, support_keys)."""
+    """Three-valued (true, false, unknown) evaluation of a formula over facts. st maps each fact name to True,
+    False or None (unknown). Returns (value, support_keys): the value and the fact names that justify it, which
+    become the witness. "and": False if any child is False (support: the false children's facts), True if all are
+    True (support: all of them), else unknown. Any other op is "or": True if some child is True, False if all are
+    False, else unknown.
+
+    First-true-child rule: for an "or" that is True, the support is that of the FIRST true child in the formula's
+    order only, not of every true child. One sufficient reason is marked as evidence, so a different child order
+    would mark different spans for the same answer."""
     if isinstance(node, str):
         v = st[node]
         return v, ([node] if v is not None else [])
@@ -76,7 +84,7 @@ def tri(node: Node, st: Dict[str, Optional[bool]]):
         return None, []
     trues = [r for r in res if r[0] is True]
     if trues:
-        return True, list(trues[0][1])
+        return True, list(trues[0][1])  # first true child only (see the docstring)
     if all(r[0] is False for r in res):
         return False, [k for r in res for k in r[1]]
     return None, []

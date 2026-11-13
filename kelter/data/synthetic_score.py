@@ -112,6 +112,9 @@ def generate(n: int, seed: int) -> List[Dict[str, Any]]:
             admin = rng.random() < 0.15
             lvl = risk_level(dc, access, admin)
             segs = [
+                # Third element: whether the segment is evidence (a witness). `lvl in (0, 1) and True` is just `lvl in (0, 1)`;
+                # the `and True` changes nothing. So this line is evidence for levels 0, 1 and 2 and not for level 3
+                # (Severe), which restricted data or admin rights decide whatever the access type; it is not a bug.
                 (f"{name} requests {access} access to the {svc}.", "user", lvl == 2 or (lvl in (0, 1) and True)),
                 (f"Catalog lookup: the {svc} holds {dc} data.", "tool_output", dc in ("restricted",) or lvl in (0, 1)),
                 ("Requested role: " + ("administrator." if admin else "standard user."), "tool_output", admin),

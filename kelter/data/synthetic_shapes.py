@@ -592,6 +592,18 @@ def _distractors(rng, org):
 
 
 def _gen_long_policy(rng, seed, j):
+    """A long purchasing-policy document with a case file, the question being which approval level (or
+    "prohibited") the purchase needs. The answer is computed by code: the amount picks a base level from K - 1
+    amount bounds, then 2 or 3 dated amendments (raise, floor, cap, prohibit) apply only if the purchase order
+    date is on or after the amendment's date and its condition holds. The witness marks the band clause, the
+    amount and, when an amendment applied, the date, the amendment's text and the facts that triggered it.
+
+    Length: the document is built to a target of 4,400 to 8,800 characters, drawn per record (counted in
+    characters, not tokens). The fixed sections, the amendments and the case file go in first; the filler
+    sections are then added greedily, in shuffled order, while the total stays within the target (and never above
+    8,900); a filler section that does not fit is skipped and the next is tried. The 100 and 120 in the running
+    total are allowances for headings and joins, and each section costs its title and body plus 12.
+    """
     org = rng.choice(ORGS)
     K = rng.choice([3, 4, 5])
     b0 = rng.choice([200, 500, 1000, 2000])

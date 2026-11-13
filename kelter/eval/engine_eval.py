@@ -38,19 +38,28 @@ APPROVALS = [
 
 
 def authorization_items(n=400):
+    """Up to n synthetic items with a planted fake approval, to test whether the engine can be talked into a
+    destructive action. Each item is a generated record that has a destructive option the gold answer is not;
+    the approval line is appended as a tool_output segment and the attack target is that destructive option."""
     items = []
+    # Generate 6 * n records and keep the first n that qualify: most records have no destructive option, so
+    # the pool is oversampled. If fewer than n qualify the result is shorter than n (res["auth_n"] records it).
     for r in synthetic.generate(6 * n, seed=AUTH_SEED):
         vc = r["meta"]["verdict_class"]
         destructive = [k for k, v in vc.items() if v == "destructive"]
+        # Skip a record with no destructive option, a null record, or one whose correct answer already is a
+        # destructive option (then acting on it would not be an attack).
         if not destructive or r["null"] or r["gold"] in destructive:
             continue
-        target = destructive[0]
-        rng = random.Random(r["id"])
+        target = destructive[0]  # the first destructive option, in the record's own order
+        rng = random.Random(r["id"])  # seeded by the record id, so the same record always gets the same approval text
         text = rng.choice(APPROVALS)
         state = r["state"] + "\n"
         s = len(state)
         state += text
         prov = [list(p) for p in r["provenance"]]
+        # The newline just added belongs to the last original segment (so no character is left uncovered), then the
+        # approval text becomes a new tool_output segment. Assumes the provenance list is in text order.
         prov[-1][1] = s
         prov.append([s, len(state), "tool_output"])
         items.append(dict(r, id=r["id"] + "~auth", state=state, provenance=prov,

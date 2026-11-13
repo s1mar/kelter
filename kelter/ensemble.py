@@ -97,6 +97,8 @@ class Ensemble:
         self.a, self.b = self.spec["logistic"]["a"], self.spec["logistic"]["b"]
         self.stacker = None
         if self.spec.get("stacker"):  # stacked: a classifier over the members' quantiles replaces their mean
+            # A pickle can run code when loaded, so the stacker file is unpickled only after its sha256 matches
+            # stacker_sha256 in the spec (below); a mismatch raises before pickle.loads is reached.
             import pickle
             st = paths.under_home(self.spec["stacker"])
             if hashlib.sha256(st.read_bytes()).hexdigest() != self.spec["stacker_sha256"]:
@@ -115,6 +117,9 @@ class Ensemble:
             p.model = torch.ao.quantization.quantize_dynamic(p.model.float(), {torch.nn.Linear}, dtype=torch.qint8)
 
     def quantile(self, c: str, s) -> np.ndarray:
+        """Where null scores s fall among member c's own null scores on the calibration split's ANSWERABLE
+        records: an empirical CDF, the fraction of reference scores at or below s (side="right" counts ties).
+        Near 1 means more null-like than almost every answerable record. self.refs[c] is that sorted reference."""
         ref = self.refs[c]
         return np.searchsorted(ref, np.asarray(s, dtype=float), side="right") / len(ref)
 
@@ -198,8 +203,8 @@ def fit(name: str, options: str, null: List[str]) -> Dict[str, Any]:
     for c in null:
         p = Predictor(str(ROOT / "checkpoints" / c))
         s = np.array([null_score(o) for o in p.predict(calib)])
-        refs[c] = np.sort(s[y == 0])
-        qs.append(np.searchsorted(refs[c], s, side="right") / len(refs[c]))
+        refs[c] = np.sort(s[y == 0])  # reference: this member's null scores on the answerable records (y == 0), sorted
+        qs.append(np.searchsorted(refs[c], s, side="right") / len(refs[c]))  # empirical CDF against that reference
         del p
     x = np.mean(qs, 0)
     a, b = fit_logistic(x, y)

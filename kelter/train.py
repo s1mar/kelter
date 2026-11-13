@@ -64,7 +64,7 @@ def make_batches(lengths, max_tokens, rng):
     idx = list(range(len(lengths)))
     rng.shuffle(idx)
     batches = []
-    chunk = 4096
+    chunk = 4096  # shuffle everything, then sort by length inside each block of 4096 records so a batch holds similar lengths (little padding)
     for c in range(0, len(idx), chunk):
         part = sorted(idx[c:c + chunk], key=lambda i: lengths[i])
         cur, cur_max = [], 0
@@ -99,8 +99,23 @@ def denominators(micro):
 
 
 def step_loss(model, b, targets, cond_idx, w_witness, denoms=None):
-    """denoms = (records, answerable records, witness tokens) of the group this
-    micro-batch belongs to; None means the micro-batch is the whole group."""
+    """Loss of one micro-batch: option loss plus w_witness times witness loss. Returns (total, option loss,
+    witness loss, detached logits).
+
+    b: the collated batch (kelter.model.collate): input_ids, prov_ids, attention_mask, marker_pos and
+       marker_mask (B, K + 1; null marker last), state_mask (which tokens are state), has_witness (B,) and
+       witness_labels (per-token 0/1).
+    targets: (B, K + 1) soft target over the options in shown order, then the null, last (target_for).
+    cond_idx: (B,) the marker column the witness head is conditioned on (the gold option, or the null column
+       when the record has no answer; gold_index).
+    denoms = (records, answerable records, witness tokens) of the group this
+    micro-batch belongs to; None means the micro-batch is the whole group.
+
+    Option loss: soft cross-entropy. With a null head (r6 and later) it is options-only on answerable
+    records plus a binary cross-entropy for the null on every record; without one, one softmax over the options
+    and the null. Witness loss: binary cross-entropy per state token, on records that have a witness. Each term
+    is a sum divided by its group count, so accumulation does not change the result.
+    """
     if denoms is None:
         denoms = denominators([{"b": b, "T": targets}])
     n_rec, n_ans, n_wit = denoms
@@ -112,6 +127,8 @@ def step_loss(model, b, targets, cond_idx, w_witness, denoms=None):
         ans = y_null < 0.5
         lo = logits[:, :-1]
         logp = torch.log_softmax(lo, -1)
+        # Padded option slots have logit -inf (option_logits), so their log-probability is -inf and 0 * -inf would
+        # be nan in the sum below. Their target is 0, so set those entries to 0 and they add nothing.
         logp = torch.where(torch.isinf(logp), torch.zeros_like(logp), logp)
         per = -(targets[:, :-1] * logp).sum(-1)
         l_opt = per[ans].sum() / n_ans if ans.any() else per.sum() * 0.0
@@ -119,7 +136,7 @@ def step_loss(model, b, targets, cond_idx, w_witness, denoms=None):
         l_opt = l_opt + l_null
     else:
         logp = torch.log_softmax(logits, -1)
-        logp = torch.where(torch.isinf(logp), torch.zeros_like(logp), logp)
+        logp = torch.where(torch.isinf(logp), torch.zeros_like(logp), logp)  # -inf padding slots: see above
         l_opt = -(targets * logp).sum(-1).sum() / n_rec
     l_wit = torch.zeros((), device=h.device)
     hw = b["has_witness"]
@@ -223,7 +240,7 @@ def main(argv=None) -> int:
     enc_params = list(model.encoder.parameters())
     head_params = [p for n, p in model.named_parameters() if not n.startswith("encoder.")]
     opt = torch.optim.AdamW([{"params": enc_params, "lr": args.lr}, {"params": head_params, "lr": args.head_lr}],
-                            weight_decay=0.01)
+                            weight_decay=0.01)  # AdamW; encoder and heads have separate learning rates (--lr, --head-lr)
 
     def length(pc):
         return min(args.max_len, 4 + len(pc["instr"]) + sum(len(o) + 1 for o in pc["opts"]) + 8 + len(pc["sids"]))
@@ -239,6 +256,7 @@ def main(argv=None) -> int:
     # and the recorded step count are in optimizer steps
     groups = optimizer_groups(plan, args.accum_steps)
     total = len(groups)
+    # Linear warmup over the first 6% of optimizer steps, then linear decay to 0 at the last step.
     sched = get_linear_schedule_with_warmup(opt, int(0.06 * total), total)
     print(f"{total} steps ({len(plan)} micro-batches, accum {args.accum_steps})", flush=True)
 
@@ -254,6 +272,7 @@ def main(argv=None) -> int:
             continue
         lo, lw = accum_step(model, opt, micro, args.w_witness)
         sched.step()
+        # Running averages for the log line: exponential moving average, 0.98 old + 0.02 new (a window of about 50 steps).
         run_lo = 0.98 * run_lo + 0.02 * lo if step else lo
         run_lw = 0.98 * run_lw + 0.02 * lw if step else lw
         if step % 200 == 0 or step == total - 1:

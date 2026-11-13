@@ -214,6 +214,8 @@ def witness_sufficiency(
 
 
 def _char_set(spans: Collection[Tuple[int, int]]) -> set:
+    """The set of character offsets covered by the [start, end) spans. Overlaps count once; an empty or
+    inverted span (end <= start) covers nothing."""
     out: set = set()
     for s, e in spans:
         if e > s:

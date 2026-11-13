@@ -38,7 +38,10 @@ def load(name: str, limit=None, seed=0) -> List[Dict[str, Any]]:
 
 
 def verdict(out: Dict[str, Any]) -> str:
-    """Argmax over options plus null; NULL when the null probability wins."""
+    """The predicted label of one model output, for scoring: the best option, or NULL when the null wins.
+    With a separate null head (r6 and later) the null wins when its calibrated score clears the stored
+    threshold; otherwise when the null probability beats the best option. An output with no "null" (a baseline
+    without a null option) can never give NULL. Same rule as kelter.engine.verdict_of."""
     best = max(out["probs"], key=out["probs"].get)
     if "null_threshold" in out:  # separate null head (r6+): null iff the calibrated score clears its threshold
         return NULL if out["null"] > out["null_threshold"] else best
@@ -48,10 +51,14 @@ def verdict(out: Dict[str, Any]) -> str:
 
 
 def forced(out: Dict[str, Any]) -> str:
+    """The best option even when the null would win: the forced-choice answer, for accuracy on answerable items."""
     return max(out["probs"], key=out["probs"].get)
 
 
 def null_score(out: Dict[str, Any]) -> float:
+    """How strongly the model says the item is unanswerable, for null recall at a false-positive rate. The
+    model's own null probability when it has one; for a model without a null (a baseline), 1 minus its top
+    option probability, so a low-confidence answer counts as a null signal."""
     if out.get("null") is not None:
         return float(out["null"])
     return 1.0 - max(out["probs"].values())
@@ -65,7 +72,18 @@ def gold_label(r: Dict[str, Any]) -> str:
 
 
 def prob_matrix(recs, outs):
-    """Rows over [options..., null] with the gold index, for ECE and Brier."""
+    """Rows over [options..., null] with the gold index, for ECE and Brier.
+
+    Silent behaviours, all deliberate so a baseline can be scored the same way:
+      - an option missing from out["probs"] counts as probability 0.0;
+      - a missing null (out["null"] is None) counts as 0.0;
+      - every row is renormalised to sum to 1, so a system whose probabilities do not sum to 1 is scored on the
+        shares it gave;
+      - a row that sums to 0 becomes uniform over its options and the null;
+      - rows are padded with 0.0 up to K = (most options in any record) + 1 columns, so a record with fewer
+        options has its null at column len(options), not in the last column, and G holds that index for a
+        null-gold record.
+    """
     P, G = [], []
     K = max(len(r["options"]) for r in recs) + 1
     for r, o in zip(recs, outs):
@@ -115,6 +133,9 @@ def corrected_null(system, answerable, outs) -> Dict[str, Any]:
     ids = {r["id"] for r in answerable}
     unk = [r for r in load("test_unknowable_corrected")
            if r["meta"]["unk_group"] == "natural_null" or r["id"].split("~", 1)[0] in ids]
+    # Note: split("~", 1)[0] cuts at the FIRST "~" here, while the nudge, forge and null filters below use
+    # rsplit("~", 1)[0], which cuts at the LAST. They give the same base id on every id in the current data (each id
+    # has zero or one "~"); they would differ for an id with two (a chained augmentation) or a "~" in the base id.
     uo = system.predict(unk)
     neg = [null_score(o) for o in outs]
     pos = [null_score(o) for o in uo]
@@ -172,7 +193,9 @@ def run(system, limit=None, seed=0) -> Dict[str, Any]:
         res["flip_rate_no_canonical"] = None
     res["flip_n"] = len(choice)
 
-    # Injection: clean verdict vs verdict with planted text.
+    # Injection: clean verdict vs verdict with planted text. An id with a "~" suffix is a derived copy of the item
+    # whose id comes before the "~" (kelter.data.augment adds ~perm, ~rm, ~dist, ~plant, ~mask, ~wmask, ~wonly, ~all,
+    # ~untr and ~rmask; engine_eval adds ~auth); rsplit("~", 1)[0] cuts off that last suffix to find the clean item.
     clean = {r["id"]: p for r, p in zip(answerable, pred)}
     for kind in ("nudge", "forge"):
         att = [r for r in load(f"test_{kind}") if r["id"].rsplit("~", 1)[0] in clean]
@@ -206,6 +229,11 @@ def run(system, limit=None, seed=0) -> Dict[str, Any]:
         recs = [wt[i] for i in es]
         full = [verdict(wo[i]) for i in es]
         correct = [f == gold_label(r) for f, r in zip(full, recs)]
+        # Four e-SNLI variants of each item, each re-run through the model:
+        #   masked: the model's own witness masked out (necessity: the verdict should change)
+        #   only:   the model's own witness kept, everything else masked (sufficiency: the verdict should hold)
+        #   rnd:    a random span of the same total length masked (control for necessity: should flip far less)
+        #   gm:     the human rationale (the item's gold witness) masked (what a human-marked necessity gives)
         masked = [mask_spans(r, wo[i]["witness"]) if wo[i]["witness"] else r for i, r in zip(es, recs)]
         mo = [verdict(o) for o in system.predict(masked)]
         only = []

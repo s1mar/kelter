@@ -32,6 +32,8 @@ SPLITS = 10
 def columns(name: str, null: List[str]) -> Dict[str, np.ndarray]:
     cache = ROOT / "checkpoints" / name / "columns.npz"
     if cache.exists():
+        # allow_pickle=False: the cache is plain arrays and nothing is unpickled here. (kelter.ensemble is the only
+        # place a pickle is loaded, after its sha256 is checked.)
         z = np.load(cache, allow_pickle=False)
         if list(z["members"]) == null:
             return dict(z)
@@ -50,7 +52,9 @@ def columns(name: str, null: List[str]) -> Dict[str, np.ndarray]:
     for c in null:
         p = Predictor(str(ROOT / "checkpoints" / c))
         s = np.array([null_score(o) for o in p.predict(rows)])
-        ref = np.sort(s[: len(ans)])
+        ref = np.sort(s[: len(ans)])  # this member's null scores on the answerable records only (the first len(ans) rows)
+        # The quantile is an empirical CDF against that reference: the fraction of answerable calibration scores at
+        # or below s (side="right" counts ties), the same quantile kelter.ensemble uses at inference.
         cols.append(np.searchsorted(ref, s, side="right") / len(ref))
         del p
     z = {"X": np.stack(cols, 1), "y": np.r_[np.zeros(len(ans)), np.ones(len(unk))], "members": np.array(null)}
@@ -60,7 +64,7 @@ def columns(name: str, null: List[str]) -> Dict[str, np.ndarray]:
 
 
 def recall_at_5fpr(score: np.ndarray, y: np.ndarray) -> float:
-    thr = np.quantile(score[y == 0], 0.95)
+    thr = np.quantile(score[y == 0], 0.95)  # the score that 5% of the answerable rows (y == 0) exceed: 5% false positives
     return float((score[y == 1] > thr).mean())
 
 

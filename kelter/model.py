@@ -122,6 +122,9 @@ class Featurizer:
         sids, offs = sids[:budget], offs[:budget]
         seg_types = []
         for s, e in offs:
+            # A token gets the provenance type of the segment holding its midpoint character (an empty token
+            # uses its start). A token that straddles two segments takes the type of the one under its middle;
+            # a token under no segment is "unknown".
             mid = s if e <= s else (s + e - 1) // 2
             ptype = "unknown"
             for ss, se, st in provenance:
@@ -189,6 +192,9 @@ class VerdictModel(nn.Module):
 def collate(encs: List[Encoded], pad_id: int, device: str):
     B = len(encs)
     L = max(len(e.input_ids) for e in encs)
+    # K columns: the most options in the batch, plus 1 for the null marker, which always takes the LAST column
+    # (mpos[i, K - 1] below). Shorter records leave the columns between their options and the null unused
+    # (mmask False), and option_logits turns those into -inf.
     K = max(len(e.opt_pos) for e in encs) + 1
     ids = torch.full((B, L), pad_id, dtype=torch.long)
     prov = torch.zeros((B, L), dtype=torch.long)
@@ -342,6 +348,8 @@ class Predictor:
                 extra = {"option_probs": {r["options"][perm[j]]["name"]: po[j] for j in range(k)},
                          "null_logit": z, "null_threshold": self.null_cal.get("threshold", 0.5) if temperature else 0.5}
             else:
+                # Logits layout [k real options..., null]: the first k columns, then the last column (the null
+                # marker, K - 1 in collate); the padded columns in between are dropped.
                 lg = torch.cat([logits[row, :k], logits[row, -1:]])
                 p = torch.softmax(lg / T, -1).cpu().tolist()
                 probs = {r["options"][perm[j]]["name"]: p[j] for j in range(k)}
@@ -373,4 +381,6 @@ class Predictor:
             u = w[0] * z + w[1] * (1.0 - max(po)) + w[2] * ent + b0
         else:
             u = z / c.get("T_null", 1.0)
+        # Clamp u to plus or minus 60 before the sigmoid so math.exp cannot overflow; the null probability
+        # saturates near 1e-26 and 1 - 1e-26 (1.0 in float64).
         return 1.0 / (1.0 + math.exp(-max(-60.0, min(60.0, u))))
