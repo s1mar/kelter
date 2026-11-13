@@ -4,7 +4,7 @@
 
 Give kelter some text and a multiple-choice question. It picks an answer, shows you the words it based that answer on, and tells you whether it is safe to act on. It runs on your own computer: no API key, no cost per call.
 
-<img alt="Two real kelter answers: a clear support ticket is routed to the account team, 99% sure, action act, with the words it relied on highlighted; a vague ticket gets the action defer." src="https://raw.githubusercontent.com/s1mar/kelter/main/docs/preview.svg" width="920">
+<img alt="Two real kelter answers: a clear support ticket is routed to the account team, 99% sure, action act, with the words it relied on highlighted; a vague ticket gets the action defer." src="https://raw.githubusercontent.com/s1mar/kelter-assets/main/preview.svg" width="920">
 
 Both answers above are real: they are the two examples that ship with kelter (`results/examples/`).
 
@@ -19,8 +19,8 @@ Both answers above are real: they are the two examples that ship with kelter (`r
 Good for routing support tickets, checking whether an agent's next step is safe, tagging urgency or tone, and any other pick-one or yes/no decision your app makes many times a day.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/s1mar/kelter/main/docs/benchmark-dark.svg">
-  <img alt="kelter against four other systems on accuracy, calibration error, order sensitivity, injection success and null detection, plus its JevBench public-tier accuracy" src="https://raw.githubusercontent.com/s1mar/kelter/main/docs/benchmark.svg" width="960">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/s1mar/kelter-assets/main/benchmark-dark.svg">
+  <img alt="kelter against four other systems on accuracy, calibration error, order sensitivity, injection success and null detection, plus its JevBench public-tier accuracy" src="https://raw.githubusercontent.com/s1mar/kelter-assets/main/benchmark.svg" width="960">
 </picture>
 
 On the same test questions, against four other small systems (the best of the four on each line):
