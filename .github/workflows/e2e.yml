@@ -80,3 +80,44 @@ jobs:
           "$RUNNER_TEMP/venv/bin/kelter" serve > default.txt 2>&1
           echo "exit code $?"
           cat default.txt
+
+  default-on-cpu:
+    # The default (Qwen3-4B) variant on Linux without a GPU: slow, and it may not fit in the runner's memory.
+    # A pass shows the Linux code path works; a failure here is information, not a broken release.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          echo "KELTER_HOME=$RUNNER_TEMP/kelter-home" >> "$GITHUB_ENV"
+          python -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/python" -m pip install --upgrade pip
+          "$RUNNER_TEMP/venv/bin/python" -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu
+          "$RUNNER_TEMP/venv/bin/python" -m pip install .
+      - name: Download, serve the default variant on the CPU, ask the two examples
+        working-directory: ${{ runner.temp }}
+        env:
+          KELTER_DEVICE: cpu
+        run: |
+          K="$RUNNER_TEMP/venv/bin/kelter"
+          free -g | head -2
+          "$K" download
+          "$K" serve --port 8765 > server.log 2>&1 &
+          SERVER=$!
+          for i in $(seq 1 900); do
+            if curl -s -o /dev/null http://127.0.0.1:8765/; then break; fi
+            if ! kill -0 "$SERVER" 2>/dev/null; then echo "server exited early"; tail -30 server.log; exit 1; fi
+            sleep 2
+          done
+          START=$(date +%s)
+          if "$K" examples > examples.txt 2>&1; then OK=0; else OK=1; fi
+          cat examples.txt | tail -6
+          echo "seconds for both requests: $(( $(date +%s) - START ))"
+          kill "$SERVER" 2>/dev/null || true
+          if [ "$OK" != "0" ]; then grep -v "^INFO" server.log | tail -25; exit 1; fi
+          test "$(sed -n '1p' examples.txt | awk '{print $1, $2, $4}')" = "act act account"
+          test "$(sed -n '2p' examples.txt | awk '{print $1, $2}')" = "defer defer"

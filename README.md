@@ -111,7 +111,7 @@ answer = json.load(urllib.request.urlopen(request))["answers"]["route"]
 print(answer["choice"], answer["action"])   # account act
 ```
 
-`provenance` tells kelter where each part of the text came from (`user`, `system`, `tool_output`, `retrieved_doc`). Always send it: without it kelter cannot check its evidence and will answer `defer`.
+`provenance` tells kelter where each part of the text came from (`user`, `system`, `tool_output`, `retrieved_doc`). Send it whenever you can. Without it every part counts as `unknown`: kelter still answers, and can still act on ordinary options, but it cannot tell your user's words from a tool's, so an option you marked `destructive` will never get `act`.
 
 The server speaks the same `/v1/systemone` API as TypeSafe's Jev, so a client written for that only needs a new address. Besides `choice` there are `score` (a scale) and `noul` (yes or no) questions. The full reference is [docs/typesafe-contract.md](https://github.com/s1mar/kelter/blob/main/docs/typesafe-contract.md).
 
