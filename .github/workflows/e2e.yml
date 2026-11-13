@@ -13,9 +13,9 @@ jobs:
         os: [ubuntu-24.04, macos-14]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 40
-    env:
-      KELTER_HOME: ${{ runner.temp }}/kelter-home
     steps:
+      - name: Folder for weights and outputs
+        run: echo "KELTER_HOME=$RUNNER_TEMP/kelter-home" >> "$GITHUB_ENV"
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
