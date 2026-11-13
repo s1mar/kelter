@@ -49,20 +49,29 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: |
           K="$RUNNER_TEMP/venv/bin/kelter"
-          "$K" serve --variant lower-latency --port 8765 > server.log 2>&1 &
-          SERVER=$!
-          for i in $(seq 1 150); do
-            if curl -s -o /dev/null http://127.0.0.1:8765/; then break; fi
-            if ! kill -0 "$SERVER" 2>/dev/null; then echo "server exited early"; cat server.log; exit 1; fi
+          ask() {  # $1: device to force, or "auto"
+            if [ "$1" = "auto" ]; then unset KELTER_DEVICE; else export KELTER_DEVICE="$1"; fi
+            "$K" serve --variant lower-latency --port 8765 > "server_$1.log" 2>&1 &
+            SERVER=$!
+            for i in $(seq 1 150); do
+              if curl -s -o /dev/null http://127.0.0.1:8765/; then break; fi
+              if ! kill -0 "$SERVER" 2>/dev/null; then echo "server exited early"; tail -30 "server_$1.log"; return 1; fi
+              sleep 2
+            done
+            START=$(date +%s)
+            if "$K" examples > "examples_$1.txt" 2>&1; then OK=0; else OK=1; fi
+            cat "examples_$1.txt" | tail -6
+            echo "device $1: seconds for both requests: $(( $(date +%s) - START ))"
+            kill "$SERVER" 2>/dev/null || true
             sleep 2
-          done
-          START=$(date +%s)
-          "$K" examples | tee examples.txt
-          echo "seconds for both requests: $(( $(date +%s) - START ))"
-          kill "$SERVER" || true
-          tail -5 server.log
-          test "$(sed -n '1p' examples.txt | awk '{print $1, $4}')" = "act account"
-          test "$(sed -n '2p' examples.txt | awk '{print $1, $2}')" = "defer defer"
+            if [ "$OK" != "0" ]; then echo "--- server log, device $1"; grep -v "^INFO" "server_$1.log" | tail -25; return 1; fi
+            test "$(sed -n '1p' "examples_$1.txt" | awk '{print $1, $4}')" = "act account"
+            test "$(sed -n '2p' "examples_$1.txt" | awk '{print $1, $2}')" = "defer defer"
+          }
+          if ask auto; then echo "RESULT auto device: works"; else
+            echo "RESULT auto device: FAILED"
+            if ask cpu; then echo "RESULT forced cpu: works"; else echo "RESULT forced cpu: FAILED"; exit 1; fi
+          fi
       - name: The default model's message on a machine without an NVIDIA GPU
         working-directory: ${{ runner.temp }}
         run: |
