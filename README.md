@@ -136,7 +136,15 @@ The server speaks the same `/v1/systemone` API as TypeSafe's Jev, so a client wr
 
 For the smaller one, add `--variant lower-latency` to both the download and the server commands. It is more cautious: it sends the first example ticket to `escalate` instead of `act`.
 
-Would you rather have a `kelter` command than a clone? See [docs/install.md](https://github.com/s1mar/kelter/blob/main/docs/install.md).
+Would you rather skip the clone? kelter is on PyPI:
+
+```bash
+pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+pip install kelter
+kelter
+```
+
+The first line gives you a GPU build of torch; leave it out on a machine without an NVIDIA GPU. `kelter` on its own tells you what to run next. More in [docs/install.md](https://github.com/s1mar/kelter/blob/main/docs/install.md).
 
 ## Good to know
 

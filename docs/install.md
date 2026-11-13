@@ -12,20 +12,15 @@ On a Mac, kelter uses the CPU. The Apple GPU is off by default because it failed
 
 ## Install as a package
 
-From version 0.3.0 kelter also installs as a package, so you can serve it without keeping a clone around. It is not on PyPI yet. Build the wheel once from a clone:
-
-```bash
-python -m pip install build
-python -m build
-```
-
-That writes `dist/kelter-0.3.2-py3-none-any.whl`. In a new environment, install a CUDA build of torch first (the torch that PyPI offers for Windows is CPU-only), then the wheel:
+kelter is on PyPI, so you can serve it without keeping a clone around. In a new environment, install a CUDA build of torch first (the torch that PyPI offers for Windows is CPU-only), then kelter:
 
 ```bash
 python -m venv kelter-env
 kelter-env/Scripts/python -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
-kelter-env/Scripts/python -m pip install dist/kelter-0.3.2-py3-none-any.whl
+kelter-env/Scripts/python -m pip install kelter
 ```
+
+No NVIDIA GPU? Skip the torch line: `pip install kelter` alone brings a CPU build, which is all the smaller model needs.
 
 Then use the `kelter` command, found in `kelter-env/Scripts/` (`kelter-env/bin/` on Linux and macOS):
 
