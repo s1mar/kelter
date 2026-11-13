@@ -1,0 +1,23 @@
+{
+  "ckpt": "checkpoints/Q1",
+  "runs": 50,
+  "state_tokens": 1000,
+  "options": 5,
+  "power_mode": "balance",
+  "sequence_tokens": 1095,
+  "device": "cuda",
+  "gpu": "NVIDIA GeForce RTX 4080 Laptop GPU",
+  "gpu_forward_ms": {
+    "p50": 479.0953499978059,
+    "p95": 545.3113999959896,
+    "mean": 483.37623799976427,
+    "n": 50
+  },
+  "gpu_engine_ms": {
+    "p50": 687.6615000073798,
+    "p95": 749.7758150013397,
+    "mean": 693.7218979996396,
+    "n": 50
+  },
+  "command": "python -m kelter.eval.latency --ckpt checkpoints/Q1 --runs 50 --tag Q1_balance --power-mode balance"
+}

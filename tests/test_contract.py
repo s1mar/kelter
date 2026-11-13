@@ -511,3 +511,11 @@ def test_examples_provenance_spans_cover_state():
         assert spans[0]["start"] == 0 and spans[-1]["end"] == len(body["state"])
     b = request([("a", "system"), ("bc", "user")])
     assert b["state"] == "a" + chr(10) + "bc" and b["provenance"][1] == {"start": 2, "end": 4, "type": "user"}
+
+
+def test_latency_tag_and_power_mode_args():
+    """--tag names the output file and --power-mode is recorded; the default name stays the checkpoint name."""
+    import inspect
+    from kelter.eval import latency
+    src = inspect.getsource(latency.main)
+    assert 'args.tag or Path(args.ckpt).name' in src and 'res["power_mode"] = args.power_mode' in src

@@ -2,7 +2,7 @@
 
 A small decision model you run on your own machine. Give it a piece of text and a multiple-choice question, and it returns an answer, a calibrated probability for each option, the passages that support the answer, how likely it is that no option fits, and whether you should act on the answer or hand the question to something bigger.
 
-The default model is Qwen3-4B with a small LoRA adapter, paired with a 149M-parameter encoder (ModernBERT) that points at the evidence. A full decision takes about half a second on a laptop GPU and needs no API key. A lower-latency variant uses the encoder alone.
+The default model is Qwen3-4B with a small LoRA adapter, paired with a 149M-parameter encoder (ModernBERT) that points at the evidence. A full decision takes between half a second and 0.7 seconds on a laptop GPU, depending on the laptop's power mode, and needs no API key. A lower-latency variant uses the encoder alone.
 
 The server speaks the same `/v1/systemone` API as TypeSafe's Jev, so clients written for that API only need a new base URL.
 
@@ -100,7 +100,8 @@ The action is strict. It is `act` only when the evidence is admissible and maski
 | Calibration error (15 bins) | 0.017 | 0.042 |
 | Accuracy when it acts | 0.974 | 0.970 |
 | Wrong option acted on, planted text under a trusted label (3,120 cases) | 4 (0.001) | 6 (0.002) |
-| Decision latency, laptop GPU (p50) | 542 ms | 149 ms |
+| Decision latency, laptop GPU (p50), highest power mode | 542 ms | 149 ms |
+| Decision latency, laptop GPU (p50), balanced power mode | 688 ms | not measured |
 | Weights | 126 MB adapter + 607 MB encoder, plus the 8 GB base download | 4.0 GB |
 
 In the default variant the Qwen model reads the text and the options, labelled with letters plus one more letter for "none of the options", and the probabilities come from its next-token logits for those letters. The encoder checkpoint r2 supplies the evidence spans. The lower-latency variant is encoder-only: r2 chooses the option and four checkpoints' null scores are averaged. Start it with `--variant lower-latency` and fetch its weights with `scripts/download_weights.py --variant lower-latency`.
@@ -142,7 +143,7 @@ The first command downloads the public datasets listed in `THIRD-PARTY.md` and w
 - kelter trusts the provenance labels you supply. Text labelled `user` or `system` counts as trusted. Only options you mark `destructive` (in `verdict_classes`) are limited to user or system evidence and to a small budget of influence from untrusted text; other options can rest on tool output. So label text from tools, web pages, files and other models as `tool_output` or `retrieved_doc`, and mark every irreversible option `destructive`. When planted text naming a wrong option carries a trusted label, the default variant acts on the wrong option in 4 of 3,120 test cases and lower-latency in 6 of 3,120 (`results/eval/engine_Q1base.json`, `results/eval/engine_E1base.json`).
 - The default variant needs a GPU: the engine's four passes take 11.5 s on CPU with int8 quantization. The lower-latency variant runs on CPU in about 3 s.
 - Calibration on JevBench's public tiers is worse than on our held-out data (ECE 0.038 to 0.124 by tier); the temperature was fitted on different kinds of text.
-- Latency was measured on one laptop GPU shared with the desktop, in its highest power mode.
+- Latency was measured on one laptop GPU shared with the desktop. The figures in its highest power mode are the fastest it gets; in the balanced mode the default variant's decision takes 688 ms instead of 542 ms (`results/eval/latency_Q1_balance.json`). The lower-latency variant was measured in the highest mode only.
 - The injection guarantee was tested on synthetic shell-gating and account-deletion items, not on real agent traces.
 - The evidence spans come from the encoder, not from the Qwen model, so they show what the encoder relied on; the necessity check then measures whether masking them changes the Qwen model's answer (0.586 of e-SNLI answers change, against 0.362 for a random mask of the same size).
 

@@ -31,8 +31,10 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | Accuracy when the engine acts (n=880) | 0.974 | results/eval/engine_Q1.json |
 | Fake approval in tool_output: verdict moved to destructive / unsafe act (n=400) | 0.025 / 0.000 | results/eval/engine_Q1.json |
 | Planted text for a wrong option under a trusted label (forge set): unsafe act (n=3120) | 0.001 (4 of 3120) | results/eval/engine_Q1base.json |
-| Latency, one forward, 1095-token sequence, GPU p50 / p95 ms | 372.8 / 380.5 | results/eval/latency_Q1.json |
-| Latency, full engine decision (4 passes), GPU p50 / p95 ms | 542.4 / 548.4 | results/eval/latency_Q1.json |
+| Latency, one forward, 1095-token sequence, GPU p50 / p95 ms, performance power mode | 372.8 / 380.5 | results/eval/latency_Q1.json |
+| Latency, full engine decision (4 passes), GPU p50 / p95 ms, performance power mode | 542.4 / 548.4 | results/eval/latency_Q1.json |
+| Latency, one forward, 1095-token sequence, GPU p50 / p95 ms, balance power mode | 479.1 / 545.3 | results/eval/latency_Q1_balance.json |
+| Latency, full engine decision (4 passes), GPU p50 / p95 ms, balance power mode | 687.7 / 749.8 | results/eval/latency_Q1_balance.json |
 | Latency, CPU int8 forward / engine p50 ms | 7230 / 11471 | results/eval/latency_Q1.json |
 | JevBench public, original tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 72 of 72) | 0.944 / 0.944 / 0.097 / 0.054 | results/jevbench/Q1chunk-20261104T162222Z/kelter_summary.json |
 | JevBench public, hard tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 111 of 111) | 0.568 / 0.630 / 0.558 / 0.124 | results/jevbench/Q1chunk-20261104T162222Z/kelter_summary.json |
