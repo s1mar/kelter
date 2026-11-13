@@ -4,7 +4,11 @@ Two ways to install: from a clone (the README's quick start) or as a package. Th
 
 ## Platforms
 
-Python 3.12 and an NVIDIA GPU with 12 GB of memory (the default model needs about 9 GB of it free). Tested on Windows 11. On Linux, installation and the CPU test suite run on Ubuntu 24.04 in CI, but the server has not been run end to end there. A Mac with Apple Silicon should work, slower, and is untested: install torch from PyPI without the CUDA index. Without a GPU, start the smaller model with `--variant lower-latency`.
+The main model needs Python 3.12 and an NVIDIA GPU with 12 GB of memory (about 9 GB of it free). It has been run on Windows 11.
+
+The smaller model (`--variant lower-latency`) needs no GPU. It has been run end to end, from install to answers, on Windows 11, on Ubuntu 24.04 and on an Apple Silicon Mac (macOS 26), on the CPU each time: about 6 seconds for the two example questions on a laptop, 12 on the Linux test machine and 44 on the Mac test machine.
+
+On a Mac, kelter uses the CPU. The Apple GPU is off by default because it failed in our test with an error inside torch; `KELTER_DEVICE=mps` turns it on if you want to try. On a Mac, install torch from PyPI without the CUDA index. The main model has not been run on a Mac.
 
 ## Install as a package
 
@@ -15,12 +19,12 @@ python -m pip install build
 python -m build
 ```
 
-That writes `dist/kelter-0.3.0-py3-none-any.whl`. In a new environment, install a CUDA build of torch first (the torch that PyPI offers for Windows is CPU-only), then the wheel:
+That writes `dist/kelter-0.3.1-py3-none-any.whl`. In a new environment, install a CUDA build of torch first (the torch that PyPI offers for Windows is CPU-only), then the wheel:
 
 ```bash
 python -m venv kelter-env
 kelter-env/Scripts/python -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
-kelter-env/Scripts/python -m pip install dist/kelter-0.3.0-py3-none-any.whl
+kelter-env/Scripts/python -m pip install dist/kelter-0.3.1-py3-none-any.whl
 ```
 
 Then use the `kelter` command, found in `kelter-env/Scripts/` (`kelter-env/bin/` on Linux and macOS):

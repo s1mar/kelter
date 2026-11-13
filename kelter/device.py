@@ -1,5 +1,7 @@
-"""Device choice for inference: KELTER_DEVICE if set, else CUDA (NVIDIA),
-else MPS (Apple Silicon GPU, through Metal), else CPU. Training stays CUDA only."""
+"""Device choice for inference: KELTER_DEVICE if set, else CUDA (NVIDIA), else CPU.
+The Apple GPU (MPS) is used only when KELTER_DEVICE=mps asks for it: in an end-to-end test on an
+Apple Silicon machine it failed with an index error inside torch, while the CPU gave the expected
+answers. Training stays CUDA only."""
 from __future__ import annotations
 
 import os
@@ -14,9 +16,6 @@ def default_device() -> str:
         return env
     if torch.cuda.is_available():
         return "cuda"
-    mps = getattr(torch.backends, "mps", None)
-    if mps is not None and mps.is_available():
-        return "mps"
     return "cpu"
 
 

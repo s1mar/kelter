@@ -171,9 +171,10 @@ def test_default_device_order(monkeypatch):
     assert D.default_device() == "cuda"
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)
     monkeypatch.setattr(torch.backends.mps, "is_available", lambda: True)
+    assert D.default_device() == "cpu"  # the Apple GPU is opt-in only
+    monkeypatch.setenv("KELTER_DEVICE", "mps")
     assert D.default_device() == "mps"
-    monkeypatch.setattr(torch.backends.mps, "is_available", lambda: False)
-    assert D.default_device() == "cpu"
+    monkeypatch.delenv("KELTER_DEVICE")
     monkeypatch.setenv("KELTER_DEVICE", "cpu")
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
     assert D.default_device() == "cpu"
