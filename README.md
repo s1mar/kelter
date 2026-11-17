@@ -2,7 +2,7 @@
 
 **A small AI model that makes quick decisions for your app, and tells you when it isn't sure.**
 
-Give kelter some text and a multiple-choice question. It picks an answer, shows you the words it based that answer on, and tells you whether it is safe to act on. It runs on your own computer: no API key, no cost per call.
+Give kelter some text and a multiple-choice question. It picks an answer, shows you the words in your text that support it when it finds them, and tells you whether it is safe to act on. It runs on your own computer: no API key, no cost per call.
 
 <img alt="Two real kelter answers: a clear support ticket is routed to the account team, 99% sure, action act, with the words it relied on highlighted; a vague ticket gets the action defer." src="https://raw.githubusercontent.com/s1mar/kelter-assets/main/preview.svg" width="920">
 
@@ -12,7 +12,7 @@ Both answers above are real: they are the two examples that ship with kelter (`r
 
 - **Fast and private.** About 0.5 to 0.7 s per decision on a laptop GPU (median 542 ms, or 688 ms in balanced power mode; the slowest long JevBench input took 2.15 s). Your data never leaves your machine.
 - **Honest about confidence.** On our test questions, when it says 90% it is right about 90% of the time.
-- **Shows its work.** Every answer points to the exact words it relied on.
+- **Shows its work.** When it tells you to act, it points to the words in your text that the answer rests on.
 - **Knows when to pass.** If no option fits, or it isn't sure, it says so instead of guessing.
 - **Harder to trick.** You can mark which text came from your user and which came from a tool or a web page. A fake "approved, go ahead" hidden in a tool's output cannot be the evidence for an option you mark as risky.
 
@@ -115,7 +115,7 @@ print(answer["choice"], answer["action"])   # account act
 
 `provenance` tells kelter where each part of the text came from (`user`, `system`, `tool_output`, `retrieved_doc`). Send it whenever you can. Without it every part counts as `unknown`: kelter still answers, and can still act on ordinary options, but it cannot tell your user's words from a tool's, so an option you marked `destructive` will never get `act`.
 
-The server speaks the same `/v1/systemone` API as TypeSafe's Jev, so a client written for that only needs a new address. Besides `choice` there are `score` (a scale) and `noul` (yes or no) questions. The full reference is [docs/typesafe-contract.md](https://github.com/s1mar/kelter/blob/main/docs/typesafe-contract.md).
+The server speaks the `/v1/systemone` wire format of TypeSafe's Jev for text questions, so most clients written for that only need a new address. Images, `box` questions and a few other cases are not supported; the API reference lists them. Besides `choice` there are `score` (a scale) and `noul` (yes or no) questions. The full reference is [docs/typesafe-contract.md](https://github.com/s1mar/kelter/blob/main/docs/typesafe-contract.md).
 
 ## Windows, Linux and Mac
 
@@ -142,7 +142,7 @@ Then run `kelter examples` in a second terminal. kelter uses the Mac's CPU by de
 | `choice` | the option it picked |
 | `confidence` | how sure it is, from 0 to 1 |
 | `action` | `act`: safe to go ahead. `escalate`: probably right, but get a second opinion. `defer`: do not rely on this answer. |
-| `witness` | the words in your text that the answer rests on |
+| `witness` | the words in your text that the answer rests on; empty when it found none |
 | `null_probability` | the chance that none of your options fits |
 
 ## Two sizes

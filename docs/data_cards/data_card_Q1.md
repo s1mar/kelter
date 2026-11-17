@@ -22,7 +22,7 @@ Sample (kelter/llm_train.py, results/train/Q1.json): records whose state carries
 | synthetic_policy | 7187 | 5000 | 450 |
 | synthetic_score | 3728 | 3000 | 94 |
 
-Calibration (per-type temperature, split conformal) uses data/built/calib.jsonl only (results/calibration/Q1.json). No test or JevBench item is used to train, select or calibrate anything.
+Calibration (per-type temperature, split conformal) uses data/built/calib.jsonl only (results/calibration/Q1.json). No test or JevBench item is used to train or calibrate anything. The JevBench public tiers were used to choose between candidate models, Q1 among them (docs/limitations.md).
 
 ## Corpus the sample is drawn from (data/built/manifest.json)
 

@@ -105,7 +105,7 @@ The two served variants, the earlier default E3, the member checkpoints and ever
 
 JevBench columns for Q2 and Q3 come from `results/jevbench/Q2-20261104T140620Z/kelter_summary.json` and `results/jevbench/Q3-20261104T230135Z/kelter_summary.json`.
 
-The two Qwen rows that did not become the default: Q2 trained on the larger r5 corpus (with the synthetic shapes tasks) and 2048-token prompts (`results/train/Q2.json`), and lost on the hard tier. Q3 is Q1's recipe with 15% of the training records padded with unrelated passages to between 4,000 and 11,000 characters (`results/train/Q3.json`), to train length handling; it held the held-out numbers but was lower on every JevBench tier and more overconfident on the hard tier (mean top probability 0.734 against accuracy 0.541). Q1 stays the default.
+The two Qwen rows that did not become the default: Q2 trained on the larger r5 corpus (with the synthetic shapes tasks) and 2048-token prompts (`results/train/Q2.json`), and scored lower on the hard tier (54 of 111 against Q1's 63). Q3 is Q1's recipe with 15% of the training records padded with unrelated passages to between 4,000 and 11,000 characters (`results/train/Q3.json`), to train length handling; it held the held-out numbers but was lower on every JevBench tier by 2 or 3 items (65, 60 and 44 correct against Q1's 68, 63 and 46) and more overconfident on the hard tier (mean top probability 0.734 against accuracy 0.541). These gaps are a few items on small tiers, within what chance alone could give, so they are a reason not to switch, not evidence that Q1 is better. Q1 stays the default.
 
 ## An action rule that was tested and not shipped
 
