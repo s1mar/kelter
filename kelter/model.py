@@ -70,9 +70,14 @@ def _provenance_finder(provenance):
 
 
 def canonical_order(options: Sequence[Dict[str, str]]) -> List[int]:
-    """Indices sorting options by the sha256 of their rendered text."""
+    """Indices sorting options by the sha256 of their rendered text.
+
+    The key joins name and description with \x1f without escaping it, so two different options can share a key
+    ({"a\x1fb": "c"} and {"a": "b\x1fc"}); such a tie is broken by (name, description), not by request order, so
+    permuting the request cannot change the result. The key itself is unchanged, so the order of every option set whose
+    keys are distinct is the same as before."""
     keys = [hashlib.sha256((o["name"] + "\x1f" + o["description"]).encode("utf-8")).hexdigest() for o in options]
-    return sorted(range(len(options)), key=lambda i: keys[i])
+    return sorted(range(len(options)), key=lambda i: (keys[i], options[i]["name"], options[i]["description"]))
 
 
 @dataclass

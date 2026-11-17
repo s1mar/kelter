@@ -1,0 +1,57 @@
+{
+  "data/built/anli_test.jsonl": {
+    "records": 2000,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "data/built/calib.jsonl": {
+    "records": 3439,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "data/built/dev.jsonl": {
+    "records": 16967,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "data/built/test.jsonl": {
+    "records": 3340,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "data/built/test_forge.jsonl": {
+    "records": 3120,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "data/built/test_nudge.jsonl": {
+    "records": 3120,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "data/built/test_null.jsonl": {
+    "records": 2787,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "data/built/test_unknowable_corrected.jsonl": {
+    "records": 5918,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "data/built/train.jsonl": {
+    "records": 199502,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "data/built/witness_test.jsonl": {
+    "records": 2999,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  },
+  "third_party/jevbench public items": {
+    "records": 231,
+    "order_differs": 0,
+    "records_with_two_equal_keys": 0
+  }
+}

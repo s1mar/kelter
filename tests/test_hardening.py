@@ -163,6 +163,8 @@ def test_llm_train_revision_and_command():
     from kelter import llm_train as lt
     assert lt.pick_revision(lt.BASE, None) == lt.BASE_REVISION
     assert lt.pick_revision(lt.BASE, "abc") == "abc" and lt.pick_revision("other/base", None) is None
+    # the revision the shipped adapter was trained on, as recorded in a tracked file (checkpoints are not in the repository)
+    assert '"base_revision": "%s"' % lt.BASE_REVISION in (ROOT / "results" / "final.json").read_text(encoding="utf-8")
     q1 = ROOT / "checkpoints" / "Q1" / "config.json"
     if q1.exists():
         assert json.loads(q1.read_text(encoding="utf-8"))["base_revision"] == lt.BASE_REVISION

@@ -349,8 +349,8 @@ def main(argv=None) -> int:
 
 
 def _record_downloads(sink: List[Dict[str, Any]]):
-    """Wrap hf_hub_download (in huggingface_hub and in every converter that imported it) so each source file the build
-    reads is recorded with its sha256 in `sink`; returns a function that undoes the wrapping. A later upstream change to
+    """Wrap hf_hub_download (in huggingface_hub and in every converter that imported it) and the e-SNLI CSV fetch so each
+    source file the build reads is recorded with its sha256 in `sink`; returns a function that undoes the wrapping. A later upstream change to
     a source file then shows as a different hash in manifest.json."""
     import importlib
     import pkgutil
@@ -367,17 +367,28 @@ def _record_downloads(sink: List[Dict[str, Any]]):
         sink.append({"repo": a[0] if a else k.get("repo_id"), "file": a[1] if len(a) > 1 else k.get("filename"),
                      "revision": k.get("revision"), "sha256": sha256(Path(path))})
         return path
-    patched = [(huggingface_hub, orig)]
+    patched = [(huggingface_hub, "hf_hub_download", orig)]
     huggingface_hub.hf_hub_download = wrapped
     for m in pkgutil.iter_modules(converters.__path__):
         mod = importlib.import_module(f"{converters.__name__}.{m.name}")
         if getattr(mod, "hf_hub_download", None) is orig:
-            patched.append((mod, orig))
+            patched.append((mod, "hf_hub_download", orig))
             mod.hf_hub_download = wrapped
 
+    # The e-SNLI CSVs come over HTTP from GitHub, not through the hub: wrap its fetch function too.
+    from kelter.data.converters import esnli
+    orig_csv = esnli.ensure_csv
+
+    def wrapped_csv(name):
+        path = orig_csv(name)
+        sink.append({"repo": esnli.RAW_BASE, "file": name, "revision": None, "sha256": sha256(Path(path))})
+        return path
+    patched.append((esnli, "ensure_csv", orig_csv))
+    esnli.ensure_csv = wrapped_csv
+
     def undo():
-        for mod, fn in patched:
-            mod.hf_hub_download = fn
+        for mod, attr, fn in patched:
+            setattr(mod, attr, fn)
     return undo
 
 
