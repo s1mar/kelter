@@ -78,8 +78,11 @@ jobs:
           "$RUNNER_TEMP/venv/bin/kelter" download
           set +e
           "$RUNNER_TEMP/venv/bin/kelter" serve > default.txt 2>&1
-          echo "exit code $?"
+          CODE=$?
+          set -e
           cat default.txt
+          test "$CODE" -ne 0
+          grep -q "needs an NVIDIA GPU" default.txt
 
   default-on-cpu:
     # The default (Qwen3-4B) variant on Linux without a GPU: slow, and it may not fit in the runner's memory.
