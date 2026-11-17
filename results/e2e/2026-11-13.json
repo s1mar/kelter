@@ -1,0 +1,61 @@
+{
+  "what": "End-to-end runs on GitHub-hosted runners: install the wheel in a fresh venv, download weights without a login, serve, ask the built-in examples.",
+  "repository": "s1mar/kelter",
+  "workflow": ".github/workflows/e2e.yml",
+  "runs": [
+    {
+      "run_id": 43355814546,
+      "date": "2026-11-12",
+      "variant": "lower-latency",
+      "os": "ubuntu-24.04",
+      "device": "cpu",
+      "result": "pass",
+      "seconds_two_requests": 12
+    },
+    {
+      "run_id": 43355814546,
+      "date": "2026-11-12",
+      "variant": "lower-latency",
+      "os": "macos arm64 (macOS 26)",
+      "device": "mps (picked automatically at the time)",
+      "result": "fail: HTTP 500, torch.AcceleratorError index out of bounds"
+    },
+    {
+      "run_id": 43355814546,
+      "date": "2026-11-12",
+      "variant": "lower-latency",
+      "os": "macos arm64 (macOS 26)",
+      "device": "cpu (forced)",
+      "result": "pass",
+      "seconds_two_requests": 44
+    },
+    {
+      "run_id": 43381187117,
+      "date": "2026-11-13",
+      "variant": "lower-latency",
+      "os": "macos arm64 (macOS 26)",
+      "device": "cpu (default since 0.3.1)",
+      "result": "pass",
+      "seconds_two_requests": 23
+    },
+    {
+      "run_id": 43381187117,
+      "date": "2026-11-13",
+      "variant": "lower-latency",
+      "os": "ubuntu-24.04",
+      "device": "cpu",
+      "result": "pass"
+    },
+    {
+      "run_id": 43382576473,
+      "date": "2026-11-13",
+      "variant": "default",
+      "os": "ubuntu-24.04",
+      "device": "cpu",
+      "result": "pass",
+      "answer": "account / act / witness, confidence 0.9938",
+      "seconds_one_request": 475
+    }
+  ],
+  "note": "Logs are on the repository's Actions page under these run ids. The answers of the lower-latency variant were: first example escalate (choice account), second example defer."
+}

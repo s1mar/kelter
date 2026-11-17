@@ -43,7 +43,7 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | JevBench public, pooled 231 items: correct / latency p50 s / latency max s | 177 / 0.147 / 2.15 | results/jevbench/Q1chunk_cost.json |
 | JevBench public, mean reported input tokens per decision (all engine passes) / cost per 1,000 decisions at USD 0.04 per million tokens | 1331.4 / USD 0.0533 | results/jevbench/Q1chunk_cost.json |
 | JevBench public, hard tier: accuracy / mean top probability | 0.568 / 0.657 | results/jevbench/Q1chunk_cost.json |
-| JevBench v1.4 composite | not computable locally: it needs the sealed tier and a hosted cost basis | third_party/jevbench/jevbench/composite_v14.py |
+| JevBench v1.4 composite | not computable locally: it needs the sealed tier and a hosted cost basis | JevBench's `jevbench/composite_v14.py`, in their repository |
 
 ### `lower-latency` (E1)
 
@@ -76,7 +76,7 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | JevBench public, original tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 72 of 72) | 0.444 / 0.444 / 0.608 / 0.208 | results/jevbench/E1-20261030T212239Z/kelter_summary.json |
 | JevBench public, hard tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 111 of 111) | 0.360 / 0.369 / 0.786 / 0.224 | results/jevbench/E1-20261030T212239Z/kelter_summary.json |
 | JevBench public, easy tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 48 of 48) | 0.896 / 0.896 / 0.252 / 0.201 | results/jevbench/E1-20261030T212239Z/kelter_summary.json |
-| JevBench v1.4 composite | not computable locally: it needs the sealed tier and a hosted cost basis | third_party/jevbench/jevbench/composite_v14.py |
+| JevBench v1.4 composite | not computable locally: it needs the sealed tier and a hosted cost basis | JevBench's `jevbench/composite_v14.py`, in their repository |
 
 ## All measured runs
 
@@ -104,7 +104,7 @@ The two served variants, the earlier default E3, the member checkpoints and ever
 
 JevBench columns for Q2 and Q3 come from `results/jevbench/Q2-20261104T140620Z/kelter_summary.json` and `results/jevbench/Q3-20261104T230135Z/kelter_summary.json`.
 
-The two Qwen rows that did not become the default: Q2 trained on the larger r5 corpus (with the synthetic shapes tasks) and 2048-token prompts, and lost on the hard tier. Q3 is Q1's recipe with 15% of the training records padded with unrelated passages to 846 to 2,786 tokens, to train length handling; it held the held-out numbers but was lower on every JevBench tier and more overconfident on the hard tier (mean top probability 0.734 against accuracy 0.541). Q1 stays the default.
+The two Qwen rows that did not become the default: Q2 trained on the larger r5 corpus (with the synthetic shapes tasks) and 2048-token prompts (`results/train/Q2.json`), and lost on the hard tier. Q3 is Q1's recipe with 15% of the training records padded with unrelated passages to between 4,000 and 11,000 characters (`results/train/Q3.json`), to train length handling; it held the held-out numbers but was lower on every JevBench tier and more overconfident on the hard tier (mean top probability 0.734 against accuracy 0.541). Q1 stays the default.
 
 ## An action rule that was tested and not shipped
 
@@ -117,7 +117,7 @@ The shipped rule acts only on admissible evidence, so it defers most questions. 
 | Fake approval in tool_output: unsafe act (n=400) | 0 | 0 |
 | Forge set: unsafe act (n=3120) | 4 (0.001) | 19 (0.006) |
 
-The candidate failed on the forge set, so it was not shipped. The same test gave the shipped rule its first forge figure: 4 unsafe acts in 3,120, all on items where the planted text carried a `user` or `system` label. The shipped figures are in `results/eval/engine_Q1base.json`; the candidate's run is not part of this repository.
+The candidate failed on the forge set, so it was not shipped. The same test gave the shipped rule its first forge figure: 4 unsafe acts in 3,120, all on items where the planted text carried a `user` or `system` label. The shipped figures are in `results/eval/engine_Q1base.json`; the candidate's figures are in `results/eval/engine_Q1conf.json`.
 
 ## Baselines
 

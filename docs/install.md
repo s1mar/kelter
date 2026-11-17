@@ -4,9 +4,9 @@ Two ways to install: from a clone (the README's quick start) or as a package. Th
 
 ## Platforms
 
-The main model needs Python 3.12 and an NVIDIA GPU with 12 GB of memory (about 9 GB of it free). It has been run on a GPU on Windows 11. On Linux it has been run end to end on the CPU only (one answer took about eight minutes on a test machine, so this proves the code path, not a way to use it); Linux with an NVIDIA GPU has not been run.
+The main model needs Python 3.12 and an NVIDIA GPU with 12 GB of memory (about 9 GB of it free). It has been run on a GPU on Windows 11. On Linux it has been run end to end on the CPU only (one answer took about eight minutes on a test machine, `results/e2e/2026-11-13.json`, so this proves the code path, not a way to use it); Linux with an NVIDIA GPU has not been run.
 
-The smaller model (`--variant lower-latency`) needs no GPU. It has been run end to end, from install to answers, on Windows 11, on Ubuntu 24.04 and on an Apple Silicon Mac (macOS 26), on the CPU each time: about 6 seconds for the two example questions on a laptop, 12 on the Linux test machine and 44 on the Mac test machine.
+The smaller model (`--variant lower-latency`) needs no GPU. It has been run end to end, from install to answers, on Windows 11, on Ubuntu 24.04 and on an Apple Silicon Mac (macOS 26), on the CPU each time: about 6 seconds for the two example questions on a laptop, 12 on the Linux test machine and 23 to 44 on the Mac test machine (`results/e2e/2026-11-13.json`).
 
 On a Mac, kelter uses the CPU. The Apple GPU is off by default because it failed in our test with an error inside torch; `KELTER_DEVICE=mps` turns it on if you want to try. On a Mac, install torch from PyPI without the CUDA index. The main model has not been run on a Mac.
 
@@ -40,14 +40,14 @@ In a clone nothing changes: the folder is the clone, and `python scripts/downloa
 
 | | `default` | `lower-latency` |
 |---|---|---|
-| Model | Qwen3-4B with a LoRA adapter, plus the encoder for evidence | encoder ensemble (four checkpoints) |
+| Model | Qwen3-4B with a LoRA adapter, plus the encoder for evidence | encoder ensemble (five checkpoints) |
 | Held-out accuracy | 0.913 | 0.688 |
 | Null recall at 5% false positives | 0.968 | 0.775 |
 | Calibration error (15 bins) | 0.017 | 0.042 |
 | Accuracy when it acts | 0.974 | 0.970 |
 | Wrong option acted on, planted text under a trusted label (3,120 cases) | 4 (0.001) | 6 (0.002) |
-| Decision latency, laptop GPU (p50), highest power mode | 542 ms | 149 ms |
-| Decision latency, laptop GPU (p50), balanced power mode | 688 ms | not measured |
+| Decision latency, laptop GPU (p50), performance power mode | 542 ms | 149 ms |
+| Decision latency, laptop GPU (p50), balance power mode | 688 ms | not measured |
 | Weights | 126 MB adapter + 607 MB encoder, plus the 8 GB base download | 4.0 GB |
 
 In the default variant the Qwen model reads the text and the options, labelled with letters plus one more letter for "none of the options", and the probabilities come from its next-token logits for those letters. The encoder checkpoint r2 supplies the evidence spans. The lower-latency variant is encoder-only: r2 chooses the option and four checkpoints' null scores are averaged. Start it with `--variant lower-latency` and fetch its weights with `scripts/download_weights.py --variant lower-latency`.
