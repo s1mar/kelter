@@ -26,6 +26,8 @@ import string
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
+from kelter.data.schema import QuestionTooLong
+
 LETTERS = string.ascii_uppercase
 NULL_TEXT = "None of the options: the text does not settle the question."
 # The null choice as shown to the LLM, as the last lettered option. It differs on purpose from kelter.model.NULL_TEXT
@@ -38,7 +40,10 @@ PREFILL_CHUNK = 1024  # tokens per prefill chunk; 0 is off
 def prefill_chunk_setting(cfg=None) -> int:
     """Effective prefill chunk: KELTER_PREFILL_CHUNK, else the checkpoint config, else PREFILL_CHUNK."""
     import os
-    return int(os.environ.get("KELTER_PREFILL_CHUNK", (cfg or {}).get("prefill_chunk", PREFILL_CHUNK)))
+    chunk = int(os.environ.get("KELTER_PREFILL_CHUNK", (cfg or {}).get("prefill_chunk", PREFILL_CHUNK)))
+    if chunk < 0:  # a negative chunk made every prefill fail later with an unbound variable
+        raise ValueError(f"KELTER_PREFILL_CHUNK must be 0 (off) or a positive number of tokens, not {chunk}")
+    return chunk
 
 
 def show_order(r: Dict[str, Any], canonical: bool) -> List[int]:
@@ -57,6 +62,7 @@ def user_text(r: Dict[str, Any], order: Sequence[int], state: str) -> str:
             + f"\n\n{ANSWER_LINE}")
 
 
+STATE_FLOOR = 32  # state tokens that must fit in the window next to the header, the instructions and the options
 _CONTROLS: Dict[int, Any] = {}  # id(tokenizer) -> (tokenizer, pattern); the tokenizer is kept to detect a reused id
 
 
@@ -125,19 +131,31 @@ def build_prompt(tok, r: Dict[str, Any], order: Sequence[int], max_tokens: int, 
     if info is not None:
         info["truncated"] = True  # the state is cut below; the caller can report it (verifier.truncated)
     s = encode_plain(tok, r["state"])
+    # Only the state is ever cut: the chat header, the instructions and every option line stay whole. If they leave no
+    # room for a floor of state tokens (32, or the whole state if it is shorter), the question does not fit this window.
+    floor = min(STATE_FLOOR, len(s))
+    base = len(ids_for(""))
+    if base + floor > max_tokens:
+        raise QuestionTooLong(f"the question, its options and the answer line need {base} tokens before any text of the "
+                              f"state, and the window is {max_tokens} tokens (at least {floor} state tokens must fit)", r.get("id"))
     # s holds the state's tokens. Cut the overflow (prompt length minus the budget) out of the state, and take
     # 16 tokens more as a margin for the " [...] " joiner and for decode/re-tokenise drift; never keep fewer
-    # than 32. Of the tokens kept, two thirds come from the start and the remaining third from the end.
-    # The final [-max_tokens:] below is a last guard that cuts from the left if the prompt is still too long.
-    keep = max(32, len(s) - (len(ids) - max_tokens) - 16)
+    # than the floor. Of the tokens kept, two thirds come from the start and the remaining third from the end.
+    keep = max(STATE_FLOOR, len(s) - (len(ids) - max_tokens) - 16)
     if keep > len(s):
-        # A state shorter than the 32-token floor cannot be cut; slicing it would repeat tokens around " [...] ".
-        # Keep it whole; the [-max_tokens:] cut is then the only one. (Before this check, head and tail slices
-        # of such a state overlapped.)
-        return ids[-max_tokens:]
-    head = (2 * keep) // 3
-    state = tok.decode(s[:head]) + " [...] " + tok.decode(s[len(s) - (keep - head):])
-    return ids_for(state)[-max_tokens:]
+        # A state shorter than the floor cannot be cut; slicing it would repeat tokens around " [...] ".
+        # It fits whole (checked above), so the prompt with it was already within the window.
+        return ids
+    for _ in range(8):
+        head = (2 * keep) // 3
+        state = tok.decode(s[:head]) + " [...] " + tok.decode(s[len(s) - (keep - head):])
+        out = ids_for(state)
+        if len(out) <= max_tokens:
+            return out
+        keep -= len(out) - max_tokens  # still over (the joiner or re-tokenising cost tokens): shed the excess from the state
+        if keep < floor:
+            break
+    raise QuestionTooLong(f"the prompt does not fit {max_tokens} tokens with at least {floor} state tokens", r.get("id"))
 
 
 def letter_ids(tok) -> List[int]:

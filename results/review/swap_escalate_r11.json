@@ -1,0 +1,310 @@
+{
+  "a_option_scan": {
+    "swap_state_items": 3120,
+    "by_source_and_question_type": {
+      "arc_challenge/choice": {
+        "items": 745,
+        "offering_cannot_decide": 0,
+        "offering_escalate": 0,
+        "option_names": {}
+      },
+      "clinc150/choice": {
+        "items": 1718,
+        "offering_cannot_decide": 0,
+        "offering_escalate": 0,
+        "option_names": {}
+      },
+      "synthetic_policy_sharing/choice": {
+        "items": 324,
+        "offering_cannot_decide": 324,
+        "offering_escalate": 324,
+        "option_names": {
+          "escalate": 324
+        }
+      },
+      "synthetic_policy_sharing/noul": {
+        "items": 333,
+        "offering_cannot_decide": 0,
+        "offering_escalate": 0,
+        "option_names": {}
+      }
+    },
+    "offering_cannot_decide_total": 324,
+    "cue_words": "missing|cannot decide|can't decide|cannot be decided|not enough information|insufficient|unknown|undetermined|out of scope|out_of_scope|none of the|no answer"
+  },
+  "training_swap_state": {
+    "built": {
+      "training_records": 199502,
+      "swap_state_records": 3817,
+      "by_source_and_question_type": {
+        "arc_easy/choice": 69,
+        "banking77/choice": 225,
+        "boolq/noul": 272,
+        "civil_comments/noul": 352,
+        "civil_comments/score": 163,
+        "esnli/choice": 493,
+        "massive/choice": 312,
+        "mmlu/choice": 74,
+        "mnli/choice": 533,
+        "paws/noul": 514,
+        "squad2/choice": 521,
+        "synthetic_policy/choice": 90,
+        "synthetic_policy/noul": 82,
+        "synthetic_score/score": 117
+      },
+      "plausibly_still_answerable_by_class": {
+        "nli_record_with_nli_donor": 158,
+        "toxicity_or_paraphrase_question": 1029,
+        "choice_with_escalate_option": 90
+      },
+      "plausibly_still_answerable_any_class": 1277,
+      "share_of_swap_records": 0.3345559339795651,
+      "swap_share_of_training": 0.019132640274282964,
+      "still_answerable_share_of_training": 0.00640093833645778
+    },
+    "built_r1": {
+      "training_records": 188589,
+      "swap_state_records": 3725,
+      "by_source_and_question_type": {
+        "arc_easy/choice": 52,
+        "banking77/choice": 225,
+        "boolq/noul": 272,
+        "civil_comments/noul": 352,
+        "civil_comments/score": 163,
+        "esnli/choice": 501,
+        "massive/choice": 312,
+        "mmlu/choice": 61,
+        "mnli/choice": 533,
+        "paws/noul": 514,
+        "squad2/choice": 466,
+        "synthetic_policy/choice": 86,
+        "synthetic_policy/noul": 87,
+        "synthetic_score/score": 101
+      },
+      "plausibly_still_answerable_by_class": {
+        "toxicity_or_paraphrase_question": 1029,
+        "nli_record_with_nli_donor": 166,
+        "choice_with_escalate_option": 86
+      },
+      "plausibly_still_answerable_any_class": 1281,
+      "share_of_swap_records": 0.34389261744966443,
+      "swap_share_of_training": 0.019751947356420576,
+      "still_answerable_share_of_training": 0.006792548876127452
+    },
+    "built_r3": {
+      "training_records": 215717,
+      "swap_state_records": 3817,
+      "by_source_and_question_type": {
+        "arc_easy/choice": 69,
+        "banking77/choice": 225,
+        "boolq/noul": 272,
+        "civil_comments/noul": 352,
+        "civil_comments/score": 163,
+        "esnli/choice": 493,
+        "massive/choice": 312,
+        "mmlu/choice": 74,
+        "mnli/choice": 533,
+        "paws/noul": 514,
+        "squad2/choice": 521,
+        "synthetic_policy/choice": 90,
+        "synthetic_policy/noul": 82,
+        "synthetic_score/score": 117
+      },
+      "plausibly_still_answerable_by_class": {
+        "nli_record_with_nli_donor": 158,
+        "toxicity_or_paraphrase_question": 1029,
+        "choice_with_escalate_option": 90
+      },
+      "plausibly_still_answerable_any_class": 1277,
+      "share_of_swap_records": 0.3345559339795651,
+      "swap_share_of_training": 0.017694479340988424,
+      "still_answerable_share_of_training": 0.005919793062206502
+    },
+    "built_r5": {
+      "training_records": 225416,
+      "swap_state_records": 6635,
+      "by_source_and_question_type": {
+        "arc_easy/choice": 112,
+        "banking77/choice": 384,
+        "boolq/noul": 454,
+        "civil_comments/noul": 589,
+        "civil_comments/score": 298,
+        "esnli/choice": 823,
+        "massive/choice": 518,
+        "mmlu/choice": 98,
+        "mnli/choice": 873,
+        "paws/noul": 834,
+        "squad2/choice": 814,
+        "synthetic_policy/choice": 151,
+        "synthetic_policy/noul": 145,
+        "synthetic_score/score": 171,
+        "synthetic_shapes/choice": 236,
+        "synthetic_shapes/noul": 135
+      },
+      "plausibly_still_answerable_by_class": {
+        "toxicity_or_paraphrase_question": 1721,
+        "nli_record_with_nli_donor": 240,
+        "choice_with_escalate_option": 151
+      },
+      "plausibly_still_answerable_any_class": 2112,
+      "share_of_swap_records": 0.31831198191409193,
+      "swap_share_of_training": 0.029434467828370656,
+      "still_answerable_share_of_training": 0.009369343791035241
+    },
+    "built_r6": {
+      "training_records": 199252,
+      "swap_state_records": 3817,
+      "by_source_and_question_type": {
+        "arc_easy/choice": 69,
+        "banking77/choice": 225,
+        "boolq/noul": 272,
+        "civil_comments/noul": 352,
+        "civil_comments/score": 163,
+        "esnli/choice": 493,
+        "massive/choice": 312,
+        "mmlu/choice": 74,
+        "mnli/choice": 533,
+        "paws/noul": 514,
+        "squad2/choice": 521,
+        "synthetic_policy/choice": 90,
+        "synthetic_policy/noul": 82,
+        "synthetic_score/score": 117
+      },
+      "plausibly_still_answerable_by_class": {
+        "toxicity_or_paraphrase_question": 1029,
+        "nli_record_with_nli_donor": 158,
+        "choice_with_escalate_option": 90
+      },
+      "plausibly_still_answerable_any_class": 1277,
+      "share_of_swap_records": 0.3345559339795651,
+      "swap_share_of_training": 0.019156645855499567,
+      "still_answerable_share_of_training": 0.006408969546102423
+    },
+    "built_r7": {
+      "training_records": 216433,
+      "swap_state_records": 6635,
+      "by_source_and_question_type": {
+        "arc_easy/choice": 112,
+        "banking77/choice": 384,
+        "boolq/noul": 454,
+        "civil_comments/noul": 589,
+        "civil_comments/score": 298,
+        "esnli/choice": 823,
+        "massive/choice": 518,
+        "mmlu/choice": 98,
+        "mnli/choice": 873,
+        "paws/noul": 834,
+        "squad2/choice": 814,
+        "synthetic_policy/choice": 151,
+        "synthetic_policy/noul": 145,
+        "synthetic_score/score": 171,
+        "synthetic_shapes/choice": 236,
+        "synthetic_shapes/noul": 135
+      },
+      "plausibly_still_answerable_by_class": {
+        "toxicity_or_paraphrase_question": 1721,
+        "nli_record_with_nli_donor": 240,
+        "choice_with_escalate_option": 151
+      },
+      "plausibly_still_answerable_any_class": 2112,
+      "share_of_swap_records": 0.31831198191409193,
+      "swap_share_of_training": 0.03065613838924748,
+      "still_answerable_share_of_training": 0.009758216168514043
+    }
+  },
+  "baselines": "per-item outputs are not stored and the baselines were not rerun",
+  "systems": {
+    "Q1": {
+      "threshold": 0.10962164402008057,
+      "headline_corrected_recall": {
+        "n": 5918,
+        "published": 0.9682325109834403,
+        "affected_removed": 0.9688952449052556,
+        "n_after_removal": 5594,
+        "chose_cannot_decide_counted_correct": 0.9704291990537344
+      },
+      "swap_state_group": {
+        "n": 3120,
+        "published": 0.9769230769230769,
+        "affected_removed": 0.9792560801144492,
+        "n_after_removal": 2796,
+        "chose_cannot_decide_counted_correct": 0.9810897435897435
+      },
+      "sharing_swap_state": {
+        "n": 657,
+        "published": 0.9771689497716894,
+        "affected_removed": 0.996996996996997,
+        "n_after_removal": 333,
+        "chose_cannot_decide_counted_correct": 0.9969558599695586
+      },
+      "affected_items": {
+        "n": 324,
+        "flagged_null": 310,
+        "chose_cannot_decide_not_flagged": 13,
+        "chose_another_option_not_flagged": 1,
+        "share": {
+          "flagged_null": 0.9567901234567902,
+          "chose_cannot_decide": 0.040123456790123455,
+          "chose_another": 0.0030864197530864196
+        }
+      },
+      "published": {
+        "headline_recall": 0.9682325109834403,
+        "threshold": 0.10962164402008057,
+        "swap_state_group": 0.9769230769230769,
+        "sharing_swap_state": 0.9771689497716894
+      },
+      "reproduced_published_figures": {
+        "headline": true,
+        "swap_state_group": true,
+        "sharing_swap_state": true
+      }
+    },
+    "E1": {
+      "threshold": 0.286684838581065,
+      "headline_corrected_recall": {
+        "n": 5918,
+        "published": 0.7747549847921595,
+        "affected_removed": 0.7617089739006078,
+        "n_after_removal": 5594,
+        "chose_cannot_decide_counted_correct": 0.7747549847921595
+      },
+      "swap_state_group": {
+        "n": 3120,
+        "published": 0.8006410256410257,
+        "affected_removed": 0.7775393419170243,
+        "n_after_removal": 2796,
+        "chose_cannot_decide_counted_correct": 0.8006410256410257
+      },
+      "sharing_swap_state": {
+        "n": 657,
+        "published": 1.0,
+        "affected_removed": 1.0,
+        "n_after_removal": 333,
+        "chose_cannot_decide_counted_correct": 1.0
+      },
+      "affected_items": {
+        "n": 324,
+        "flagged_null": 324,
+        "chose_cannot_decide_not_flagged": 0,
+        "chose_another_option_not_flagged": 0,
+        "share": {
+          "flagged_null": 1.0,
+          "chose_cannot_decide": 0.0,
+          "chose_another": 0.0
+        }
+      },
+      "published": {
+        "headline_recall": 0.7747549847921595,
+        "threshold": 0.286684838581065,
+        "swap_state_group": 0.8006410256410257,
+        "sharing_swap_state": 1.0
+      },
+      "reproduced_published_figures": {
+        "headline": true,
+        "swap_state_group": true,
+        "sharing_swap_state": true
+      }
+    }
+  }
+}

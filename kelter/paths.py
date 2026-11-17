@@ -81,7 +81,7 @@ def under_home(p) -> Path:
 def checkpoint_missing(ck) -> list:
     """What a checkpoint folder lacks, as names relative to it; an empty list means it is complete. config.json marks
     a checkpoint, but an interrupted unpack can leave it alone, so also: an LLM checkpoint ("llm" in its config) needs
-    adapter/ with adapter_model.*, an encoder checkpoint ("backbone") needs model.pt. Used by server.check_weights and
+    adapter/ with adapter_model.*, an encoder checkpoint ("backbone") needs model.pt, an ensemble ("ensemble") needs each of its members complete. Used by server.check_weights and
     by the download command, so "present" means the same in both."""
     ck = Path(ck)
     cfg = ck / "config.json"
@@ -96,6 +96,9 @@ def checkpoint_missing(ck) -> list:
         missing.append("adapter")
     if "backbone" in c and not (ck / "model.pt").exists():
         missing.append("model.pt")
+    if "ensemble" in c:  # an ensemble is its members: follow its config to their checkpoint folders (siblings of this one)
+        for m in c.get("members", []):
+            missing += [f"../{m}/{x}" for x in checkpoint_missing(ck.parent / m)]
     return missing
 
 

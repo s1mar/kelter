@@ -37,8 +37,13 @@ SPLITS = ("train", "validation", "test")
 
 
 class QuestionTooLong(ValueError):
-    """The question and its options do not fit the encoder's window (raised by kelter.model.Featurizer.assemble;
-    still a ValueError, so callers that catch ValueError are unchanged). The server answers it with a 422."""
+    """The question and its options do not fit the model's window (raised by kelter.model.Featurizer.assemble for the
+    encoder variants and by kelter.llm.build_prompt for the LLM; still a ValueError, so callers that catch ValueError are
+    unchanged). `record_id` is the id of the record that did not fit, when known. The server answers it with a 422."""
+
+    def __init__(self, message, record_id=None):
+        super().__init__(message)
+        self.record_id = record_id
 
 
 def options_from_criteria(qtype: str, criteria: Any) -> List[Dict[str, str]]:

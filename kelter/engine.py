@@ -1,6 +1,6 @@
 """Decision engine: model, four-pass verifier, policy table, conformal layer.
 
-For every record the engine runs one batched forward over four variants:
+For every record the engine scores four variants, in two batched calls (the full request, then the three masked ones):
   full            the request as given
   witness_only    everything except the witness union masked
   witness_masked  the witness union masked

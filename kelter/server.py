@@ -255,6 +255,8 @@ def _normalized(result: Dict[str, Any], names: List[str]) -> List[float]:
     if unknown:
         raise EngineError(f"engine probs name unknown options {sorted(unknown)}")
     vals = [float(probs.get(n, 0.0)) for n in names]
+    if not all(math.isfinite(v) for v in vals):
+        raise EngineError("engine returned a non-finite probability")
     if min(vals) < 0:
         raise EngineError("engine returned a negative probability")
     tot = sum(vals)
@@ -285,6 +287,9 @@ def score_confidence(p: List[float]) -> float:
 def build_answer(q: Any, rec: Dict[str, Any], result: Dict[str, Any]) -> Dict[str, Any]:
     names = [o["name"] for o in rec["options"]]
     p = _normalized(result, names)
+    nulp = result.get("null_probability")
+    if isinstance(nulp, float) and not math.isfinite(nulp):
+        raise EngineError("engine returned a non-finite null probability")
     if q.type == "choice":
         # The engine's verdict is the argmax in its own (canonical) order, and its set, verdict_class, provenance_allowed
         # and action all describe that option; `choice` is that same option, so on an exact tie the fields agree. Without
@@ -351,6 +356,7 @@ def check_weights(ckpt: str, root: Optional[Path] = None) -> None:
     missing = []
 
     def shown(x: Path) -> str:
+        x = Path(os.path.normpath(x))  # an ensemble's members are named ../<member>/..., siblings of the checkpoint
         try:
             return x.relative_to(base).as_posix()
         except ValueError:
@@ -460,7 +466,10 @@ def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
 
     @app.exception_handler(QuestionTooLong)
     async def _question_too_long(_, exc: QuestionTooLong):
-        return JSONResponse({"detail": [{"loc": ["body", "questions"], "type": "value_error",
+        # a record built by this server has the id "<request id>-<question id>": name the question that did not fit
+        rid = getattr(exc, "record_id", None) or ""
+        loc = ["body", "questions"] + ([_safe(rid.split("-", 1)[1])] if "-" in rid else [])
+        return JSONResponse({"detail": [{"loc": loc, "type": "value_error",
                                          "msg": "the question and its options are too long for this model; shorten the "
                                                 "instructions or the option descriptions"}]}, status_code=422)
 

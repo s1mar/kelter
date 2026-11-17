@@ -1,0 +1,136 @@
+{
+  "ref": "HEAD",
+  "windows": [
+    4096,
+    1024
+  ],
+  "header_ids": [
+    151644,
+    872,
+    198
+  ],
+  "files": {
+    "data/built/test.jsonl": {
+      "records": 3340,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "data/built/test_forge.jsonl": {
+      "records": 3120,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "data/built/test_nudge.jsonl": {
+      "records": 3120,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "data/built/test_null.jsonl": {
+      "records": 2787,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "data/built/test_unknowable_corrected.jsonl": {
+      "records": 5918,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "data/built/calib.jsonl": {
+      "records": 3439,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "data/built/dev.jsonl": {
+      "records": 16967,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "data/built/witness_test.jsonl": {
+      "records": 2999,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "data/built/anli_test.jsonl": {
+      "records": 2000,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "Q1 training sample (24,000)": {
+      "records": 24000,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      }
+    },
+    "JevBench public items": {
+      "records": 231,
+      "window_4096": {
+        "truncated": 0,
+        "left_cut_removing_the_header": 0
+      },
+      "window_1024": {
+        "truncated": 41,
+        "left_cut_removing_the_header": 0
+      }
+    }
+  },
+  "total_left_cut": 0
+}

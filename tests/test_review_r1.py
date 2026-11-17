@@ -357,7 +357,7 @@ def test_llm_truncated_includes_the_witness_encoders_cut():
     assert p.predict([rec])[0]["truncated"] is False
 
 
-def test_build_prompt_with_a_state_under_the_floor_does_not_repeat_it():
+def test_build_prompt_with_a_state_under_the_floor_is_refused_not_cut():
     from kelter import llm
 
     class Tok:
@@ -371,12 +371,13 @@ def test_build_prompt_with_a_state_under_the_floor_does_not_repeat_it():
             return "".join(chr(i) for i in ids)
     rec = {"state": "ABCDEFGHIJ", "question": {"type": "choice", "instructions": "i"},
            "options": [{"name": "a", "description": "A"}, {"name": "b", "description": "B"}]}
+    from kelter.data.schema import QuestionTooLong
     full = llm.build_prompt(Tok(), rec, [0, 1], 10_000)
-    info = {}
-    ids = llm.build_prompt(Tok(), rec, [0, 1], len(full) - 5, info)
-    text = "".join(chr(i) for i in ids)
-    assert info == {"truncated": True} and ids == full[-(len(full) - 5):]
-    assert "[...]" not in text and text.count("ABCDEFGHIJ") == 1
+    # five tokens short: the question and options need len(full) - 10 tokens, so a state of 10 tokens cannot fit. An older
+    # version cut the prompt from the left (header, instructions and the first option lines lost); now it is refused.
+    with pytest.raises(QuestionTooLong):
+        llm.build_prompt(Tok(), rec, [0, 1], len(full) - 5)
+    assert llm.build_prompt(Tok(), rec, [0, 1], len(full)) == full  # exactly fitting is untouched
 
 
 def test_llm_train_resolves_the_loaded_base_revision(monkeypatch):
