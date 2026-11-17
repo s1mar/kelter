@@ -101,7 +101,9 @@ class Featurizer:
         # Control ids that caller text must not produce: every special id ([CLS], [SEP], [PAD], [UNK], ...) and our own
         # markers [OPT] and [NULL], except [MASK], which the state carries on purpose (kelter.data.augment masks spans
         # by writing the text "[MASK]", and the encoder was trained on it).
-        self.control_ids = {*getattr(tokenizer, "all_special_ids", []), self.opt_id, self.null_id} - {getattr(tokenizer, "mask_token_id", None)}
+        flagged = {tid for tid, t in getattr(tokenizer, "added_tokens_decoder", {}).items() if getattr(t, "special", False)}
+        self.control_ids = ({*getattr(tokenizer, "all_special_ids", []), *flagged, self.opt_id, self.null_id}
+                            - {getattr(tokenizer, "mask_token_id", None)})
 
     def _plain_state(self, text: str, ids: List[int], offs: List[Any]):
         """The state's token ids and offsets with every control id other than [MASK] replaced by the ordinary tokens of
@@ -109,13 +111,19 @@ class Featurizer:
         marker). A state without such a string is returned as it was."""
         if not any(i in self.control_ids for i in ids):
             return ids, offs
+        # One batched call for the text of every control token (a call per token took tens of seconds on a state made of
+        # them); each slice is encoded as it would be alone, so ids and offsets are the same.
+        hits = [k for k, tid in enumerate(ids) if tid in self.control_ids]
+        enc = self.tok([text[offs[k][0]:offs[k][1]] for k in hits], add_special_tokens=False,
+                       return_offsets_mapping=True, split_special_tokens=True)
+        redo = dict(zip(hits, zip(enc["input_ids"], enc["offset_mapping"])))
         out_ids: List[int] = []
         out_offs: List[Any] = []
-        for tid, (s, e) in zip(ids, offs):
-            if tid in self.control_ids:
-                enc = self.tok(text[s:e], add_special_tokens=False, return_offsets_mapping=True, split_special_tokens=True)
-                out_ids += enc["input_ids"]
-                out_offs += [(s + a, s + b) for a, b in enc["offset_mapping"]]
+        for k, (tid, (s, e)) in enumerate(zip(ids, offs)):
+            if k in redo:
+                new_ids, new_offs = redo[k]
+                out_ids += new_ids
+                out_offs += [(s + a, s + b) for a, b in new_offs]
             else:
                 out_ids.append(tid)
                 out_offs.append((s, e))

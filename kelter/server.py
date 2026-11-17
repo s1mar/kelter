@@ -545,11 +545,17 @@ class _LazyApp:
 app = _LazyApp()
 
 
-def check_port(host: str, port: int) -> None:
-    """Exit with one line if host:port cannot be bound (a server already running there, or no permission)."""
+def check_port(host: str, port: int, platform: Optional[str] = None) -> None:
+    """Exit with one line if host:port cannot be bound (a server already running there, or no permission). The socket
+    is set up as uvicorn sets up its own: SO_REUSEADDR everywhere except Windows, where it would let a second socket
+    take a port that is in use. Without it, on Linux, a restart right after a stop could be refused while the old
+    connections are still in TIME_WAIT, though uvicorn itself would bind."""
     import socket
+    import sys
     try:
         with socket.socket(socket.AF_INET6 if ":" in host else socket.AF_INET, socket.SOCK_STREAM) as s:
+            if (platform or sys.platform) != "win32":
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind((host, port))
     except OSError as e:
         raise SystemExit(f"kelter: cannot use {host}:{port} ({e.strerror or e}). Is another server running there? "

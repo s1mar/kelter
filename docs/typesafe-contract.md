@@ -119,7 +119,7 @@ PyPI has the official client: `typesafe-sdk` (0.7.5 at the time of writing; docs
 
 ## Request limits
 
-Limits of this server, set far above any real use; a request over one gets a 422 in the OAS shape. Of these, a test checks only the `loc` of the state limit.
+Limits of this server, set far above any real use; a request over one gets a 422 in the OAS shape.
 
 | Limit | Value | `loc` of the 422 |
 |---|---|---|
@@ -132,7 +132,7 @@ Limits of this server, set far above any real use; a request over one gets a 422
 | Characters of one option description | 4,000 | `body.questions.<id>.criteria` |
 | Characters of one option name | 256 | `body.questions.<id>.criteria` |
 | Characters of one question id (a key of `questions`) | 128 | `body.questions` |
-| Nesting of a JSON `state`, `instructions` or description | 64 levels | `body.state`, `body.questions.<id>.instructions` |
+| Nesting of a JSON `state`, `instructions` or description | 64 levels | `body.state`, `body.questions.<id>.instructions`, `body.questions.<id>.criteria` |
 
 More 422 cases: NaN or Infinity anywhere in `state`, `instructions` or `criteria`, an option named `__null__` (the engine's null sentinel), text that cannot be encoded as UTF-8 (a lone surrogate), an unknown verdict class, and a question and options too long for an encoder variant's window.
 

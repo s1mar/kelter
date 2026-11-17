@@ -81,16 +81,20 @@ def encode_plain(tok, text: str) -> List[int]:
     pat = control_pattern(tok)
     if pat is None or not pat.search(text):
         return tok(text, add_special_tokens=False)["input_ids"]
-    out: List[int] = []
+    pieces: List[str] = []
     pos = 0
     for m in pat.finditer(text):
-        pieces = [text[pos:m.start()], m.group()[:1], m.group()[1:]]
-        for piece in pieces:
+        for piece in (text[pos:m.start()], m.group()[:1], m.group()[1:]):
             if piece:
-                out += tok(piece, add_special_tokens=False)["input_ids"]
+                pieces.append(piece)
         pos = m.end()
     if text[pos:]:
-        out += tok(text[pos:], add_special_tokens=False)["input_ids"]
+        pieces.append(text[pos:])
+    # One batched call for all pieces (a call per control string took tens of seconds on a state made of them); a batch
+    # encodes each piece exactly as a single call would, so the ids are the same.
+    out: List[int] = []
+    for ids in tok(pieces, add_special_tokens=False)["input_ids"]:
+        out += ids
     return out
 
 

@@ -1,0 +1,136 @@
+{
+  "ckpt": "checkpoints/Q1",
+  "alpha": 0.05,
+  "conformal_thresholds": {
+    "policy": 0.9913629936054349,
+    "_global": 0.8282429426908493,
+    "intent": 0.45539993047714233,
+    "mcq": 0.8582298010587692
+  },
+  "served_domain_threshold": {
+    "domain": "policy",
+    "q": 0.9913629936054349
+  },
+  "files": {
+    "data/built/test.jsonl": {
+      "records": 3340,
+      "own": {
+        "empty_before_fallback": 70,
+        "of_those_act": 13
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    },
+    "data/built/test_forge.jsonl": {
+      "records": 3120,
+      "own": {
+        "empty_before_fallback": 44,
+        "of_those_act": 8
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    },
+    "data/built/test_nudge.jsonl": {
+      "records": 3120,
+      "own": {
+        "empty_before_fallback": 46,
+        "of_those_act": 15
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    },
+    "data/built/test_null.jsonl": {
+      "records": 2787,
+      "own": {
+        "empty_before_fallback": 309,
+        "of_those_act": 60
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    },
+    "data/built/test_unknowable_corrected.jsonl": {
+      "records": 5918,
+      "own": {
+        "empty_before_fallback": 450,
+        "of_those_act": 69
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    },
+    "data/built/calib.jsonl": {
+      "records": 3439,
+      "own": {
+        "empty_before_fallback": 72,
+        "of_those_act": 17
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    },
+    "data/built/witness_test.jsonl": {
+      "records": 2999,
+      "own": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    },
+    "data/built/anli_test.jsonl": {
+      "records": 2000,
+      "own": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    },
+    "authorization items (400)": {
+      "records": 400,
+      "own": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    },
+    "JevBench public items": {
+      "records": 231,
+      "own": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      },
+      "policy": {
+        "empty_before_fallback": 0,
+        "of_those_act": 0
+      }
+    }
+  },
+  "total": {
+    "own": {
+      "empty_before_fallback": 991,
+      "of_those_act": 182
+    },
+    "policy": {
+      "empty_before_fallback": 0,
+      "of_those_act": 0
+    }
+  }
+}

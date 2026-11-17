@@ -40,7 +40,7 @@ The encoder's witness head points at spans of the input; in the default variant 
 
 ## Latency
 
-`latency.py` times one forward pass on an input of about 1,100 tokens and a full engine decision (four passes), 50 runs each, on the GPU and on CPU with int8 dynamic quantization. Medians and 95th percentiles are reported. Numbers depend heavily on the machine and its power mode; the published ones are from one laptop GPU in its highest power mode, measured back to back for the variants being compared.
+`latency.py` times one forward pass on an input of about 1,100 tokens and a full engine decision (four passes), 50 runs each on the GPU and 5 runs each on CPU with int8 dynamic quantization. Medians and 95th percentiles are reported. Numbers depend heavily on the machine and its power mode; the published ones are from one laptop GPU in its highest power mode, measured back to back for the variants being compared.
 
 ## JevBench
 

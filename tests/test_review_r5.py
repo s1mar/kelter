@@ -20,7 +20,15 @@ class QwenLikeTok:
     def get_added_vocab(self):
         return dict(self.ADDED)
 
+    calls = 0  # tokenizer calls, to show how many a long state takes
+
     def __call__(self, text, add_special_tokens=False):
+        type(self).calls += 1
+        if isinstance(text, list):  # like Hugging Face: a list gives a list of id lists
+            return {"input_ids": [self._ids(t) for t in text]}
+        return {"input_ids": self._ids(text)}
+
+    def _ids(self, text):
         ids, i = [], 0
         while i < len(text):
             for s, tid in self.ADDED.items():
@@ -31,7 +39,7 @@ class QwenLikeTok:
             else:
                 ids.append(100 + ord(text[i]))
                 i += 1
-        return {"input_ids": ids}
+        return ids
 
     def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=True):
         return f"<|im_start|>user\n{msgs[0]['content']}<|im_end|>\n<|im_start|>assistant\n"
