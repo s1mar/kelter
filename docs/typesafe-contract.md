@@ -131,8 +131,9 @@ Limits of this server, set far above any real use; a request over one gets a 422
 | Characters of one question's `instructions` | 10,000 | `body.questions.<id>.instructions` |
 | Characters of one option description | 4,000 | `body.questions.<id>.criteria` |
 | Characters of one option name | 256 | `body.questions.<id>.criteria` |
+| Characters of one question id (a key of `questions`) | 128 | `body.questions` |
 | Nesting of a JSON `state`, `instructions` or description | 64 levels | `body.state`, `body.questions.<id>.instructions` |
 
-More 422 cases: an option named `__null__` (the engine's null sentinel), text that cannot be encoded as UTF-8 (a lone surrogate), an unknown verdict class, and a question and options too long for an encoder variant's window.
+More 422 cases: NaN or Infinity anywhere in `state`, `instructions` or `criteria`, an option named `__null__` (the engine's null sentinel), text that cannot be encoded as UTF-8 (a lone surrogate), an unknown verdict class, and a question and options too long for an encoder variant's window.
 
 The models read only part of a long state (the default variant's prompt window is 4,096 tokens; a state beyond it is cut and `verifier.truncated` is true; on the encoder variants the flag is also true when the instructions are cut to 96 tokens or an option to 48), so the character limit is a guard against abuse, not a length the model uses.

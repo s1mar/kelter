@@ -62,24 +62,55 @@ def _type_at(prov, p):
     return prov[-1][2]
 
 
+def _canonical(prov) -> bool:
+    """Provenance sorted by start, each span ending no later than the next one starts (what every converter, the server
+    and the augmentations produce). Only then can spans be found by bisection."""
+    return all(s <= e for s, e, _ in prov) and all(prov[i][1] <= prov[i + 1][0] for i in range(len(prov) - 1))
+
+
 def _mask(rec: Dict[str, Any], spans: Sequence[Tuple[int, int]]) -> Dict[str, Any]:
-    """Copy of rec with merged spans replaced by MASK; provenance and witness rebuilt."""
+    """Copy of rec with merged spans replaced by MASK; provenance and witness rebuilt.
+
+    Linear in the number of provenance spans and masked spans (a pointer or a bisection instead of a rescan per span;
+    10,000 spans with 5,000 masked took about 28 s before). With canonical provenance (see _canonical) the lookups
+    bisect; with any other provenance they scan in list order exactly as before, so the output is the same either way.
+    """
+    import bisect
+
     state = rec["state"]
     L = len(state)
     prov = rec["provenance"]
     merged = _merge([(max(0, s), min(L, e)) for s, e in spans])
     pieces: List[Tuple[str, str]] = []
+    fast = _canonical(prov)
+    starts = [x[0] for x in prov]
+    ends = [x[1] for x in prov]
 
     def emit(a, b):
+        if fast:
+            for i in range(bisect.bisect_right(ends, a), len(prov)):  # first span ending after a
+                s, e, t = prov[i]
+                if s >= b:
+                    break
+                lo, hi = max(a, s), min(b, e)
+                if lo < hi:
+                    pieces.append((state[lo:hi], t))
+            return
         for s, e, t in prov:
             lo, hi = max(a, s), min(b, e)
             if lo < hi:
                 pieces.append((state[lo:hi], t))
 
+    def type_at(p):
+        if fast:
+            i = bisect.bisect_right(starts, p) - 1
+            return prov[i][2] if i >= 0 and prov[i][0] <= p < prov[i][1] else prov[-1][2]
+        return _type_at(prov, p)
+
     pos = 0
     for a, b in merged:
         emit(pos, a)
-        pieces.append((MASK, _type_at(prov, a)))
+        pieces.append((MASK, type_at(a)))
         pos = b
     emit(pos, L)
 
@@ -89,8 +120,15 @@ def _mask(rec: Dict[str, Any], spans: Sequence[Tuple[int, int]]) -> Dict[str, An
         new_prov.append([p, p + len(text), t])
         p += len(text)
 
+    # delta(x): how much the text before x grew or shrank, from the merged spans that end at or before x. The merged
+    # spans are disjoint and sorted, so their ends are sorted: a prefix sum and a bisection.
+    merged_ends = [b for _, b in merged]
+    prefix = [0]
+    for a, b in merged:
+        prefix.append(prefix[-1] + len(MASK) - (b - a))
+
     def delta(x):
-        return sum(len(MASK) - (b - a) for a, b in merged if b <= x)
+        return prefix[bisect.bisect_right(merged_ends, x)]
 
     new_wit: Optional[List[List[int]]] = None
     if rec.get("witness") is not None:
@@ -98,9 +136,7 @@ def _mask(rec: Dict[str, Any], spans: Sequence[Tuple[int, int]]) -> Dict[str, An
         for s, e in rec["witness"]:
             cur = s
             keep = []
-            for a, b in merged:
-                if b <= cur:
-                    continue
+            for a, b in merged[bisect.bisect_right(merged_ends, cur):]:  # merged spans ending at or before cur are skipped
                 if a >= e:
                     break
                 if a > cur:

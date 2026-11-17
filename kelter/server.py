@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import math
 import os
 import threading
 import uuid
@@ -46,10 +47,18 @@ MAX_NESTING = 64  # levels of a JSON value used as state, instructions or a desc
 MAX_INSTRUCTION_CHARS = 10_000  # characters of one question's instructions (real data: at most 203)
 MAX_DESCRIPTION_CHARS = 4_000  # characters of one option description (real data: at most 530)
 MAX_NAME_CHARS = 256  # characters of one option name (real data: at most 48)
+MAX_ID_CHARS = 128  # characters of one question id (a key of `questions`)
 NULL_NAME = "__null__"  # the engine's null sentinel: no option may carry it
 VARIANTS = {"default": "checkpoints/Q1", "lower-latency": "checkpoints/E1"}
 DEFAULT_VARIANT = "default"
 EXTENSION_FIELDS = ("null_probability", "witness", "verifier", "set", "coverage_level", "action", "receipt")
+
+
+def _safe(x: Any) -> Any:
+    """A str that the response can always encode: a lone surrogate (which a client can put in a question id or a name)
+    becomes a visible \\udXXX escape. Other values pass through. Every error answer goes through this, so the error path
+    cannot itself fail on the text it reports."""
+    return x.encode("utf-8", "backslashreplace").decode("utf-8") if isinstance(x, str) else x
 
 
 class ContractError(Exception):
@@ -57,8 +66,8 @@ class ContractError(Exception):
 
     def __init__(self, loc: List[Union[str, int]], msg: str):
         super().__init__(msg)
-        self.loc = loc
-        self.msg = msg
+        self.loc = [_safe(x) for x in loc]
+        self.msg = _safe(msg)
 
 
 class EngineError(Exception):
@@ -108,17 +117,21 @@ class SystemOneRequest(BaseModel):
 
 
 # ---------------------------------------------------------------- request to records
-def _depth(v: Any) -> int:
-    """Nesting depth of a JSON value (a scalar is 0), without recursion."""
-    deepest, stack = 0, [(v, 0)]
+def _check_value(v: Any, loc: List[Union[str, int]]) -> None:
+    """Reject a JSON value nested deeper than MAX_NESTING levels, or holding NaN or Infinity (json.loads accepts those
+    bare tokens, but they are not JSON and the response cannot carry them). Iterative, so a deep value cannot overflow
+    the stack here."""
+    stack = [(v, 0)]
     while stack:
         x, d = stack.pop()
-        deepest = max(deepest, d)
+        if d > MAX_NESTING:
+            raise ContractError(loc, f"nested deeper than {MAX_NESTING} levels")
+        if isinstance(x, float) and not math.isfinite(x):
+            raise ContractError(loc, "numbers must be finite: NaN and Infinity are not valid JSON")
         if isinstance(x, dict):
             stack.extend((c, d + 1) for c in x.values())
         elif isinstance(x, list):
             stack.extend((c, d + 1) for c in x)
-    return deepest
 
 
 def _check_utf8(s: str, loc: List[Union[str, int]], what: str) -> None:
@@ -436,8 +449,8 @@ def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
 
     @app.exception_handler(RequestValidationError)
     async def _validation_error(_, exc: RequestValidationError):
-        detail = [{"loc": list(e.get("loc", [])), "msg": str(e.get("msg", "")), "type": str(e.get("type", "value_error"))}
-                  for e in exc.errors()]
+        detail = [{"loc": [_safe(x) for x in e.get("loc", [])], "msg": _safe(str(e.get("msg", ""))),
+                   "type": str(e.get("type", "value_error"))} for e in exc.errors()]
         return JSONResponse({"detail": detail}, status_code=422)
 
     @app.exception_handler(QuestionTooLong)
@@ -455,10 +468,13 @@ def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
         if req.assets:
             raise ContractError(["body", "assets"], "assets (images) are not supported by this server")
         req_id = uuid.uuid4().hex
+        for qid in req.questions:
+            _check_utf8(qid, ["body", "questions"], "a question id")
+            if not qid or len(qid) > MAX_ID_CHARS:
+                raise ContractError(["body", "questions"], f"a question id has {len(qid)} characters; between 1 and {MAX_ID_CHARS} are allowed")
         for loc, v in [(["body", "state"], req.state)] + [
                 (["body", "questions", qid, part], getattr(q, part)) for qid, q in req.questions.items() for part in ("instructions", "criteria")]:
-            if _depth(v) > MAX_NESTING:
-                raise ContractError(loc, f"nested deeper than {MAX_NESTING} levels")
+            _check_value(v, loc)
         state = render_state(req.state)
         _check_utf8(state, ["body", "state"], "the state")
         if len(state) > MAX_STATE_CHARS:

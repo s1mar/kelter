@@ -1,4 +1,4 @@
-# Data card: shipped variant E3 (stacked score ensemble, default)
+# Data card: variant E3 (stacked score ensemble; the default before Q1 replaced it)
 
 E3 trains no network of its own. It is E2 with three null members removed by a selection on the calibration split. It combines five trained checkpoints, and its training data is theirs:
 
