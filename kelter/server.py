@@ -2,7 +2,7 @@
 
 POST /v1/systemone   TypeSafe request and response, plus optional extension fields
 GET  /v1/models      TypeSafe model list
-See notes/typesafe-contract.md for the sources behind every field.
+See docs/typesafe-contract.md for the sources behind every field and the request limits.
 
 The engine is injected: `create_app(engine, variant)`. The module-level `app`
 builds the real engine lazily on first request.
@@ -37,6 +37,10 @@ from kelter.state import render_state
 
 MAX_CHOICES = 255
 MAX_LEVELS = 10
+# Request limits, far above any real use; a request over one gets a 422 (docs/typesafe-contract.md, Request limits).
+MAX_QUESTIONS = 64  # questions per request
+MAX_STATE_CHARS = 1_000_000  # characters of the rendered state
+MAX_PROVENANCE_SPANS = 10_000  # provenance ranges per request
 VARIANTS = {"default": "checkpoints/Q1", "lower-latency": "checkpoints/E1"}
 DEFAULT_VARIANT = "default"
 EXTENSION_FIELDS = ("null_probability", "witness", "verifier", "set", "coverage_level", "action", "receipt")
@@ -90,9 +94,9 @@ class SystemOneRequest(BaseModel):
     model_config = ConfigDict(extra="ignore")
     model: str
     state: Union[str, Dict[str, Any], List[Any]]
-    questions: Dict[str, Question] = Field(min_length=1)
+    questions: Dict[str, Question] = Field(min_length=1, max_length=MAX_QUESTIONS)
     assets: Optional[Dict[str, Any]] = None
-    provenance: Optional[List[ProvSpan]] = None  # extension; TypeSafe clients never send it
+    provenance: Optional[List[ProvSpan]] = Field(default=None, max_length=MAX_PROVENANCE_SPANS)  # extension; TypeSafe clients never send it
     # extension: {question_id: {option_name: verdict class}}, classes from policy_table.json
     verdict_classes: Optional[Dict[str, Dict[str, str]]] = None
 
@@ -394,6 +398,8 @@ def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
             raise ContractError(["body", "assets"], "assets (images) are not supported by this server")
         req_id = uuid.uuid4().hex
         state = render_state(req.state)
+        if len(state) > MAX_STATE_CHARS:
+            raise ContractError(["body", "state"], f"the rendered state has {len(state)} characters; this server accepts at most {MAX_STATE_CHARS}")
         provenance = build_provenance(req.provenance, len(state))
         qids = list(req.questions)
         recs = [build_record(req_id, qid, req.questions[qid], state, provenance, (req.verdict_classes or {}).get(qid)) for qid in qids]
@@ -455,7 +461,10 @@ def main(argv: Optional[List[str]] = None) -> None:
     ap.add_argument("--host", default="127.0.0.1")
     args = ap.parse_args(argv)
     import uvicorn
-    name, ckpt = resolve_variant(args.variant, args.ckpt)
+    try:
+        name, ckpt = resolve_variant(args.variant, args.ckpt)
+    except ValueError as e:  # argparse does not check `choices` on a default, so KELTER_VARIANT can reach here
+        raise SystemExit(f"kelter: {e}") from None
     ckpt = ckpt if args.ckpt else default_ckpt_path(ckpt)
     uvicorn.run(create_app(_load(ckpt), name), host=args.host, port=args.port)
 

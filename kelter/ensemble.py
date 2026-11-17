@@ -101,9 +101,10 @@ class Ensemble:
             # stacker_sha256 in the spec (below); a mismatch raises before pickle.loads is reached.
             import pickle
             st = paths.under_home(self.spec["stacker"])
-            if hashlib.sha256(st.read_bytes()).hexdigest() != self.spec["stacker_sha256"]:
+            blob = st.read_bytes()  # read once: the bytes that are hashed are the bytes that are unpickled
+            if hashlib.sha256(blob).hexdigest() != self.spec["stacker_sha256"]:
                 raise ValueError(f"{st} does not match stacker_sha256 in the spec")
-            self.stacker = pickle.loads(st.read_bytes())
+            self.stacker = pickle.loads(blob)
         self.name = f"kelter:{name}"
         self.cfg = cfg or {}
         self.model_hash = self.cfg.get("model_hash", "")
@@ -127,6 +128,11 @@ class Ensemble:
                 **_) -> List[Dict[str, Any]]:
         t = self.temperature if temperature is None else temperature
         outs = self.opt.predict(recs, canonical=canonical, temperature=t)
+        if outs and ("option_probs" in outs[0] or "null_threshold" in outs[0]):
+            # A member with a separate null head scores its own null against its own threshold, which this ensemble
+            # does not use: its null probability would be compared with the wrong threshold. Shipped specs use r2.
+            raise ValueError(f"ensemble {self.spec['name']}: the options member {self.spec['options']} has a null head; "
+                             "use a member without one")
         Q = np.stack([self.quantile(c, [null_score(o) for o in (
             outs if p is self.opt else p.predict(recs, canonical=canonical, temperature=t))])
                       for c, p in self.nulls.items()], 1)

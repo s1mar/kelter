@@ -57,7 +57,7 @@ def user_text(r: Dict[str, Any], order: Sequence[int], state: str) -> str:
             + f"\n\n{ANSWER_LINE}")
 
 
-def build_prompt(tok, r: Dict[str, Any], order: Sequence[int], max_tokens: int) -> List[int]:
+def build_prompt(tok, r: Dict[str, Any], order: Sequence[int], max_tokens: int, info: Optional[Dict[str, Any]] = None) -> List[int]:
     """Chat-templated prompt ids ending where the answer letter goes. A state too
     long for max_tokens keeps its first two thirds and last third of the token
     budget, joined by ' [...] '."""
@@ -69,6 +69,8 @@ def build_prompt(tok, r: Dict[str, Any], order: Sequence[int], max_tokens: int) 
     ids = ids_for(r["state"])
     if len(ids) <= max_tokens:
         return ids
+    if info is not None:
+        info["truncated"] = True  # the state is cut below; the caller can report it (verifier.truncated)
     s = tok(r["state"], add_special_tokens=False)["input_ids"]
     # s holds the state's tokens. Cut the overflow (prompt length minus the budget) out of the state, and take
     # 16 tokens more as a margin for the " [...] " joiner and for decode/re-tokenise drift; never keep fewer
@@ -124,12 +126,15 @@ class LLMPredictor:
         self.token_budget = int(L.get("token_budget", 8192))
         self.prefill_chunk = prefill_chunk_setting(self.cfg)
         self.temps = self.cfg.get("temperature", {})
-        self.tok = AutoTokenizer.from_pretrained(L["base"])
+        # Pin the base model to the revision the adapter was trained and calibrated on, when the config records it
+        # (config.json base_revision); without one the newest revision of the base is loaded.
+        rev = {"revision": self.cfg["base_revision"]} if self.cfg.get("base_revision") else {}
+        self.tok = AutoTokenizer.from_pretrained(L["base"], **rev)
         self.tok.padding_side = "left"
         if self.tok.pad_token_id is None:
             self.tok.pad_token = self.tok.eos_token
         dtype = torch.bfloat16 if self.device != "cpu" else torch.float32
-        model = AutoModelForCausalLM.from_pretrained(L["base"], dtype=dtype)
+        model = AutoModelForCausalLM.from_pretrained(L["base"], dtype=dtype, **rev)
         if (ck / "adapter").exists():
             from peft import PeftModel
             model = PeftModel.from_pretrained(model, str(ck / "adapter")).merge_and_unload()
@@ -203,11 +208,12 @@ class LLMPredictor:
         for r in recs:
             if len(r["options"]) + 1 > len(LETTERS):
                 raise ValueError(f"{len(r['options'])} options exceed the letters this predictor supports")
-        prompts = [build_prompt(self.tok, r, o, self.max_tokens) for r, o in zip(recs, orders)]
+        infos = [{} for _ in recs]
+        prompts = [build_prompt(self.tok, r, o, self.max_tokens, info) for r, o, info in zip(recs, orders, infos)]
         lgs = self.logits_for(prompts)
         wit = self.witness_pred.predict(recs, canonical=canonical) if self.witness_pred else [None] * len(recs)
         out = []
-        for r, o, p, lg, w in zip(recs, orders, prompts, lgs, wit):
+        for r, o, p, lg, w, info in zip(recs, orders, prompts, lgs, wit, infos):
             k = len(o)
             z = lg[:k + 1]
             T = self.temps.get(r["question"]["type"], 1.0) if temperature else 1.0
@@ -218,6 +224,7 @@ class LLMPredictor:
                 "logits": z.tolist(),
                 "order": [r["options"][j]["name"] for j in o],
                 "witness": (w or {}).get("witness") or [],
+                "truncated": bool(info.get("truncated")),
                 "n_tokens": len(p),
             })
         return out

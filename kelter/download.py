@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import shutil
 import subprocess
 import sys
 import tarfile
@@ -51,10 +52,13 @@ def sha256(path: Path) -> str:
     return h.hexdigest()
 
 
+TIMEOUT_S = 60  # seconds without data before a download gives up (urllib applies it to each socket read)
+
+
 def fetch(url: str, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
-    with urllib.request.urlopen(url) as r, tmp.open("wb") as f:
+    with urllib.request.urlopen(url, timeout=TIMEOUT_S) as r, tmp.open("wb") as f:
         total = int(r.headers.get("Content-Length") or 0)
         got = 0
         while True:
@@ -135,8 +139,20 @@ def main(argv=None) -> int:
             print(f"kelter: checksum mismatch for {path}: {digest}", file=sys.stderr)
             return 1
         checkpoints.mkdir(parents=True, exist_ok=True)
+        # Unpack beside the target and rename, so checkpoints/<name>/config.json (which marks a checkpoint as present)
+        # exists only after a complete extraction; an interrupted run leaves only the hidden .part folder.
+        part = checkpoints / f".{name}.part"
+        shutil.rmtree(part, ignore_errors=True)
+        part.mkdir()
         with tarfile.open(path) as tar:
-            tar.extractall(checkpoints, filter="data")
+            tar.extractall(part, filter="data")
+        if not (part / name).is_dir():
+            shutil.rmtree(part, ignore_errors=True)
+            print(f"kelter: {path} does not contain a folder named {name}", file=sys.stderr)
+            return 1
+        shutil.rmtree(checkpoints / name, ignore_errors=True)  # an incomplete folder from an older, interrupted run
+        (part / name).rename(checkpoints / name)
+        shutil.rmtree(part, ignore_errors=True)
         print(f"  {name}: unpacked into {checkpoints / name}")
         if not args.keep_archives:
             path.unlink()

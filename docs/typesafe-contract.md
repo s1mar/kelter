@@ -115,3 +115,17 @@ PyPI has the official client: `typesafe-sdk` (0.7.5 at the time of writing; docs
 - docs.typesafe.ai HTML pages were not fetched; the `.md` twins listed in `llms.txt` were. The state, images, patterns and cookbook pages were not read. The `state` type comes from OAS.
 - LITELLM came only through the summarizing fetch tool.
 - KEV's README came through the summarizing fetch tool; its `kev/api.py` and `kev/serve.py` were read raw. `tests/test_api.py` was not read.
+
+## Request limits
+
+Limits of this server, set far above any real use; a request over one gets a 422 in the OAS shape.
+
+| Limit | Value | `loc` of the 422 |
+|---|---|---|
+| Questions per request | 64 | `body.questions` |
+| Options of a `choice` question | 255 | `body.questions.<id>.criteria` |
+| Levels of a `score` question | 10 | `body.questions.<id>.criteria` |
+| Characters of the rendered `state` | 1,000,000 | `body.state` |
+| Provenance ranges | 10,000 | `body.provenance` |
+
+The models read only part of a long state (the default variant's prompt window is 4,096 tokens; a state beyond it is cut and `verifier.truncated` is true), so the character limit is a guard against abuse, not a length the model uses.

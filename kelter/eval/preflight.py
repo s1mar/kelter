@@ -41,11 +41,17 @@ def collect(paths: list[str], base: str | None) -> list[Path]:
     return files
 
 
+class NotChecked(RuntimeError):
+    """The disk read that makes this check meaningful is not available here (it exists on Windows only)."""
+
+
 def one_pass(files: list[Path]) -> list[dict]:
     bad = []
     for f in files:
         c, d = _hash_cached(f), _hash_unbuffered(f)
-        if d is not None and c != d:
+        if d is None:
+            raise NotChecked("the unbuffered disk read is not available on this platform")
+        if c != d:
             bad.append({"file": str(f), "cached": c[:12], "disk": d[:12]})
     return bad
 
@@ -65,9 +71,16 @@ def main(argv=None) -> int:
     ap.add_argument("--paths", nargs="*", default=DEFAULT_PATHS)
     a = ap.parse_args(argv)
     files = collect(a.paths, a.base or None)
+    if not files:
+        print("preflight: no files found to check (look at --paths and --base); this is an error, not a clean result")
+        return 1
     t0 = time.time()
-    p1 = one_pass(files)
-    p2 = one_pass(files)
+    try:
+        p1 = one_pass(files)
+        p2 = one_pass(files)
+    except NotChecked as e:
+        print(f"preflight: not checked ({e}); no result written")
+        return 1
     for x in p1 + p2:
         x["file"] = _label(Path(x["file"]))
     res = {"tag": a.tag, "n_files": len(files), "bytes": sum(f.stat().st_size for f in files),

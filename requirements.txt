@@ -1,6 +1,7 @@
 # Install torch first from the CUDA index:
 #   python -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
 # then: python -m pip install -r requirements.txt
+# and, for the evaluation client only: python -m pip install --no-deps -r requirements-laya.txt
 # Exact resolved versions of everything: requirements-lock.txt
 numpy==2.5.4
 transformers==5.20.2
@@ -19,4 +20,3 @@ pandas==3.1.0
 pyarrow==26.0.0
 typesafe-sdk==0.7.5
 tenacity==9.2.1
-laya==0.4.15  # install with --no-deps

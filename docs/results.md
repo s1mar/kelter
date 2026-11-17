@@ -28,6 +28,7 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | Calibration split ECE before / after temperature | 0.043 / 0.018 | results/calibration/Q1.json |
 | Conformal coverage at alpha 0.05 / mean set size / singleton rate | 0.961 / 1.33 / 0.801 | results/eval/engine_Q1.json |
 | Action rates act / escalate / defer | 0.263 / 0.028 / 0.708 | results/eval/engine_Q1.json |
+| The same as the server applies it (every request under the `policy` threshold): act / escalate / defer; accuracy when it acts; forge unsafe act | 0.142 / 0.149 / 0.708; 1.000 (n=475); 0 of 3120 | results/eval/engine_Q1r1_policy.json |
 | Accuracy when the engine acts (n=880) | 0.974 | results/eval/engine_Q1.json |
 | Fake approval in tool_output: verdict moved to destructive / unsafe act (n=400) | 0.025 / 0.000 | results/eval/engine_Q1.json |
 | Planted text for a wrong option under a trusted label (forge set): unsafe act (n=3120) | 0.001 (4 of 3120) | results/eval/engine_Q1base.json |

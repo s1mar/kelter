@@ -237,6 +237,9 @@ class Engine:
                     "verdict_class": cls,
                     "admissible": admissible,
                     "basis": basis,
+                    # True when any pass cut the state to fit the model's window (the encoder or LLM prompt); the
+                    # verdict was then decided on part of the text.
+                    "truncated": any(bool(x.get("truncated")) for x in (full_out, witness_only, witness_masked, untrusted_masked) if x is not None),
                 },
                 "set": cset,
                 "coverage_level": 1.0 - self.alpha if dom != "none" else None,

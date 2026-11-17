@@ -12,11 +12,23 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import random
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 N, SEED, TOL = 200, 20261111, 0.005
+
+
+def compare_rows(rows, ref_items, n, tol) -> dict:
+    """Compare a run's rows with the reference's: same argmax on every item and every probability within tol.
+    A NaN probability fails: max() skips a NaN that is not first, so it is looked for explicitly."""
+    diffs = [abs(x["probs"][k] - y["probs"].get(k, 0.0)) for x, y in zip(rows, ref_items) for k in x["probs"]]
+    has_nan = any(math.isnan(d) for d in diffs)
+    diff = float("nan") if has_nan else max(diffs)
+    same = sum(x["argmax"] == y["argmax"] for x, y in zip(rows, ref_items))
+    return {"argmax_agree": same, "max_abs_prob_diff": diff, "tol": tol, "has_nan": has_nan,
+            "pass": same == n and not has_nan and diff <= tol}
 
 
 def main(argv=None) -> int:
@@ -43,10 +55,7 @@ def main(argv=None) -> int:
     if a.ref:
         ref = json.loads((ROOT / "results" / "eval" / "canary" / f"{a.ref}.json").read_text(encoding="utf-8"))
         assert [x["id"] for x in ref["items"]] == [x["id"] for x in rows]
-        diff = max(abs(x["probs"][k] - y["probs"].get(k, 0.0)) for x, y in zip(rows, ref["items"]) for k in x["probs"])
-        same = sum(x["argmax"] == y["argmax"] for x, y in zip(rows, ref["items"]))
-        res["compare"] = {"ref": a.ref, "argmax_agree": same, "max_abs_prob_diff": diff, "tol": TOL,
-                          "pass": same == N and diff <= TOL}
+        res["compare"] = {"ref": a.ref, **compare_rows(rows, ref["items"], N, TOL)}
     res["command"] = f"python -m kelter.eval.canary --tag {a.tag}" + (f" --ref {a.ref}" if a.ref else "") + (f" --power-mode {a.power_mode}" if a.power_mode else "")
     d = ROOT / "results" / "eval" / "canary"
     d.mkdir(parents=True, exist_ok=True)

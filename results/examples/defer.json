@@ -51,7 +51,8 @@
           "provenance_allowed": false,
           "verdict_class": "default",
           "admissible": false,
-          "basis": null
+          "basis": null,
+          "truncated": false
         },
         "set": [
           "other",

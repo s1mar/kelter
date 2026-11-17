@@ -64,7 +64,8 @@
           "provenance_allowed": true,
           "verdict_class": "default",
           "admissible": true,
-          "basis": "witness"
+          "basis": "witness",
+          "truncated": false
         },
         "set": [
           "account"

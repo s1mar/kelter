@@ -247,6 +247,10 @@ def main(argv=None) -> int:
     ap.add_argument("--sentinel", default=SENTINEL, help="file re-hashed at every resume save; '' is off")
     ap.add_argument("--resume", action="store_true", help="continue from checkpoints/<name>/resume/state.pt")
     args = ap.parse_args(argv)
+    if args.resume and not (ROOT / "checkpoints" / args.name / "resume" / "state.pt").exists():
+        # Starting fresh here would also truncate the step log of the run being resumed.
+        raise SystemExit(f"llm_train: --resume given but checkpoints/{args.name}/resume/state.pt does not exist; "
+                         "run without --resume to start from step 0")
 
     import torch
     from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
@@ -312,9 +316,23 @@ def main(argv=None) -> int:
         pr = sentinel_probe(sent_path, sent_hash)
         if not pr["ok"]:
             raise SystemExit(f"sentinel {args.sentinel} does not hash to its recorded sha256 before training ({pr}); not starting")
+    # Recorded in every resume state and compared on --resume. Left out: flags that do not change what is computed.
+    run_args = {k: v for k, v in vars(args).items() if k not in ("resume", "power_mode", "sentinel", "ckpt_every")}
     start_bi, resumed = 0, []
     if args.resume and state_path.exists():
         x = load_state(state_path, model, opt, sched)
+        # The state is only valid for the run that wrote it: same arguments (except the ones that do not change the
+        # computation), same number of batches and optimizer steps. Anything else would continue a different run.
+        was = x.get("run")
+        now = {"args": run_args, "n_batches": len(batches), "steps": steps}
+        if was != now:
+            diff = sorted(k for k in set(now["args"]) | set((was or {}).get("args", {}))
+                          if (was or {}).get("args", {}).get(k) != now["args"].get(k))
+            for k in ("n_batches", "steps"):
+                if (was or {}).get(k) != now[k]:
+                    diff.append(f"{k} ({(was or {}).get(k)} then, {now[k]} now)")
+            raise SystemExit(f"llm_train: the resume state does not match this run; differs in: {', '.join(diff) or 'no recorded run'}. "
+                             "Use the same arguments, or start without --resume.")
         start_bi, step, run_loss, run_n, log = x["next_bi"], x["step"], x["run_loss"], x["run_n"], x["log"]
         t0 = time.time() - x["elapsed_s"]
         resumed = x.get("resumed", []) + [step]
@@ -368,17 +386,18 @@ def main(argv=None) -> int:
                                          "bad data. Stopped without writing a resume state; the last good one is kept.")
                 save_state(state_path, model, opt, sched,
                            {"next_bi": bi + 1, "step": step, "run_loss": run_loss, "run_n": run_n, "log": log,
-                            "elapsed_s": time.time() - t0, "resumed": resumed})
+                            "elapsed_s": time.time() - t0, "resumed": resumed,
+                            "run": {"args": run_args, "n_batches": len(batches), "steps": steps}})
     notes.close()
     ck = ROOT / "checkpoints" / args.name
     ck.mkdir(parents=True, exist_ok=True)
     model.save_pretrained(str(ck / "adapter"))
-    if state_path.exists():
-        state_path.unlink()  # the finished adapter supersedes the resume state
     cfg = {"llm": {"base": args.base, "qlora_train": bool(args.qlora), "max_len": args.max_len, "lora_r": args.r,
                    "lora_alpha": args.alpha, "lora_dropout": args.dropout, "token_budget": 8192},
            "infer_max_len": args.infer_max_len, "corpus": args.corpus, "witness_ckpt": args.witness_ckpt}
     (ck / "config.json").write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+    if state_path.exists():
+        state_path.unlink()  # the finished adapter and its config supersede the resume state; deleted last
     res = {"name": args.name, "args": vars(args), "counts": counts, "n_examples": len(ex), "n_batches": len(batches),
            "steps": steps, "log": log, "resumed_at_steps": resumed, "train_s": round(time.time() - t0, 1),
            "power_mode": args.power_mode or "unrecorded",

@@ -21,7 +21,7 @@ A request is some text (the *state*) plus one or more questions. Here is what ha
    - it is *sufficient*: the evidence alone gives the same verdict;
    - it is *necessary*: hiding it changes the verdict (required for most classes).
 7. **Untrusted influence is measured.** This is how much the verdict's probability drops when the untrusted segments are hidden.
-8. **The shortlist is built.** `conformal_set` keeps every option that cannot be ruled out at 95% coverage. A clear answer leaves exactly one.
+8. **The shortlist is built.** `conformal_set` keeps every option that cannot be ruled out at 95% coverage. A clear answer leaves exactly one. The server applies the strictest of its fitted thresholds to every request (see Limitations), so the top option needs a probability of about 0.99 to stand alone.
 9. **The action is chosen**, in this order:
    - the null won, or the evidence is not admissible: `defer`;
    - untrusted text moved the verdict more than the class allows, or more than one option is left: `escalate`;

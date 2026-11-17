@@ -299,15 +299,23 @@ def main(argv=None) -> int:
                      "log": log}, indent=2), encoding="utf-8")
                 return 3
 
+    # Save the trained weights before the dev pass: a failure in the pass below must not lose the trained model.
+    torch.save(model.state_dict(), ck / "model.pt")
     model.eval()
-    correct, n = 0, 0
+    correct, n, dev_skipped = 0, 0, 0
     with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
         for i in range(0, len(dev), args.dev_batch):
             encs, golds = [], []
             for r, pc in zip(dev[i:i + args.dev_batch], dev_pcs[i:i + args.dev_batch]):
-                e = feat.assemble(pc, r["provenance"])
+                try:
+                    e = feat.assemble(pc, r["provenance"])
+                except ValueError:  # question and options exceed max_len, as in prepare: skip and count
+                    dev_skipped += 1
+                    continue
                 encs.append(e)
                 golds.append(int(np.argmax(target_for(r, list(range(len(r["options"])))))))
+            if not encs:
+                continue
             b = collate(encs, tok.pad_token_id, "cuda")
             h = model.hidden(b["input_ids"], b["prov_ids"], b["attention_mask"])
             logits, mm = model.option_logits(h, b["marker_pos"], b["marker_mask"])
@@ -321,15 +329,15 @@ def main(argv=None) -> int:
                     pred = int(torch.argmax(lg))
                 correct += pred == golds[j]
                 n += 1
-    dev_acc = correct / n
-    torch.save(model.state_dict(), ck / "model.pt")
+    dev_acc = correct / max(n, 1)
+    torch.save(model.state_dict(), ck / "model.pt")  # same weights as above; kept so model.pt is written last
     model.encoder.config.save_pretrained(str(ck / "encoder_config"))
     mh = hashlib.sha256((ck / "model.pt").read_bytes()).hexdigest()
     cfg = {**vars(args), "model_hash": mh, "infer_max_len": args.infer_max_len, "temperature": {},
            "n_train": len(train), "steps": total, "micro_batches": len(plan), "minutes": (time.time() - t0) / 60,
            "profiled_s_per_step": profiled, "peak_reserved_mib": torch.cuda.max_memory_reserved() / 2**20}
     (ck / "config.json").write_text(json.dumps(cfg, indent=2), encoding="utf-8")
-    res = {"run": args.run, "config": cfg, "dev_accuracy_incl_null_3000": dev_acc, "log": log}
+    res = {"run": args.run, "config": cfg, "dev_accuracy_incl_null_3000": dev_acc, "dev_skipped": dev_skipped, "log": log}
     (ROOT / "results" / "train").mkdir(parents=True, exist_ok=True)
     (ROOT / "results" / "train" / f"{args.run}.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
     print(json.dumps({"dev_acc": dev_acc, "model_hash": mh}, indent=2))

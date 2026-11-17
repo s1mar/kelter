@@ -25,6 +25,7 @@ import hashlib
 import json
 import random
 import re
+import sys
 from pathlib import Path
 from typing import Any, Dict, Iterable, List
 
@@ -333,6 +334,12 @@ def main(argv=None) -> int:
     ap.add_argument("--out", default=None, help="output directory (default data/built); "
                     "a non-default directory writes its card there and skips the corrected unknowable set")
     args = ap.parse_args(argv)
+    if args.out is None and (args.recipe != "r2" or (args.small and not args.card_only)):
+        # data/built is the shipped r2 corpus that checkpoints, the gate and the data card are checked against.
+        what = f"--recipe {args.recipe}" if args.recipe != "r2" else "--small"
+        print(f"build: {what} without --out would overwrite data/built (the shipped r2 corpus); "
+              f"pass --out <directory>, for example --out data/built_{args.recipe if args.recipe != 'r2' else 'small'}", file=sys.stderr)
+        return 2
     global N_SHAPES, FILTER_TRAIN_NULLS, OUT
     rc = RECIPES[args.recipe]
     N_SHAPES, FILTER_TRAIN_NULLS = rc["N_SHAPES"], rc["FILTER_TRAIN_NULLS"]
