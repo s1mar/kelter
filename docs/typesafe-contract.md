@@ -88,7 +88,7 @@ OAS `ModelMetadataList`: `{"models": [{"name": str, "description": str, "release
 
 - Unknown `model` values are served anyway; the response `model` is our id (the docs allow the answering model to differ from the alias).
 - Probabilities are renormalized over the options, so they sum to 1 even when the engine reserves mass for the null. The raw null mass is in `null_probability`.
-- Ties: argmax and the score mode pick the first option in criteria order (docs are silent).
+- Ties (the docs are silent): on a `choice` question `choice` is the engine's verdict option, the argmax in the engine's own canonical option order, so `verdict_class`, `set`, `verifier` and `action` describe the same option as `choice`; with no tie that is the plain argmax. If the null answer won, or the engine gives no verdict, `choice` is the first most likely option in criteria order. The score mode picks the first level on a tie.
 - One option: confidence 1.0 (docs are silent; KEV does the same).
 - Probabilities are not rounded (KEV rounds to 4 decimals; docs do not require it).
 - `instructions` must be non-empty after rendering (OAS lets it be null). The repo's record schema rejects empty instructions, so we return 422 rather than invent text.

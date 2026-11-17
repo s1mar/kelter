@@ -1,0 +1,122 @@
+{
+  "old_ref": "HEAD~2",
+  "tokenizer": "Qwen/Qwen3-4B-Instruct-2507@cdbee75f17c01a7cc42f958dc650907174af0554",
+  "windows": [
+    4096,
+    200
+  ],
+  "files": {
+    "data/built/test.jsonl": {
+      "records": 3340,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "data/built/test_forge.jsonl": {
+      "records": 3120,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "data/built/test_nudge.jsonl": {
+      "records": 3120,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "data/built/test_null.jsonl": {
+      "records": 2787,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "data/built/test_unknowable_corrected.jsonl": {
+      "records": 5918,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "data/built/calib.jsonl": {
+      "records": 3439,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "data/built/dev.jsonl": {
+      "records": 16967,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "data/built/witness_test.jsonl": {
+      "records": 2999,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "data/built/anli_test.jsonl": {
+      "records": 2000,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "data/built/train.jsonl (first 20000)": {
+      "records": 20000,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    },
+    "third_party/jevbench public items": {
+      "records": 231,
+      "with_control_string": 0,
+      "prompts_differing": 0,
+      "differing_without_control_string": 0
+    }
+  },
+  "encoder_pieces": {
+    "data/built/test.jsonl": {
+      "records": 3340,
+      "pieces_differing": 0
+    },
+    "data/built/test_forge.jsonl": {
+      "records": 3120,
+      "pieces_differing": 0
+    },
+    "data/built/test_nudge.jsonl": {
+      "records": 3120,
+      "pieces_differing": 0
+    },
+    "data/built/test_null.jsonl": {
+      "records": 2787,
+      "pieces_differing": 0
+    },
+    "data/built/test_unknowable_corrected.jsonl": {
+      "records": 5918,
+      "pieces_differing": 0
+    },
+    "data/built/calib.jsonl": {
+      "records": 3439,
+      "pieces_differing": 0
+    },
+    "data/built/dev.jsonl": {
+      "records": 16967,
+      "pieces_differing": 0
+    },
+    "data/built/witness_test.jsonl": {
+      "records": 2999,
+      "pieces_differing": 0
+    },
+    "data/built/anli_test.jsonl": {
+      "records": 2000,
+      "pieces_differing": 0
+    },
+    "data/built/train.jsonl (first 20000)": {
+      "records": 20000,
+      "pieces_differing": 0
+    },
+    "third_party/jevbench public items": {
+      "records": 231,
+      "pieces_differing": 0
+    }
+  }
+}

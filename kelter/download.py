@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import http.client
 import json
 import shutil
 import subprocess
@@ -133,6 +134,10 @@ def main(argv=None) -> int:
             except urllib.error.URLError as e:
                 print(f"kelter: could not reach github.com to download {asset['file']} ({e.reason}). Check your "
                       f"connection and run this command again; files already downloaded are kept.", file=sys.stderr)
+                return 1
+            except (OSError, http.client.HTTPException) as e:  # a reset, a timeout or a short read while the body is read
+                print(f"kelter: the download of {asset['file']} was interrupted ({e.__class__.__name__}). Run this command "
+                      f"again; files already downloaded are kept.", file=sys.stderr)
                 return 1
         digest = sha256(path)
         if digest != asset["sha256"]:

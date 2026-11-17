@@ -286,9 +286,14 @@ def build_answer(q: Any, rec: Dict[str, Any], result: Dict[str, Any]) -> Dict[st
     names = [o["name"] for o in rec["options"]]
     p = _normalized(result, names)
     if q.type == "choice":
+        # The engine's verdict is the argmax in its own (canonical) order, and its set, verdict_class, provenance_allowed
+        # and action all describe that option; `choice` is that same option, so on an exact tie the fields agree. Without
+        # a tie it is the argmax as before. If the null won (verdict not among the names), or the engine gave none, it is
+        # the first most likely option in criteria order.
+        verdict = result.get("verdict")
         ans: Dict[str, Any] = {
             "type": "choice",
-            "choice": names[max(range(len(p)), key=p.__getitem__)],
+            "choice": verdict if verdict in names else names[max(range(len(p)), key=p.__getitem__)],
             "confidence": choice_confidence(p),
             "probabilities": dict(zip(names, p)),
         }
@@ -540,6 +545,17 @@ class _LazyApp:
 app = _LazyApp()
 
 
+def check_port(host: str, port: int) -> None:
+    """Exit with one line if host:port cannot be bound (a server already running there, or no permission)."""
+    import socket
+    try:
+        with socket.socket(socket.AF_INET6 if ":" in host else socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((host, port))
+    except OSError as e:
+        raise SystemExit(f"kelter: cannot use {host}:{port} ({e.strerror or e}). Is another server running there? "
+                         "Pass a free port with --port.") from None
+
+
 def main(argv: Optional[List[str]] = None) -> None:
     ap = argparse.ArgumentParser(description="Serve the TypeSafe System One contract.")
     ap.add_argument("--variant", default=os.environ.get("KELTER_VARIANT"), choices=sorted(VARIANTS))
@@ -553,6 +569,7 @@ def main(argv: Optional[List[str]] = None) -> None:
     except ValueError as e:  # argparse does not check `choices` on a default, so KELTER_VARIANT can reach here
         raise SystemExit(f"kelter: {e}") from None
     ckpt = ckpt if args.ckpt else default_ckpt_path(ckpt)
+    check_port(args.host, args.port)  # before the model loads: a taken port would otherwise show only after the load
     uvicorn.run(create_app(_load(ckpt), name), host=args.host, port=args.port)
 
 

@@ -11,7 +11,10 @@ sufficiency and necessity checks); `defer` is a ticket too vague to route, where
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
+import sys
+import urllib.error
 import urllib.request
 
 
@@ -48,6 +51,16 @@ def post(url, body):
         return json.loads(r.read().decode("utf-8"))
 
 
+def _fail(msg: str) -> int:
+    print(f"kelter: {msg}", file=sys.stderr)
+    return 1
+
+
+def _serve() -> str:
+    from kelter import paths
+    return paths.command("serve")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="kelter examples")
     ap.add_argument("--url", default="http://127.0.0.1:8765")
@@ -59,8 +72,20 @@ def main(argv=None) -> int:
     for name, body in EXAMPLES.items():
         if a.only and name not in a.only:
             continue
-        resp = post(a.url, body)
-        ans = resp["answers"]["route"]
+        try:
+            resp = post(a.url, body)
+            ans = resp["answers"]["route"]
+        except urllib.error.HTTPError as e:
+            detail = e.read().decode("utf-8", "replace")[:200].replace("\n", " ")
+            return _fail(f"the server at {a.url} answered {e.code} for the {name} example ({detail}). Check that it is a kelter "
+                         "server and that its weights loaded (see the server's own output).")
+        except urllib.error.URLError as e:
+            return _fail(f"could not reach a server at {a.url} ({e.reason}). Start one with `{_serve()}`, wait until it "
+                         "says it is running, and run this again; --url names another address.")
+        except (OSError, http.client.HTTPException) as e:
+            return _fail(f"the request to {a.url} failed ({e.__class__.__name__}). Check that the server is running and run this again.")
+        except (ValueError, KeyError, TypeError):
+            return _fail(f"the reply from {a.url} is not a kelter answer. Check that --url points at a kelter server.")
         out = {"name": name, "request": body, "response": resp,
                "command": "python -m kelter.server --port 8765, then python -m kelter.examples"}
         (d / f"{name}.json").write_text(json.dumps(out, indent=2), encoding="utf-8")

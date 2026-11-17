@@ -98,24 +98,49 @@ class Featurizer:
         self.cls_id = tokenizer.cls_token_id
         self.sep_id = tokenizer.sep_token_id
         self.null_ids = tokenizer(NULL_TEXT, add_special_tokens=False)["input_ids"]
+        # Control ids that caller text must not produce: every special id ([CLS], [SEP], [PAD], [UNK], ...) and our own
+        # markers [OPT] and [NULL], except [MASK], which the state carries on purpose (kelter.data.augment masks spans
+        # by writing the text "[MASK]", and the encoder was trained on it).
+        self.control_ids = {*getattr(tokenizer, "all_special_ids", []), self.opt_id, self.null_id} - {getattr(tokenizer, "mask_token_id", None)}
+
+    def _plain_state(self, text: str, ids: List[int], offs: List[Any]):
+        """The state's token ids and offsets with every control id other than [MASK] replaced by the ordinary tokens of
+        the text that produced it (a state that contains the string "[SEP]" or "[OPT]" is read as text, not as a
+        marker). A state without such a string is returned as it was."""
+        if not any(i in self.control_ids for i in ids):
+            return ids, offs
+        out_ids: List[int] = []
+        out_offs: List[Any] = []
+        for tid, (s, e) in zip(ids, offs):
+            if tid in self.control_ids:
+                enc = self.tok(text[s:e], add_special_tokens=False, return_offsets_mapping=True, split_special_tokens=True)
+                out_ids += enc["input_ids"]
+                out_offs += [(s + a, s + b) for a, b in enc["offset_mapping"]]
+            else:
+                out_ids.append(tid)
+                out_offs.append((s, e))
+        return out_ids, out_offs
 
     def pieces_batch(self, recs: Sequence[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Tokenize instructions, option texts and states once, in batches.
         Option order is applied later by `assemble`, so per-epoch shuffling
         needs no re-tokenization."""
         t = self.tok
-        instr = t([r["question"]["instructions"] for r in recs], add_special_tokens=False)["input_ids"]
+        # Instructions and option texts never hold a real marker or special id: split_special_tokens reads a typed "[SEP]"
+        # or "[OPT]" as ordinary text (for text without such a string the ids are what they were).
+        instr = t([r["question"]["instructions"] for r in recs], add_special_tokens=False, split_special_tokens=True)["input_ids"]
         flat = [option_text(o) for r in recs for o in r["options"]]
-        oids = t(flat, add_special_tokens=False)["input_ids"] if flat else []
+        oids = t(flat, add_special_tokens=False, split_special_tokens=True)["input_ids"] if flat else []
         st = t([r["state"] for r in recs], add_special_tokens=False, return_offsets_mapping=True)
         out, k = [], 0
         for i, r in enumerate(recs):
             n = len(r["options"])
+            sids, offs = self._plain_state(r["state"], st["input_ids"][i], st["offset_mapping"][i])
             out.append({
                 "instr": instr[i][: self.max_instr_tokens],
                 "opts": [ids[: self.max_option_tokens] for ids in oids[k:k + n]],
-                "sids": st["input_ids"][i],
-                "offs": [list(o) for o in st["offset_mapping"][i]],
+                "sids": sids,
+                "offs": [list(o) for o in offs],
                 # the instructions or an option were cut to max_instr_tokens or max_option_tokens
                 "cut": len(instr[i]) > self.max_instr_tokens or any(len(ids) > self.max_option_tokens for ids in oids[k:k + n]),
             })

@@ -43,7 +43,7 @@ class _Tok:
     def convert_tokens_to_ids(self, t):
         return {"[OPT]": OPT_ID, "[NULL]": NULL_ID}[t]
 
-    def __call__(self, text, add_special_tokens=False):
+    def __call__(self, text, add_special_tokens=False, split_special_tokens=False):
         return {"input_ids": [10, 11, 12, 13, 14]}
 
 

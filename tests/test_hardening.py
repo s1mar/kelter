@@ -136,7 +136,7 @@ class _Tok:
     def convert_tokens_to_ids(self, t):
         return {"[OPT]": 3, "[NULL]": 4}[t]
 
-    def __call__(self, texts, add_special_tokens=False, return_offsets_mapping=False):
+    def __call__(self, texts, add_special_tokens=False, return_offsets_mapping=False, split_special_tokens=False):
         if isinstance(texts, str):
             texts = [texts]
         ids = [[10 + i for i, _ in enumerate(t.split())] for t in texts]

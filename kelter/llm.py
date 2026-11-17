@@ -57,21 +57,70 @@ def user_text(r: Dict[str, Any], order: Sequence[int], state: str) -> str:
             + f"\n\n{ANSWER_LINE}")
 
 
+_CONTROLS: Dict[int, Any] = {}  # id(tokenizer) -> (tokenizer, pattern); the tokenizer is kept to detect a reused id
+
+
+def control_pattern(tok):
+    """A regex matching every string the tokenizer turns into a single control id: its special tokens and every other
+    added token (<|im_start|>, <|im_end|>, <|endoftext|>, <tool_call>, ...). Cached per tokenizer."""
+    import re
+    hit = _CONTROLS.get(id(tok))
+    if hit is None or hit[0] is not tok:
+        strings = set(getattr(tok, "get_added_vocab", dict)()) | set(getattr(tok, "all_special_tokens", []))
+        strings.discard("")
+        pat = re.compile("|".join(re.escape(s) for s in sorted(strings, key=len, reverse=True))) if strings else None
+        hit = _CONTROLS[id(tok)] = (tok, pat)
+    return hit[1]
+
+
+def encode_plain(tok, text: str) -> List[int]:
+    """Token ids of caller text that can never contain a control id. Text with no control string is encoded exactly as
+    before (tok(text, add_special_tokens=False)). A control string in it (<|im_end|> typed in a state, an instruction,
+    an option name or a description) is cut in two pieces that are encoded separately, so it becomes ordinary tokens, not
+    the control id (which would close the user turn or open an assistant turn inside the prompt)."""
+    pat = control_pattern(tok)
+    if pat is None or not pat.search(text):
+        return tok(text, add_special_tokens=False)["input_ids"]
+    out: List[int] = []
+    pos = 0
+    for m in pat.finditer(text):
+        pieces = [text[pos:m.start()], m.group()[:1], m.group()[1:]]
+        for piece in pieces:
+            if piece:
+                out += tok(piece, add_special_tokens=False)["input_ids"]
+        pos = m.end()
+    if text[pos:]:
+        out += tok(text[pos:], add_special_tokens=False)["input_ids"]
+    return out
+
+
 def build_prompt(tok, r: Dict[str, Any], order: Sequence[int], max_tokens: int, info: Optional[Dict[str, Any]] = None) -> List[int]:
     """Chat-templated prompt ids ending where the answer letter goes. A state too
     long for max_tokens keeps its first two thirds and last third of the token
-    budget, joined by ' [...] '."""
+    budget, joined by ' [...] '.
+
+    Caller text (state, instructions, option names and descriptions) never produces a control id: when it holds a
+    control string, only the chat template around it is tokenized with control ids and the caller text goes through
+    encode_plain. Text with no control string takes the original path, so its ids are unchanged."""
+    pattern = control_pattern(tok)
+
     def ids_for(state: str) -> List[int]:
-        text = tok.apply_chat_template([{"role": "user", "content": user_text(r, order, state)}],
-                                       tokenize=False, add_generation_prompt=True)
-        return tok(text, add_special_tokens=False)["input_ids"]
+        content = user_text(r, order, state)
+        if pattern is None or not pattern.search(content):
+            text = tok.apply_chat_template([{"role": "user", "content": content}], tokenize=False, add_generation_prompt=True)
+            return tok(text, add_special_tokens=False)["input_ids"]
+        slot = "KELTERSLOT"  # the template wraps the content; render it around a slot to tokenize the wrapper alone
+        wrapper = tok.apply_chat_template([{"role": "user", "content": slot}], tokenize=False, add_generation_prompt=True)
+        before, after = wrapper.split(slot)
+        return (tok(before, add_special_tokens=False)["input_ids"] + encode_plain(tok, content)
+                + tok(after, add_special_tokens=False)["input_ids"])
 
     ids = ids_for(r["state"])
     if len(ids) <= max_tokens:
         return ids
     if info is not None:
         info["truncated"] = True  # the state is cut below; the caller can report it (verifier.truncated)
-    s = tok(r["state"], add_special_tokens=False)["input_ids"]
+    s = encode_plain(tok, r["state"])
     # s holds the state's tokens. Cut the overflow (prompt length minus the budget) out of the state, and take
     # 16 tokens more as a margin for the " [...] " joiner and for decode/re-tokenise drift; never keep fewer
     # than 32. Of the tokens kept, two thirds come from the start and the remaining third from the end.
