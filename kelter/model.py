@@ -26,7 +26,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from transformers import AutoConfig, AutoModel, AutoTokenizer
 
-from kelter.data.schema import PROVENANCE_TYPES
+from kelter.data.schema import PROVENANCE_TYPES, QuestionTooLong
 
 OPT, NULL = "[OPT]", "[NULL]"
 NULL_TEXT = "none of the options fit"
@@ -38,11 +38,35 @@ def option_text(o: Dict[str, str]) -> str:
     description; bare letters and digits are not."""
     name, desc = o["name"], o["description"]
     if re.fullmatch(r"[A-Za-z]|\d+", name) or name.lower() in ("yes", "no"):
-        return desc
+        # A bare name carries no meaning, so the description is shown alone; with an empty description the option
+        # would be blank to the model, so show the name (no training or JevBench public record has a blank
+        # description on such a name, so only requests that send one are affected).
+        return desc if desc.strip() else name
     human = name.replace("_", " ")
     if human.lower() == desc.lower():
         return desc
     return f"{human}: {desc}"
+
+
+def _provenance_finder(provenance):
+    """A function char offset -> provenance type of the first span holding it ("unknown" if none). With spans that
+    do not overlap (what the server builds) it is a binary search over the sorted spans instead of a scan of all spans
+    for every token; with overlapping spans it scans in list order as before, so the result is the same either way."""
+    import bisect
+    spans = sorted(provenance, key=lambda sp: sp[0])
+    if any(spans[i][1] > spans[i + 1][0] for i in range(len(spans) - 1)):
+        def scan(mid):
+            for ss, se, st in provenance:
+                if ss <= mid < se:
+                    return st
+            return "unknown"
+        return scan
+    starts = [sp[0] for sp in spans]
+
+    def find(mid):
+        i = bisect.bisect_right(starts, mid) - 1
+        return spans[i][2] if i >= 0 and spans[i][0] <= mid < spans[i][1] else "unknown"
+    return find
 
 
 def canonical_order(options: Sequence[Dict[str, str]]) -> List[int]:
@@ -92,6 +116,8 @@ class Featurizer:
                 "opts": [ids[: self.max_option_tokens] for ids in oids[k:k + n]],
                 "sids": st["input_ids"][i],
                 "offs": [list(o) for o in st["offset_mapping"][i]],
+                # the instructions or an option were cut to max_instr_tokens or max_option_tokens
+                "cut": len(instr[i]) > self.max_instr_tokens or any(len(ids) > self.max_option_tokens for ids in oids[k:k + n]),
             })
             k += n
         return out
@@ -116,22 +142,18 @@ class Featurizer:
         prov = [0] * len(ids)
         sids, offs = pc["sids"], pc["offs"]
         budget = self.max_len - len(ids) - 1
-        truncated = len(sids) > budget
+        truncated = len(sids) > budget or bool(pc.get("cut"))  # the state, the instructions or an option was cut
         if budget < 1:
-            raise ValueError("question and options exceed max_len")
+            raise QuestionTooLong("question and options exceed max_len")
         sids, offs = sids[:budget], offs[:budget]
+        find_type = _provenance_finder(provenance)
         seg_types = []
         for s, e in offs:
             # A token gets the provenance type of the segment holding its midpoint character (an empty token
             # uses its start). A token that straddles two segments takes the type of the one under its middle;
             # a token under no segment is "unknown".
             mid = s if e <= s else (s + e - 1) // 2
-            ptype = "unknown"
-            for ss, se, st in provenance:
-                if ss <= mid < se:
-                    ptype = st
-                    break
-            seg_types.append(PROV_IDS[ptype])
+            seg_types.append(PROV_IDS[find_type(mid)])
         state_start = len(ids)
         ids += sids + [self.sep_id]
         prov += seg_types + [0]

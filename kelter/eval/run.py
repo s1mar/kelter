@@ -129,7 +129,8 @@ def corrected_null(system, answerable, outs) -> Dict[str, Any]:
     group, against the same answerable items' null scores."""
     p = BUILT / "test_unknowable_corrected.jsonl"
     if not p.exists():
-        return {}
+        print(f"corrected null set {p.name} not found in {BUILT}; corrected-null figures are not computed")
+        return {"null_corrected_set_missing": True}
     ids = {r["id"] for r in answerable}
     unk = [r for r in load("test_unknowable_corrected")
            if r["meta"]["unk_group"] == "natural_null" or r["id"].split("~", 1)[0] in ids]

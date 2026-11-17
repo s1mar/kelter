@@ -33,6 +33,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from kelter.data import schema
+from kelter.data.schema import QuestionTooLong
 from kelter.state import render_state
 
 MAX_CHOICES = 255
@@ -41,6 +42,11 @@ MAX_LEVELS = 10
 MAX_QUESTIONS = 64  # questions per request
 MAX_STATE_CHARS = 1_000_000  # characters of the rendered state
 MAX_PROVENANCE_SPANS = 10_000  # provenance ranges per request
+MAX_NESTING = 64  # levels of a JSON value used as state, instructions or a description (the contract's limit)
+MAX_INSTRUCTION_CHARS = 10_000  # characters of one question's instructions (real data: at most 203)
+MAX_DESCRIPTION_CHARS = 4_000  # characters of one option description (real data: at most 530)
+MAX_NAME_CHARS = 256  # characters of one option name (real data: at most 48)
+NULL_NAME = "__null__"  # the engine's null sentinel: no option may carry it
 VARIANTS = {"default": "checkpoints/Q1", "lower-latency": "checkpoints/E1"}
 DEFAULT_VARIANT = "default"
 EXTENSION_FIELDS = ("null_probability", "witness", "verifier", "set", "coverage_level", "action", "receipt")
@@ -102,6 +108,26 @@ class SystemOneRequest(BaseModel):
 
 
 # ---------------------------------------------------------------- request to records
+def _depth(v: Any) -> int:
+    """Nesting depth of a JSON value (a scalar is 0), without recursion."""
+    deepest, stack = 0, [(v, 0)]
+    while stack:
+        x, d = stack.pop()
+        deepest = max(deepest, d)
+        if isinstance(x, dict):
+            stack.extend((c, d + 1) for c in x.values())
+        elif isinstance(x, list):
+            stack.extend((c, d + 1) for c in x)
+    return deepest
+
+
+def _check_utf8(s: str, loc: List[Union[str, int]], what: str) -> None:
+    try:
+        s.encode("utf-8")
+    except UnicodeEncodeError:
+        raise ContractError(loc, f"{what} contains text that cannot be encoded as UTF-8 (a lone surrogate)") from None
+
+
 def _text(v: Any) -> str:
     """Instruction and description text. Strings pass through, None is empty,
     other JSON values are rendered as JSON."""
@@ -165,6 +191,18 @@ def build_record(req_id: str, qid: str, q: Any, state: str, provenance: List[Lis
         options = schema.options_from_criteria(q.type, criteria)
     except ValueError as e:
         raise ContractError(loc + ["criteria"], str(e))
+    _check_utf8(instructions, loc + ["instructions"], "the instructions")
+    if len(instructions) > MAX_INSTRUCTION_CHARS:
+        raise ContractError(loc + ["instructions"], f"the instructions have {len(instructions)} characters; at most {MAX_INSTRUCTION_CHARS}")
+    for o in options:
+        if o["name"] == NULL_NAME:
+            raise ContractError(loc + ["criteria"], f"an option may not be named {NULL_NAME!r}: the engine uses it for the null answer")
+        _check_utf8(o["name"] + o["description"], loc + ["criteria"], f"option {o['name'][:40]!r}")
+        if len(o["name"]) > MAX_NAME_CHARS:
+            raise ContractError(loc + ["criteria"], f"an option name has {len(o['name'])} characters; at most {MAX_NAME_CHARS}")
+        if len(o["description"]) > MAX_DESCRIPTION_CHARS:
+            raise ContractError(loc + ["criteria"], f"the description of option {o['name'][:40]!r} has {len(o['description'])} characters; "
+                                                    f"at most {MAX_DESCRIPTION_CHARS}")
     rec = {
         "id": f"{req_id}-{qid}",
         "source": "request",
@@ -402,6 +440,12 @@ def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
                   for e in exc.errors()]
         return JSONResponse({"detail": detail}, status_code=422)
 
+    @app.exception_handler(QuestionTooLong)
+    async def _question_too_long(_, exc: QuestionTooLong):
+        return JSONResponse({"detail": [{"loc": ["body", "questions"], "type": "value_error",
+                                         "msg": "the question and its options are too long for this model; shorten the "
+                                                "instructions or the option descriptions"}]}, status_code=422)
+
     @app.exception_handler(EngineError)
     async def _engine_error(_, exc: EngineError):
         return JSONResponse({"detail": f"engine error: {exc}"}, status_code=500)
@@ -411,7 +455,12 @@ def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
         if req.assets:
             raise ContractError(["body", "assets"], "assets (images) are not supported by this server")
         req_id = uuid.uuid4().hex
+        for loc, v in [(["body", "state"], req.state)] + [
+                (["body", "questions", qid, part], getattr(q, part)) for qid, q in req.questions.items() for part in ("instructions", "criteria")]:
+            if _depth(v) > MAX_NESTING:
+                raise ContractError(loc, f"nested deeper than {MAX_NESTING} levels")
         state = render_state(req.state)
+        _check_utf8(state, ["body", "state"], "the state")
         if len(state) > MAX_STATE_CHARS:
             raise ContractError(["body", "state"], f"the rendered state has {len(state)} characters; this server accepts at most {MAX_STATE_CHARS}")
         provenance = build_provenance(req.provenance, len(state))

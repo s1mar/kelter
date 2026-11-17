@@ -90,4 +90,10 @@ python -m kelter.calibrate --ckpt checkpoints/Q1
 python -m kelter.eval.run --system ours --ckpt checkpoints/Q1 --tag Q1
 ```
 
-The first command downloads the public datasets listed in `THIRD-PARTY.md` and writes `data/built/` and a data card under `docs/data_cards/`. The encoder checkpoints train with `python -m kelter.train --run r1 --epochs 1 --max-tokens 8192`; `docs/results.md` lists every run and `docs/data_cards/` records what each trained on.
+The first command downloads the public datasets listed in `THIRD-PARTY.md` and writes `data/built/` and a data card under `docs/data_cards/`. Q1 needs the r2 encoder, because the default model's config points at `checkpoints/r2` for its evidence spans. Without r2, calibrating or evaluating a freshly trained Q1 fails. Get r2 in one of two ways. Run `python scripts/download_weights.py`, which fetches r2 and Q1. Or train it:
+
+```bash
+python -m kelter.train --run r2 --epochs 3 --max-tokens 8192 --lr 8e-05 --head-lr 0.0003 --w-witness 0.5 --seed 0 --infer-max-len 2048
+```
+
+This command was reconstructed from the settings recorded in `results/train/r2.json`, because that file predates recording the command line. Other encoder runs are trained the same way with their own flags. `docs/results.md` lists every run and `docs/data_cards/` records what each trained on.

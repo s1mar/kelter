@@ -146,6 +146,16 @@ class Ensemble:
         return res
 
 
+def member_calibration(c: str, p) -> Dict[str, Any]:
+    """What a member was calibrated with, for the spec: its per-type temperatures and its null calibration. Warns when
+    it has neither: its scores then enter the ensemble uncalibrated."""
+    import warnings
+    if not p.temps and not p.null_cal:
+        warnings.warn(f"ensemble member {c} has no temperature or null calibration in its config.json; "
+                      "run kelter.calibrate on it first", stacklevel=2)
+    return {"temperature": dict(p.temps), "null_calibration": dict(p.null_cal)}
+
+
 def fit_stacked(name: str, options: str, null: List[str], folds: int = 5) -> Dict[str, Any]:
     """Stacked null score: a gradient-boosted classifier over the members' quantiles, trained on
     calib answerable records against the calib-side unknowables (the held-out
@@ -168,9 +178,10 @@ def fit_stacked(name: str, options: str, null: List[str], folds: int = 5) -> Dic
     ans = [r for r in calib if not r["null"]]
     rows = ans + unk
     y = np.r_[np.zeros(len(ans)), np.ones(len(unk))]
-    refs, cols = {}, []
+    refs, cols, calib_of = {}, [], {}
     for c in null:
         p = Predictor(str(ROOT / "checkpoints" / c))
+        calib_of[c] = member_calibration(c, p)
         s = np.array([null_score(o) for o in p.predict(rows)])
         refs[c] = np.sort(s[: len(ans)])
         cols.append(np.searchsorted(refs[c], s, side="right") / len(refs[c]))
@@ -194,7 +205,7 @@ def fit_stacked(name: str, options: str, null: List[str], folds: int = 5) -> Dic
             "stacker_sha256": hashlib.sha256(blob).hexdigest(), "stacker_params": params, "folds": folds,
             "logistic": {"a": a, "b": b}, "fit_on": "data/built/calib.jsonl and its unknowables (kelter.eval.unknowable.build)",
             "unknowable_counts": stats["counts"], "n_answerable": len(ans), "n_unknowable": len(unk),
-            "method": "stacked",
+            "method": "stacked", "member_calibration": calib_of,
             "command": f"python -m kelter.ensemble --name {name} --options {options} --null {' '.join(null)} --stacked"}
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{name}.json").write_text(json.dumps(spec), encoding="utf-8")
@@ -205,9 +216,10 @@ def fit(name: str, options: str, null: List[str]) -> Dict[str, Any]:
     from kelter.model import Predictor
     calib = [json.loads(l) for l in (ROOT / "data" / "built" / "calib.jsonl").open(encoding="utf-8")]
     y = np.array([1.0 if r["null"] else 0.0 for r in calib])
-    refs, qs = {}, []
+    refs, qs, calib_of = {}, [], {}
     for c in null:
         p = Predictor(str(ROOT / "checkpoints" / c))
+        calib_of[c] = member_calibration(c, p)
         s = np.array([null_score(o) for o in p.predict(calib)])
         refs[c] = np.sort(s[y == 0])  # reference: this member's null scores on the answerable records (y == 0), sorted
         qs.append(np.searchsorted(refs[c], s, side="right") / len(refs[c]))  # empirical CDF against that reference
@@ -216,7 +228,7 @@ def fit(name: str, options: str, null: List[str]) -> Dict[str, Any]:
     a, b = fit_logistic(x, y)
     spec = {"name": name, "options": options, "null": null, "refs": {c: v.tolist() for c, v in refs.items()},
             "logistic": {"a": a, "b": b}, "fit_on": "data/built/calib.jsonl", "n_answerable": int((y == 0).sum()),
-            "n_null": int(y.sum()), "method": "mean",
+            "n_null": int(y.sum()), "method": "mean", "member_calibration": calib_of,
             "command": f"python -m kelter.ensemble --name {name} --options {options} --null {' '.join(null)}"}
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / f"{name}.json").write_text(json.dumps(spec), encoding="utf-8")

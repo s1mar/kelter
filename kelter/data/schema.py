@@ -36,6 +36,11 @@ DOMAINS = ("intent", "nli", "qa", "mcq", "paraphrase", "toxicity", "policy")
 SPLITS = ("train", "validation", "test")
 
 
+class QuestionTooLong(ValueError):
+    """The question and its options do not fit the encoder's window (raised by kelter.model.Featurizer.assemble;
+    still a ValueError, so callers that catch ValueError are unchanged). The server answers it with a 422."""
+
+
 def options_from_criteria(qtype: str, criteria: Any) -> List[Dict[str, str]]:
     """Derive the option list from TypeSafe-shaped criteria."""
     if qtype == "choice":

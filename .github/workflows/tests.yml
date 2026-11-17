@@ -31,6 +31,7 @@ jobs:
         env:
           KELTER_DEVICE: cpu
           CUDA_VISIBLE_DEVICES: ""
+          KELTER_FAIL_ON_SKIP: "1"  # tests/conftest.py: a skipped test fails the job (the JevBench and SDK tests must run)
         run: python -m pytest -q -rs
 
   windows:
@@ -52,6 +53,7 @@ jobs:
         env:
           KELTER_DEVICE: cpu
           CUDA_VISIBLE_DEVICES: ""
+          KELTER_FAIL_ON_SKIP: "1"
         run: python -m pytest -q -rs tests/test_train_resume.py
 
   wheel:

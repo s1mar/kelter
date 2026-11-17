@@ -86,6 +86,8 @@ def pad_long(out, by_src, args, counts):
 # record (model_hash in the config.json beside it) before training and at every resume save, writes the result
 # into the step log, and stops without saving state if the hash is ever wrong. It reads the file and changes
 # nothing: removing it would not change what a healthy run computes.
+BASE = "Qwen/Qwen3-4B-Instruct-2507"  # the published base model
+BASE_REVISION = "cdbee75f17c01a7cc42f958dc650907174af0554"  # its revision, as in checkpoints/Q1/config.json base_revision
 SENTINEL = "checkpoints/r2/model.pt"  # a fixed large file whose sha256 is recorded in its config.json
 
 
@@ -186,6 +188,21 @@ def sentinel_check(path: Path, expected: str) -> bool:
     return _hash_cached(path) == expected
 
 
+def pick_revision(base: str, requested):
+    """The base revision to load: the one asked for (--base-revision), else the published pin when the base is the
+    published one, else None (the newest revision)."""
+    return requested or (BASE_REVISION if base == BASE else None)
+
+
+def command_line(args) -> str:
+    """The command that reproduces a run, from its arguments. An argument equal to 0 is kept (0 == False in Python, so
+    a plain `in (None, False)` test would drop it); None and False are left out, as are the flags that are not part of
+    the computation."""
+    parts = [f"--{k.replace('_', '-')} {v}" for k, v in vars(args).items()
+             if v is not None and v is not False and k not in ("qlora", "resume")]
+    return "python -m kelter.llm_train " + " ".join(parts) + (" --qlora" if args.qlora else "")
+
+
 def resolved_revision(model, base: str):
     """The revision (commit hash) of the base model that was actually loaded, so the adapter can be served pinned to
     it (config.json base_revision, read by kelter.llm). From the loaded model's config; else the local cache's snapshot
@@ -234,7 +251,10 @@ def load_state(path: Path, model, opt, sched) -> dict:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--name", required=True)
-    ap.add_argument("--base", default="Qwen/Qwen3-4B-Instruct-2507")
+    ap.add_argument("--base", default=BASE)
+    ap.add_argument("--base-revision", default=None,
+                    help=f"revision of the base model to load; default: the published pin ({BASE_REVISION[:12]}) when --base is "
+                         "the published base, else the newest revision")
     ap.add_argument("--qlora", action="store_true", help="4-bit NF4 base during training")
     ap.add_argument("--cap", type=int, default=1600)
     ap.add_argument("--cap-policy", type=int, default=5000)
@@ -276,7 +296,12 @@ def main(argv=None) -> int:
     recs, counts = sample(args)
     if args.limit:
         recs = recs[: args.limit]
-    tok = AutoTokenizer.from_pretrained(args.base)
+    # A retrain uses the published base unless told otherwise; the revision is passed to the tokenizer and the model,
+    # recorded in config.json (base_revision) and compared on --resume.
+    revision = pick_revision(args.base, args.base_revision)
+    rev_kw = {"revision": revision} if revision else {}
+    args.base_revision = revision
+    tok = AutoTokenizer.from_pretrained(args.base, **rev_kw)
     letters = letter_ids(tok)
     rng = random.Random(args.seed + 1)
     ex = []
@@ -304,7 +329,7 @@ def main(argv=None) -> int:
         kw["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4",
                                                        bnb_4bit_use_double_quant=True,
                                                        bnb_4bit_compute_dtype=torch.bfloat16)
-    model = AutoModelForCausalLM.from_pretrained(args.base, device_map={"": 0}, **kw)
+    model = AutoModelForCausalLM.from_pretrained(args.base, device_map={"": 0}, **rev_kw, **kw)
     base_revision = resolved_revision(model, args.base)  # read before peft wraps the model
     model.config.use_cache = False
     if args.qlora:
@@ -418,8 +443,7 @@ def main(argv=None) -> int:
     res = {"name": args.name, "args": vars(args), "counts": counts, "n_examples": len(ex), "n_batches": len(batches),
            "steps": steps, "log": log, "resumed_at_steps": resumed, "train_s": round(time.time() - t0, 1),
            "power_mode": args.power_mode or "unrecorded",
-           "command": "python -m kelter.llm_train " + " ".join(f"--{k.replace('_', '-')} {v}" for k, v in vars(args).items()
-                                                                     if v not in (None, False) and k not in ("qlora", "resume")) + (" --qlora" if args.qlora else "")}
+           "command": command_line(args)}
     (ROOT / "results" / "train").mkdir(parents=True, exist_ok=True)
     (ROOT / "results" / "train" / f"{args.name}.json").write_text(json.dumps(res, indent=2), encoding="utf-8")
     print(json.dumps({k: res[k] for k in ("n_examples", "steps", "train_s")}))

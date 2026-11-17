@@ -126,7 +126,7 @@ def test_serve_without_weights_one_line(installed):
     assert str(installed / "checkpoints") in msg
 
 
-def test_witness_and_ensemble_paths_under_home(installed):
+def test_witness_paths_under_home(installed):
     """Q1's witness_ckpt resolves under the writable folder, as the variant checkpoints do."""
     from kelter import server
     ck = installed / "checkpoints" / "Q1"
@@ -181,3 +181,22 @@ def test_pyproject_declares_package():
         if dep[0] in ("torch", "setuptools"):  # torch: from the PyTorch index; setuptools: the build backend
             continue
         assert req.get(dep[0]) == dep[1], dep
+
+
+def test_ensemble_member_paths_under_home(installed, monkeypatch):
+    """An installed ensemble reads its spec from the package assets and loads every member from the writable folder."""
+    import numpy as np
+    from kelter import ensemble, model
+    seen = []
+
+    class Stub:
+        def __init__(self, path, device=None):
+            seen.append(Path(path))
+            self.tok, self.feat = object(), object()
+    monkeypatch.setattr(model, "Predictor", Stub)
+    e = ensemble.Ensemble("E1", device="cpu")
+    spec = json.loads((paths.ASSETS / "ensemble" / "E1.json").read_text(encoding="utf-8"))
+    assert seen and all(p.parent == installed / "checkpoints" for p in seen)
+    assert {p.name for p in seen} == {spec["options"], *[c for c in spec["null"] if c != spec["options"]]}
+    assert e.spec["name"] == spec["name"] and set(e.refs) == set(spec["null"])
+    assert isinstance(e.refs[spec["null"][0]], np.ndarray)

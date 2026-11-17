@@ -340,6 +340,48 @@ def main(argv=None) -> int:
         print(f"build: {what} without --out would overwrite data/built (the shipped r2 corpus); "
               f"pass --out <directory>, for example --out data/built_{args.recipe if args.recipe != 'r2' else 'small'}", file=sys.stderr)
         return 2
+    sources: List[Dict[str, Any]] = []
+    undo = _record_downloads(sources)
+    try:
+        return _build(args, sources)
+    finally:
+        undo()
+
+
+def _record_downloads(sink: List[Dict[str, Any]]):
+    """Wrap hf_hub_download (in huggingface_hub and in every converter that imported it) so each source file the build
+    reads is recorded with its sha256 in `sink`; returns a function that undoes the wrapping. A later upstream change to
+    a source file then shows as a different hash in manifest.json."""
+    import importlib
+    import pkgutil
+
+    import huggingface_hub
+
+    from kelter.data import converters
+    from kelter.download import sha256
+
+    orig = huggingface_hub.hf_hub_download
+
+    def wrapped(*a, **k):
+        path = orig(*a, **k)
+        sink.append({"repo": a[0] if a else k.get("repo_id"), "file": a[1] if len(a) > 1 else k.get("filename"),
+                     "revision": k.get("revision"), "sha256": sha256(Path(path))})
+        return path
+    patched = [(huggingface_hub, orig)]
+    huggingface_hub.hf_hub_download = wrapped
+    for m in pkgutil.iter_modules(converters.__path__):
+        mod = importlib.import_module(f"{converters.__name__}.{m.name}")
+        if getattr(mod, "hf_hub_download", None) is orig:
+            patched.append((mod, orig))
+            mod.hf_hub_download = wrapped
+
+    def undo():
+        for mod, fn in patched:
+            mod.hf_hub_download = fn
+    return undo
+
+
+def _build(args, sources: List[Dict[str, Any]]) -> int:
     global N_SHAPES, FILTER_TRAIN_NULLS, OUT
     rc = RECIPES[args.recipe]
     N_SHAPES, FILTER_TRAIN_NULLS = rc["N_SHAPES"], rc["FILTER_TRAIN_NULLS"]
@@ -427,6 +469,7 @@ def main(argv=None) -> int:
     }
     manifest = {"small": args.small, "seed": SEED, "recipe": args.recipe, "holdout_sources": sorted(HOLDOUT_SOURCES) + [f"synthetic_policy_{HOLDOUT_FAMILY}"],
                 "train_sources": sorted(TRAIN_SOURCES) + ["synthetic_policy", "synthetic_score", "synthetic_shapes"], "aug_p": AUG_P, "counts": {},
+                "source_files": sorted({(s["repo"], s["file"], s["revision"] or "", s["sha256"]) for s in sources}),
                 "train_nulls_filtered": n_filtered, "train_answer_removed_kept": sum(1 for r in train if "remove_answer" in str((r.get("meta") or {}).get("aug")))}
     for name, recs in splits.items():
         manifest["counts"][name] = write_jsonl(OUT / f"{name}.jsonl", recs)
