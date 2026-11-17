@@ -1,0 +1,1081 @@
+{
+  "built": {
+    "splits": {
+      "anli_test": {
+        "records": 2000,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "calib": {
+        "records": 3439,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "dev": {
+        "records": 16967,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test": {
+        "records": 3340,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_forge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_nudge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_null": {
+        "records": 2787,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_unknowable_corrected": {
+        "records": 5918,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "train": {
+        "records": 199502,
+        "not_null_state_only_mask_and_whitespace": 979,
+        "not_null_state_over_90_percent_masked": 982,
+        "by_source": {
+          "all_masked": {
+            "boolq": 979
+          },
+          "mostly_masked": {
+            "boolq": 979,
+            "squad2": 3
+          }
+        },
+        "by_augmentation_tag": {
+          "all_masked": {
+            "mask_untrusted": 979
+          },
+          "mostly_masked": {
+            "mask_untrusted": 979,
+            "witness_only": 3
+          }
+        },
+        "by_mask_kind": {
+          "all_masked": {
+            "untrusted": 979
+          },
+          "mostly_masked": {
+            "untrusted": 979,
+            "witness_only": 3
+          }
+        }
+      },
+      "witness_test": {
+        "records": 2999,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      }
+    },
+    "train_records": 199502,
+    "share_of_training_records": {
+      "state_only_mask_and_whitespace": 0.004907218975248369,
+      "state_over_90_percent_masked": 0.004922256418482021
+    },
+    "held_out_splits_with_such_records": {}
+  },
+  "built_r1": {
+    "splits": {
+      "anli_test": {
+        "records": 2000,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "calib": {
+        "records": 3439,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "dev": {
+        "records": 16967,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test": {
+        "records": 3340,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_forge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_nudge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_null": {
+        "records": 2787,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "train": {
+        "records": 188589,
+        "not_null_state_only_mask_and_whitespace": 979,
+        "not_null_state_over_90_percent_masked": 980,
+        "by_source": {
+          "all_masked": {
+            "boolq": 979
+          },
+          "mostly_masked": {
+            "boolq": 979,
+            "squad2": 1
+          }
+        },
+        "by_augmentation_tag": {
+          "all_masked": {
+            "mask_untrusted": 979
+          },
+          "mostly_masked": {
+            "mask_untrusted": 979,
+            "witness_only": 1
+          }
+        },
+        "by_mask_kind": {
+          "all_masked": {
+            "untrusted": 979
+          },
+          "mostly_masked": {
+            "untrusted": 979,
+            "witness_only": 1
+          }
+        }
+      },
+      "witness_test": {
+        "records": 2999,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      }
+    },
+    "train_records": 188589,
+    "share_of_training_records": {
+      "state_only_mask_and_whitespace": 0.005191182942801542,
+      "state_over_90_percent_masked": 0.0051964854790046075
+    },
+    "held_out_splits_with_such_records": {}
+  },
+  "built_r3": {
+    "splits": {
+      "anli_test": {
+        "records": 2000,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "calib": {
+        "records": 3439,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "dev": {
+        "records": 16967,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test": {
+        "records": 3340,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_forge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_nudge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_null": {
+        "records": 2787,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "train": {
+        "records": 215717,
+        "not_null_state_only_mask_and_whitespace": 979,
+        "not_null_state_over_90_percent_masked": 982,
+        "by_source": {
+          "all_masked": {
+            "boolq": 979
+          },
+          "mostly_masked": {
+            "boolq": 979,
+            "squad2": 3
+          }
+        },
+        "by_augmentation_tag": {
+          "all_masked": {
+            "mask_untrusted": 979
+          },
+          "mostly_masked": {
+            "mask_untrusted": 979,
+            "witness_only": 3
+          }
+        },
+        "by_mask_kind": {
+          "all_masked": {
+            "untrusted": 979
+          },
+          "mostly_masked": {
+            "untrusted": 979,
+            "witness_only": 3
+          }
+        }
+      },
+      "witness_test": {
+        "records": 2999,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      }
+    },
+    "train_records": 215717,
+    "share_of_training_records": {
+      "state_only_mask_and_whitespace": 0.00453835349091634,
+      "state_over_90_percent_masked": 0.004552260600694428
+    },
+    "held_out_splits_with_such_records": {}
+  },
+  "built_r5": {
+    "splits": {
+      "anli_test": {
+        "records": 2000,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "calib": {
+        "records": 3439,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "dev": {
+        "records": 17859,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test": {
+        "records": 3340,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_forge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_nudge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_null": {
+        "records": 2787,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "train": {
+        "records": 225416,
+        "not_null_state_only_mask_and_whitespace": 941,
+        "not_null_state_over_90_percent_masked": 941,
+        "by_source": {
+          "all_masked": {
+            "boolq": 941
+          },
+          "mostly_masked": {
+            "boolq": 941
+          }
+        },
+        "by_augmentation_tag": {
+          "all_masked": {
+            "mask_untrusted": 941
+          },
+          "mostly_masked": {
+            "mask_untrusted": 941
+          }
+        },
+        "by_mask_kind": {
+          "all_masked": {
+            "untrusted": 941
+          },
+          "mostly_masked": {
+            "untrusted": 941
+          }
+        }
+      },
+      "witness_test": {
+        "records": 2999,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      }
+    },
+    "train_records": 225416,
+    "share_of_training_records": {
+      "state_only_mask_and_whitespace": 0.004174504028108031,
+      "state_over_90_percent_masked": 0.004174504028108031
+    },
+    "held_out_splits_with_such_records": {}
+  },
+  "built_r6": {
+    "splits": {
+      "anli_test": {
+        "records": 2000,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "calib": {
+        "records": 3439,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "dev": {
+        "records": 16967,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test": {
+        "records": 3340,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_forge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_nudge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_null": {
+        "records": 2787,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "train": {
+        "records": 199252,
+        "not_null_state_only_mask_and_whitespace": 979,
+        "not_null_state_over_90_percent_masked": 982,
+        "by_source": {
+          "all_masked": {
+            "boolq": 979
+          },
+          "mostly_masked": {
+            "boolq": 979,
+            "squad2": 3
+          }
+        },
+        "by_augmentation_tag": {
+          "all_masked": {
+            "mask_untrusted": 979
+          },
+          "mostly_masked": {
+            "mask_untrusted": 979,
+            "witness_only": 3
+          }
+        },
+        "by_mask_kind": {
+          "all_masked": {
+            "untrusted": 979
+          },
+          "mostly_masked": {
+            "untrusted": 979,
+            "witness_only": 3
+          }
+        }
+      },
+      "witness_test": {
+        "records": 2999,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      }
+    },
+    "train_records": 199252,
+    "share_of_training_records": {
+      "state_only_mask_and_whitespace": 0.004913376026338506,
+      "state_over_90_percent_masked": 0.004928432336940156
+    },
+    "held_out_splits_with_such_records": {}
+  },
+  "built_r7": {
+    "splits": {
+      "anli_test": {
+        "records": 2000,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "calib": {
+        "records": 3439,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "dev": {
+        "records": 17859,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test": {
+        "records": 3340,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_forge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_nudge": {
+        "records": 3120,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "test_null": {
+        "records": 2787,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      },
+      "train": {
+        "records": 216433,
+        "not_null_state_only_mask_and_whitespace": 941,
+        "not_null_state_over_90_percent_masked": 941,
+        "by_source": {
+          "all_masked": {
+            "boolq": 941
+          },
+          "mostly_masked": {
+            "boolq": 941
+          }
+        },
+        "by_augmentation_tag": {
+          "all_masked": {
+            "mask_untrusted": 941
+          },
+          "mostly_masked": {
+            "mask_untrusted": 941
+          }
+        },
+        "by_mask_kind": {
+          "all_masked": {
+            "untrusted": 941
+          },
+          "mostly_masked": {
+            "untrusted": 941
+          }
+        }
+      },
+      "witness_test": {
+        "records": 2999,
+        "not_null_state_only_mask_and_whitespace": 0,
+        "not_null_state_over_90_percent_masked": 0,
+        "by_source": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_augmentation_tag": {
+          "all_masked": {},
+          "mostly_masked": {}
+        },
+        "by_mask_kind": {
+          "all_masked": {},
+          "mostly_masked": {}
+        }
+      }
+    },
+    "train_records": 216433,
+    "share_of_training_records": {
+      "state_only_mask_and_whitespace": 0.004347765821293426,
+      "state_over_90_percent_masked": 0.004347765821293426
+    },
+    "held_out_splits_with_such_records": {}
+  }
+}
