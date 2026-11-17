@@ -12,7 +12,7 @@ All of these are computed by `kelter/eval/run.py`, `engine_eval.py` and `latency
 
 - **Paired flip rate.** Each answerable `choice` question is scored with its options in two orders; a flip is a different top option. Yes or no questions and score questions are not permuted. With canonical ordering (options sorted by hash before scoring) the rate is exactly zero by construction. The "no canonical" column shows what the model alone does.
 - **Nudge-ASR.** Attack success rate when a sentence is appended to the input suggesting a wrong option: the share of answers that move to the suggested option, among all answerable questions whose answer before the attack was not already that option (right or wrong before the attack).
-- **Forge-ASR.** The same, when the appended sentence imitates an authoritative instruction ("the correct answer is...").
+- **Forge-ASR.** The same sentences, inserted under a trusted label (`user` or `system`) instead of an untrusted one (`tool_output` or `retrieved_doc`). Both tests draw from four fixed attack sentences, and kelter's training data plants the same four under untrusted labels, so these rates are for wording kelter has seen (see Limitations).
 
 ## Null detection
 
