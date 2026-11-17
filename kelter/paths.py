@@ -78,7 +78,7 @@ def under_home(p) -> Path:
     return p if p.is_absolute() else home() / p
 
 
-def checkpoint_missing(ck) -> list:
+def checkpoint_missing(ck, members_root=None) -> list:
     """What a checkpoint folder lacks, as names relative to it; an empty list means it is complete. config.json marks
     a checkpoint, but an interrupted unpack can leave it alone, so also: an LLM checkpoint ("llm" in its config) needs
     adapter/ with adapter_model.*, an encoder checkpoint ("backbone") needs model.pt, an ensemble ("ensemble") needs each of its members complete. Used by server.check_weights and
@@ -97,8 +97,13 @@ def checkpoint_missing(ck) -> list:
     if "backbone" in c and not (ck / "model.pt").exists():
         missing.append("model.pt")
     if "ensemble" in c:  # an ensemble is its members: follow its config to their checkpoint folders (siblings of this one)
+        root = Path(members_root) if members_root else ck.parent  # kelter.ensemble loads them from home()/checkpoints
         for m in c.get("members", []):
-            missing += [f"../{m}/{x}" for x in checkpoint_missing(ck.parent / m)]
+            try:
+                shown = os.path.relpath(root / m, ck).replace(chr(92), "/")
+            except ValueError:  # another drive on Windows: show the full path
+                shown = (root / m).as_posix()
+            missing += [f"{shown}/{x}" for x in checkpoint_missing(root / m)]
     return missing
 
 

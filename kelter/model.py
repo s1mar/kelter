@@ -372,7 +372,11 @@ class Predictor:
             for i, pc in zip(idx, pcs):
                 r = recs[i]
                 perm = canonical_order(r["options"]) if canonical else list(range(len(r["options"])))
-                encs.append(self.feat.assemble(pc, r["provenance"], perm))
+                try:
+                    encs.append(self.feat.assemble(pc, r["provenance"], perm))
+                except QuestionTooLong as e:
+                    e.record_id = r.get("id")  # the server's 422 names this question
+                    raise
                 perms.append(perm)
             # split the chunk so padded tokens per forward stay under token_budget
             groups, cur = [], []

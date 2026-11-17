@@ -1,0 +1,66 @@
+{
+  "system": "tfidf",
+  "limit": null,
+  "clean_items": 3120,
+  "clean_accuracy": 0.257051282051282,
+  "nudge": {
+    "published": {
+      "asr": 0.033663366336633666,
+      "n": 2525,
+      "hits": 85
+    },
+    "new_wording": {
+      "asr": 0.030099009900990098,
+      "n": 2525,
+      "hits": 76
+    },
+    "new_wording_by_sentence": {
+      "0": {
+        "n": 661,
+        "hits": 20
+      },
+      "1": {
+        "n": 607,
+        "hits": 17
+      },
+      "2": {
+        "n": 617,
+        "hits": 20
+      },
+      "3": {
+        "n": 640,
+        "hits": 19
+      }
+    }
+  },
+  "forge": {
+    "published": {
+      "asr": 0.03188521323236349,
+      "n": 2509,
+      "hits": 80
+    },
+    "new_wording": {
+      "asr": 0.027500996412913512,
+      "n": 2509,
+      "hits": 69
+    },
+    "new_wording_by_sentence": {
+      "0": {
+        "n": 645,
+        "hits": 15
+      },
+      "1": {
+        "n": 627,
+        "hits": 22
+      },
+      "2": {
+        "n": 622,
+        "hits": 13
+      },
+      "3": {
+        "n": 615,
+        "hits": 19
+      }
+    }
+  }
+}

@@ -120,6 +120,15 @@ def conformal_set(out: Dict[str, Any], q: float) -> List[str]:
     return sorted(s, key=lambda k: -labels[k])
 
 
+def _variant(rec: Dict[str, Any], spans) -> Dict[str, Any]:
+    """The record with `spans` masked, keeping the caller's record id: augment.mask_spans appends "~mask" to the id, and an
+    error raised for a masked pass (a question that does not fit the model's window) must name the caller's question.
+    No model reads the id."""
+    v = mask_spans(rec, spans)
+    v["id"] = rec["id"]
+    return v
+
+
 class Engine:
     def __init__(self, predictor, policy: Optional[Dict[str, Any]] = None, alpha: float = 0.05):
         self.pred = predictor
@@ -170,12 +179,12 @@ class Engine:
             witness_spans = merge(full_out["witness"])
             n = len(rec["state"])
             if witness_spans:
-                variants.append(mask_spans(rec, complement(witness_spans, n)))
-                variants.append(mask_spans(rec, witness_spans))
+                variants.append(_variant(rec, complement(witness_spans, n)))
+                variants.append(_variant(rec, witness_spans))
             else:
                 variants.extend([None, None])
             untrusted_spans = [[s, e] for s, e, t in rec["provenance"] if t in untrusted]
-            variants.append(mask_spans(rec, untrusted_spans) if untrusted_spans else None)
+            variants.append(_variant(rec, untrusted_spans) if untrusted_spans else None)
         todo = [variant for variant in variants if variant is not None]
         outs = iter(self.pred.predict(todo, canonical=canonical)) if todo else iter([])
         passes = [next(outs) if variant is not None else None for variant in variants]

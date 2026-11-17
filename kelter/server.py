@@ -362,7 +362,7 @@ def check_weights(ckpt: str, root: Optional[Path] = None) -> None:
         except ValueError:
             return x.as_posix()
 
-    missing += [shown(ck / m) for m in paths.checkpoint_missing(ck)]  # the same completeness test as the download command
+    missing += [shown(ck / m) for m in paths.checkpoint_missing(ck, paths.home() / "checkpoints")]  # the same completeness test as the download command
     try:
         wit = json.loads((ck / "config.json").read_text(encoding="utf-8")).get("witness_ckpt")
     except (OSError, ValueError):
