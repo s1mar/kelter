@@ -48,7 +48,7 @@ In a clone nothing changes: the folder is the clone, and `python scripts/downloa
 | Wrong option acted on, planted text under a trusted label (3,120 cases) | 4 (0.001) | 6 (0.002) |
 | Decision latency, laptop GPU (p50), performance power mode | 542 ms | 149 ms |
 | Decision latency, laptop GPU (p50), balance power mode | 688 ms | not measured |
-| Weights | 126 MB adapter + 607 MB encoder, plus the 8 GB base download | 4.0 GB |
+| Weights | 132 MB adapter + 607 MB encoder, plus the 8 GB base download | 4.0 GB |
 
 In the default variant the Qwen model reads the text and the options, labelled with letters plus one more letter for "none of the options", and the probabilities come from its next-token logits for those letters. The encoder checkpoint r2 supplies the evidence spans. The lower-latency variant is encoder-only: r2 chooses the option and four checkpoints' null scores are averaged. Start it with `--variant lower-latency` and fetch its weights with `scripts/download_weights.py --variant lower-latency`.
 

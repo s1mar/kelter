@@ -10,7 +10,7 @@ Both answers above are real: they are the two examples that ship with kelter (`r
 
 ## Why use it
 
-- **Fast and private.** Well under a second per decision on a laptop GPU. Your data never leaves your machine.
+- **Fast and private.** About 0.5 to 0.7 s per decision on a laptop GPU (median 542 ms, or 688 ms in balanced power mode; the slowest long JevBench input took 2.15 s). Your data never leaves your machine.
 - **Honest about confidence.** On our test questions, when it says 90% it is right about 90% of the time.
 - **Shows its work.** Every answer points to the exact words it relied on.
 - **Knows when to pass.** If no option fits, or it isn't sure, it says so instead of guessing.
@@ -29,8 +29,10 @@ On the same test questions, against four other small systems (the best of the fo
 |---|---|---|
 | Right answers | **91%** | 81% (Qwen2.5-1.5B) |
 | Confidence error, lower is better | **1.7%** | 5.0% (Kev 0.8B) |
-| Fooled by text injected to steer it | **0.8%** | 3.4% (a TF-IDF baseline that gets only 26% right); 15% to 69% for the three language models |
-| Spots a question with no right answer | **97%** | 44% (Qwen2.5-1.5B) |
+| Fooled by a line in the text that nudges toward an option | **0.8%** | 3.4% (a TF-IDF baseline that gets only 26% right); 15% to 69% for the three language models |
+| Spots a question with no right answer (recall at a 5% false-alarm rate, threshold set on the test data for every system) | **97%** | 44% (Qwen2.5-1.5B) |
+
+The figure's injection panel shows a different test, a forged instruction in the text: kelter 0.4%, the TF-IDF baseline 3.2%, the three language models 17% to 68% (`results/eval/Q1.json`, `results/baselines_table.md`). kelter's confidence error is measured after a temperature fitted on a calibration half of the same held-out sources; it is 4.9% before that step (`results/eval/Q1.json`). The other systems are not recalibrated.
 
 kelter's default model is larger than these (4B parameters); its small variant gets 69% right. The four are Qwen2.5-1.5B, Kev 0.8B, Laya and a TF-IDF baseline. Every number, with its source file, is in [docs/results.md](https://github.com/s1mar/kelter/blob/main/docs/results.md) and [results/baselines_table.md](https://github.com/s1mar/kelter/blob/main/results/baselines_table.md).
 
@@ -75,7 +77,7 @@ Each line reads: example name, what to do, what the answer rests on, the chosen 
 
 ### No GPU
 
-Use the smaller model. It is a 4 GB download, needs no 8 GB base model, and runs on a CPU in a few seconds per question. Follow the same steps with two changes. Install torch without the GPU index (`.venv/Scripts/python -m pip install torch==2.11.0`; on a Mac this is the only build there is). Then change the last two lines to:
+Use the smaller model. It is a 4 GB download, needs no 8 GB base model, and runs on a CPU in about 3 to 22 seconds per question on the CPUs we tried. Follow the same steps with two changes. Install torch without the GPU index (`.venv/Scripts/python -m pip install torch==2.11.0`; on a Mac this is the only build there is). Then change the last two lines to:
 
 ```bash
 .venv/Scripts/python scripts/download_weights.py --variant lower-latency
@@ -149,7 +151,7 @@ Then run `kelter examples` in a second terminal. kelter uses the Mac's CPU by de
 |---|---|---|
 | Needs | NVIDIA GPU, 12 GB | runs on a CPU too |
 | Right on our test questions | 91% | 69% |
-| Time per decision | 0.5 to 0.7 s on a laptop GPU | 0.15 s on a GPU, a few seconds on a CPU |
+| Time per decision | 0.5 to 0.7 s on a laptop GPU | 0.15 s on a GPU, about 3 to 22 seconds per question on the CPUs we tried |
 | Download | 0.7 GB, plus the 8 GB base model | 4 GB |
 
 For the smaller one, add `--variant lower-latency` to both the download and the server commands. It is more cautious: it sends the first example ticket to `escalate` instead of `act` (`results/examples/lower-latency_act.json`).

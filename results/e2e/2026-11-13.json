@@ -4,6 +4,15 @@
   "workflow": ".github/workflows/e2e.yml",
   "runs": [
     {
+      "date": "2026-11-12",
+      "variant": "lower-latency",
+      "os": "Windows 11 (developer laptop)",
+      "device": "cpu",
+      "result": "pass",
+      "seconds_two_requests": 5.9,
+      "source": "manual run of kelter serve and kelter examples from an installed wheel"
+    },
+    {
       "run_id": 43355814546,
       "date": "2026-11-12",
       "variant": "lower-latency",

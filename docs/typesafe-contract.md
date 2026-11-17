@@ -38,6 +38,7 @@ Where sources disagree, docs.typesafe.ai (OAS, API, PRIM, CONF) wins.
 | noul `criteria` | `{"true": ..., "false": ...}` or null | optional | What counts as yes and no. | OAS, PRIM |
 | `assets` | object | optional | Image assets. We return 422. | OAS |
 | `provenance` | list of `{start, end, type}` | extension, optional | Not TypeSafe. Char ranges over the rendered state. | this repo |
+| `verdict_classes` | `{question id: {option name: class}}` | extension, optional | Not TypeSafe. Marks options of a question with a class (for example `destructive`) that the action rule limits. An option name that the question does not have gives a 422 naming `body.verdict_classes`. | this repo |
 
 ## Response (200)
 
@@ -71,7 +72,7 @@ Where sources disagree, docs.typesafe.ai (OAS, API, PRIM, CONF) wins.
 
 ### Extension fields we add to every answer (Jev clients ignore them)
 
-`null_probability`, `witness` (list of `{start, end, provenance, text}`), `verifier`, `set`, `coverage_level`, `action` (`act`, `escalate`, `defer`), `receipt`. Passed through from the engine result. The official Python SDK parses answers carrying these (test `test_typesafe_python_sdk_against_server`).
+`null_probability`, `witness` (list of `{start, end, provenance, text}`), `verifier`, `set`, `coverage_level`, `action` (`act`, `escalate`, `defer`), `receipt`. Passed through from the engine result. The server also adds `variant`, the name of the variant it was started with (`default`, `lower-latency`, or `custom:<name>` for another checkpoint), to every answer when it knows one. The official Python SDK parses answers carrying these (test `test_typesafe_python_sdk_against_server`).
 
 ## Errors
 
@@ -118,12 +119,12 @@ PyPI has the official client: `typesafe-sdk` (0.7.5 at the time of writing; docs
 
 ## Request limits
 
-Limits of this server, set far above any real use; a request over one gets a 422 in the OAS shape.
+Limits of this server, set far above any real use; a request over one gets a 422 in the OAS shape. Of these, a test checks only the `loc` of the state limit.
 
 | Limit | Value | `loc` of the 422 |
 |---|---|---|
 | Questions per request | 64 | `body.questions` |
-| Options of a `choice` question | 255 | `body.questions.<id>.criteria` |
+| Options of a `choice` question | 255 | a 422 naming the field |
 | Levels of a `score` question | 10 | `body.questions.<id>.criteria` |
 | Characters of the rendered `state` | 1,000,000 | `body.state` |
 | Provenance ranges | 10,000 | `body.provenance` |

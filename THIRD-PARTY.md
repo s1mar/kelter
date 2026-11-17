@@ -8,8 +8,11 @@ Every external artifact this repository downloads or runs, with its license as s
 |---|---|---|
 | answerdotai/ModernBERT-base | backbone | Apache-2.0 |
 | Qwen/Qwen3-4B-Instruct-2507 (revision cdbee75f17c01a7cc42f958dc650907174af0554) | base of the default model Q1; a LoRA adapter is trained and released, the base is downloaded at first run | Apache-2.0 |
-| sentence-transformers/all-mpnet-base-v2 | kill experiment 1 | Apache-2.0 |
-| BAAI/bge-reranker-base | kill experiment 1 | MIT |
+| answerdotai/ModernBERT-large (checkpoint rL10) | backbone of the encoder in the lower-latency variant | see the model's page |
+| sentence-transformers/all-mpnet-base-v2 | option similarity when building the training data (`kelter/data/build.py`) and in the unknowable-question check (`kelter/eval/unknowable.py`) | Apache-2.0 |
+| Qwen/Qwen2.5-1.5B-Instruct | baseline in the evaluation (`kelter/eval/baselines/qwen_logprob.py`) | see the model's page |
+| jaredpalmer/kev-0.8b | baseline in the evaluation (`kelter/eval/baselines/kev.py`) | Apache-2.0 |
+| convaiinnovations/laya | baseline in the evaluation (`kelter/eval/baselines/laya.py`) | Apache-2.0 |
 
 ## Datasets
 

@@ -25,7 +25,7 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | Witness necessity / sufficiency, e-SNLI (n=2000) | 0.586 / 0.001 | results/eval/Q1.json |
 | Random-mask flip control / human-rationale mask flip, e-SNLI | 0.362 / 0.590 | results/eval/Q1.json |
 | ANLI test accuracy (eval only, n=2000) | 0.565 | results/eval/Q1.json |
-| Calibration split ECE before / after temperature | 0.043 / 0.018 | results/calibration/Q1.json |
+| Calibration split ECE before / after temperature (in-sample, and includes null questions, unlike the test ECE row) | 0.043 / 0.018 | results/calibration/Q1.json |
 | Conformal coverage at alpha 0.05 / mean set size / singleton rate | 0.961 / 1.33 / 0.801 | results/eval/engine_Q1.json |
 | Action rates act / escalate / defer | 0.263 / 0.028 / 0.708 | results/eval/engine_Q1.json |
 | The same as the server applies it (every request under the `policy` threshold): act / escalate / defer; accuracy when it acts; forge unsafe act | 0.142 / 0.149 / 0.708; 1.000 (n=475); 0 of 3120 | results/eval/engine_Q1r1_policy.json |
@@ -42,7 +42,7 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | JevBench public, easy tier (their harness): accuracy / macro accuracy / Brier / ECE (valid 48 of 48) | 0.958 / 0.958 / 0.050 / 0.038 | results/jevbench/Q1chunk-20261104T162222Z/kelter_summary.json |
 | JevBench public, per-request latency p50 / p95 s by tier: original, hard, easy | 0.119 / 0.164, 0.455 / 1.783, 0.135 / 0.159 | results/jevbench/Q1chunk-20261104T162222Z/kelter_summary.json |
 | JevBench public, pooled 231 items: correct / latency p50 s / latency max s | 177 / 0.147 / 2.15 | results/jevbench/Q1chunk_cost.json |
-| JevBench public, mean reported input tokens per decision (all engine passes) / cost per 1,000 decisions at USD 0.04 per million tokens | 1331.4 / USD 0.0533 | results/jevbench/Q1chunk_cost.json |
+| JevBench public, mean reported input tokens per decision (all engine passes) / cost per 1,000 decisions at USD 0.04 per million tokens (the hard tier alone is USD 0.0982 per 1,000, so the pooled figure depends on the tier mix) | 1331.4 / USD 0.0533 | results/jevbench/Q1chunk_cost.json |
 | JevBench public, hard tier: accuracy / mean top probability | 0.568 / 0.657 | results/jevbench/Q1chunk_cost.json |
 | JevBench v1.4 composite | not computable locally: it needs the sealed tier and a hosted cost basis | JevBench's `jevbench/composite_v14.py`, in their repository |
 

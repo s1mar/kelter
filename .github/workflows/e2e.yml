@@ -65,8 +65,8 @@ jobs:
             kill "$SERVER" 2>/dev/null || true
             sleep 2
             if [ "$OK" != "0" ]; then echo "--- server log, device $1"; grep -v "^INFO" "server_$1.log" | tail -25; return 1; fi
-            test "$(sed -n '1p' "examples_$1.txt" | awk '{print $1, $4}')" = "act account"
-            test "$(sed -n '2p' "examples_$1.txt" | awk '{print $1, $2}')" = "defer defer"
+            test "$(sed -n '1p' "examples_$1.txt" | awk '{print $1, $4}')" = "act account" || return 1
+            test "$(sed -n '2p' "examples_$1.txt" | awk '{print $1, $2}')" = "defer defer" || return 1
           }
           if ask auto; then echo "RESULT auto device: works"; else
             echo "RESULT auto device: FAILED"
