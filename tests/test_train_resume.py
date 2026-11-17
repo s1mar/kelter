@@ -97,7 +97,13 @@ def test_preflight_pass_clean_and_mismatch(tmp_path, monkeypatch):
     import kelter.eval.preflight as pf
     f = tmp_path / "a.bin"
     f.write_bytes(b"x" * 10000)
-    assert pf.one_pass([f]) == []
+    import os
+    import pytest
+    if os.name == "nt":
+        assert pf.one_pass([f]) == []
+    else:  # no unbuffered read on this platform: the pass must refuse, not report clean
+        with pytest.raises(pf.NotChecked):
+            pf.one_pass([f])
     monkeypatch.setattr(pf, "_hash_cached", lambda p: "a" * 64)
     monkeypatch.setattr(pf, "_hash_unbuffered", lambda p: "b" * 64)
     assert pf.one_pass([f]) == [{"file": str(f), "cached": "a" * 12, "disk": "b" * 12}]
