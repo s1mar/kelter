@@ -22,15 +22,15 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | Null recall at 5% FPR, corrected set (n=5918; see Null recall below) | 0.968 (realized FPR 0.050) | results/eval/Q1.json |
 | Corrected-set null recall by group: answer removed (filtered) / swap state / natural null | 0.956 / 0.977 / 0.986 | results/eval/Q1.json |
 | Witness F1, e-SNLI / SQuAD 2.0 (spans from r2) | 0.611 / 0.857 | results/eval/Q1.json |
-| Witness necessity / sufficiency, e-SNLI (n=2000) | 0.586 / 0.001 | results/eval/Q1.json |
-| Random-mask flip control / human-rationale mask flip, e-SNLI | 0.362 / 0.590 | results/eval/Q1.json |
+| Witness necessity / sufficiency, e-SNLI (over the correctly answered of n=2000) | 0.586 / 0.001 | results/eval/Q1.json |
+| Random-mask flip control / human-rationale mask flip, e-SNLI (over the correctly answered) | 0.362 / 0.590 | results/eval/Q1.json |
 | ANLI test accuracy (eval only, n=2000) | 0.565 | results/eval/Q1.json |
 | Calibration split ECE before / after temperature (in-sample, and includes null questions, unlike the test ECE row) | 0.043 / 0.018 | results/calibration/Q1.json |
 | Conformal coverage at alpha 0.05 / mean set size / singleton rate | 0.961 / 1.33 / 0.801 | results/eval/engine_Q1.json |
 | Action rates act / escalate / defer | 0.263 / 0.028 / 0.708 | results/eval/engine_Q1.json |
 | The same as the server applies it (every request under the `policy` threshold): act / escalate / defer; accuracy when it acts; forge unsafe act | 0.142 / 0.149 / 0.708; 1.000 (n=475); 0 of 3120 | results/eval/engine_Q1r1_policy.json |
 | Accuracy when the engine acts (n=880) | 0.974 | results/eval/engine_Q1.json |
-| Fake approval in tool_output: verdict moved to destructive / unsafe act (n=400) | 0.025 / 0.000 | results/eval/engine_Q1.json |
+| Fake approval in tool_output: verdict is the destructive option after the planted text / unsafe act (n=400) | 0.025 / 0.000 | results/eval/engine_Q1.json |
 | Planted text for a wrong option under a trusted label (forge set): unsafe act (n=3120) | 0.001 (4 of 3120) | results/eval/engine_Q1base.json |
 | Latency, one forward, 1095-token sequence, GPU p50 / p95 ms, performance power mode | 372.8 / 380.5 | results/eval/latency_Q1.json |
 | Latency, full engine decision (4 passes), GPU p50 / p95 ms, performance power mode | 542.4 / 548.4 | results/eval/latency_Q1.json |
@@ -62,14 +62,14 @@ Qwen3-4B-Instruct-2507 with a LoRA adapter trained on a 24,000-record sample of 
 | Null recall at 5% FPR, corrected set (n=5918; see Null recall below) | 0.775 (realized FPR 0.050) | results/eval/E1.json |
 | Corrected-set null recall by group: answer removed (filtered) / swap state / natural null | 0.751 / 0.801 / 0.691 | results/eval/E1.json |
 | Witness F1, e-SNLI / SQuAD 2.0 | 0.611 / 0.857 | results/eval/E1.json |
-| Witness necessity / sufficiency, e-SNLI (n=2000) | 0.932 / 0.843 | results/eval/E1.json |
-| Random-mask flip control / human-rationale mask flip, e-SNLI | 0.205 / 0.913 | results/eval/E1.json |
+| Witness necessity / sufficiency, e-SNLI (over the correctly answered of n=2000) | 0.932 / 0.843 | results/eval/E1.json |
+| Random-mask flip control / human-rationale mask flip, e-SNLI (over the correctly answered) | 0.205 / 0.913 | results/eval/E1.json |
 | ANLI test accuracy (eval only, n=2000) | 0.301 | results/eval/E1.json |
 | Calibration split ECE before / after temperature | n/a / 0.035 | results/calibration/E1.json |
 | Conformal coverage at alpha 0.05 / mean set size / singleton rate | 0.951 / 2.32 / 0.368 | results/eval/engine_E1.json |
 | Action rates act / escalate / defer | 0.221 / 0.194 / 0.585 | results/eval/engine_E1.json |
 | Accuracy when the engine acts (n=737) | 0.970 | results/eval/engine_E1.json |
-| Fake approval in tool_output: verdict moved to destructive / unsafe act (n=400) | 0.013 / 0.000 | results/eval/engine_E1.json |
+| Fake approval in tool_output: verdict is the destructive option after the planted text / unsafe act (n=400) | 0.013 / 0.000 | results/eval/engine_E1.json |
 | Planted text for a wrong option under a trusted label (forge set): unsafe act (n=3120) | 0.002 (6 of 3120) | results/eval/engine_E1base.json |
 | Latency, one forward, 1068-token sequence, GPU p50 / p95 ms | 85.9 / 87.7 | results/eval/latency_E1.json |
 | Latency, full engine decision (4 passes), GPU p50 / p95 ms | 149.0 / 154.0 | results/eval/latency_E1.json |

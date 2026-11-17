@@ -25,10 +25,10 @@ Some questions have no fitting option. The model gives a null probability; at a 
 
 The encoder's witness head points at spans of the input; in the default variant those spans are checked against the Qwen model's answer. On e-SNLI and SQuAD 2.0 test items, which have human rationales:
 
-- **Witness F1.** Token overlap between the predicted spans and the human rationale.
-- **Necessity.** Share of answers that change when the predicted spans are masked. Reported next to a **random-mask control** (masking the same number of random tokens) because any masking changes some answers; the gap between the two is the evidence that the spans matter.
-- **Sufficiency.** Share of answers that stay the same when everything except the predicted spans is masked.
-- **Human-rationale mask flip.** Share of answers that change when the human rationale is masked.
+- **Witness F1.** Overlap between the predicted spans and the human rationale, counted in characters (so long words weigh more than short ones).
+- **Necessity.** Among the items the model answered correctly, the share of answers that change when the predicted spans are masked. Reported next to a **random-mask control** because any masking changes some answers; the gap between the two is the evidence that the spans matter. The control masks random words up to the same number of characters as the predicted spans. It is not an exact match: a predicted phrase becomes one mask and the control's separate words become several, so the control tends to hide a little more.
+- **Sufficiency.** Among the items the model answered correctly, the share of answers that stay the same when everything except the predicted spans is masked.
+- **Human-rationale mask flip.** Among the items the model answered correctly, the share of answers that change when the human rationale is masked.
 
 ## The engine
 
@@ -36,7 +36,7 @@ The encoder's witness head points at spans of the input; in the default variant 
 
 - **Conformal coverage** at alpha 0.05: how often the gold option is inside the returned set; nominal 0.95. Also the mean set size and the share of singleton sets.
 - **Action rates.** How often the engine says `act`, `escalate` or `defer`, and the accuracy of the top option on the questions where it acts.
-- **Fake approval.** On synthetic shell-gating and account-deletion items, a sentence approving the destructive option is planted inside text tagged as tool output. Reported: how often the verdict moves to the destructive option, and how often the engine still acts on it (an unsafe act).
+- **Fake approval.** On synthetic shell-gating and account-deletion items, a sentence approving the destructive option is planted inside text tagged as tool output. Reported: how often the verdict after the planted sentence is the destructive option, and how often the engine still acts on it (an unsafe act). Unlike the nudge and forged-instruction rates, the first figure does not compare with the answer before the sentence was planted, so it includes items the model would have got wrong anyway.
 
 ## Latency
 

@@ -1,6 +1,6 @@
 # Third-party models, datasets and code
 
-Every external artifact this repository downloads or runs, with its license as stated by its source. Verify a license at its source before redistributing anything derived from it.
+Every model, dataset and code repository this project downloads or runs, with its license as stated by its source. Ordinary Python dependencies are listed in `requirements.txt` and `requirements-lock.txt` and carry their own licenses; two that are specific to the evaluation are listed under Code. Verify a license at its source before redistributing anything derived from it.
 
 ## Models
 
@@ -8,10 +8,11 @@ Every external artifact this repository downloads or runs, with its license as s
 |---|---|---|
 | answerdotai/ModernBERT-base | backbone | Apache-2.0 |
 | Qwen/Qwen3-4B-Instruct-2507 (revision cdbee75f17c01a7cc42f958dc650907174af0554) | base of the default model Q1; a LoRA adapter is trained and released, the base is downloaded at first run | Apache-2.0 |
-| answerdotai/ModernBERT-large (checkpoint rL10) | backbone of the encoder in the lower-latency variant | see the model's page |
+| answerdotai/ModernBERT-large (checkpoint rL10) | backbone of the encoder in the lower-latency variant; also the encoder the Laya baseline loads | see the model's page |
 | sentence-transformers/all-mpnet-base-v2 | option similarity when building the training data (`kelter/data/build.py`) and in the unknowable-question check (`kelter/eval/unknowable.py`) | Apache-2.0 |
 | Qwen/Qwen2.5-1.5B-Instruct | baseline in the evaluation (`kelter/eval/baselines/qwen_logprob.py`) | see the model's page |
 | jaredpalmer/kev-0.8b | baseline in the evaluation (`kelter/eval/baselines/kev.py`) | Apache-2.0 |
+| Qwen/Qwen3.5-0.8B-Base (revision dc7cdfe2ee4154fa7e30f5b51ca41bfa40174e68) | base model of the Kev baseline, named in Kev's checkpoint and downloaded when that baseline runs | see the model's page |
 | convaiinnovations/laya | baseline in the evaluation (`kelter/eval/baselines/laya.py`) | Apache-2.0 |
 
 ## Datasets
@@ -43,3 +44,5 @@ Share-alike (CC BY-SA) and the PAWS "other" license apply to the data. Whether s
 | Artifact | Use | License |
 |---|---|---|
 | fstandhartinger/jevbench | evaluation harness, cloned into `third_party/` (not committed) | MIT |
+| laya 0.4.15 (PyPI) | client for the Laya baseline, installed from `requirements-laya.txt` | Apache-2.0, per the package's metadata |
+| typesafe-sdk 0.7.5 (PyPI) | used by the SDK compatibility test (`tests/test_contract.py`) | MIT, per the package's metadata |
