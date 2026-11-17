@@ -97,3 +97,28 @@ jobs:
           grep -q "weights not found" serve.txt
           grep -q "kelter download" serve.txt
           grep -q "$KELTER_HOME/checkpoints" serve.txt
+      - name: Every packaged file the runtime reads is in the wheel and the sdist
+        working-directory: ${{ runner.temp }}
+        env:
+          KELTER_HOME: ${{ runner.temp }}/kelter-home
+        run: |
+          "$RUNNER_TEMP/venv/bin/python" - <<'PY'
+          import json, sys
+          from kelter import paths
+          assert paths.checkout_root() is None, "expected installed mode"
+          assert paths.ASSET_FILES, "no packaged files declared"
+          for rel in paths.ASSET_FILES:
+              f = paths.asset(rel)
+              assert f.is_file() and f.stat().st_size > 0, f"missing from the wheel: {rel}"
+              if f.suffix == ".json":
+                  json.loads(f.read_text(encoding="utf-8"))
+          print("wheel holds", len(paths.ASSET_FILES), "packaged files")
+          PY
+          "$RUNNER_TEMP/venv/bin/python" - "$RUNNER_TEMP"/dist/*.tar.gz <<'PY'
+          import sys, tarfile
+          from kelter import paths
+          names = {n.split("/", 1)[1] for n in tarfile.open(sys.argv[1]).getnames() if "/" in n}
+          missing = [k for k in paths.ASSET_FILES if k not in names]
+          assert not missing, f"missing from the sdist: {missing}"
+          print("sdist holds", len(paths.ASSET_FILES), "packaged files")
+          PY
