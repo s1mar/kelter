@@ -180,8 +180,14 @@ def test_request_limits_give_422():
     assert post(questions={f"q{i}": q for i in range(server.MAX_QUESTIONS + 1)}).status_code == 422
     r = post(state="x" * (server.MAX_STATE_CHARS + 1))
     assert r.status_code == 422 and r.json()["detail"][0]["loc"] == ["body", "state"]
-    spans = [{"start": 0, "end": 1, "type": "user"}] * (server.MAX_PROVENANCE_SPANS + 1)
-    assert post(provenance=spans).status_code == 422
+    # non-overlapping spans, so only the count can be what is wrong
+    n = server.MAX_PROVENANCE_SPANS
+    state = "x" * (n + 1)
+    spans = lambda k: [{"start": i, "end": i + 1, "type": "user"} for i in range(k)]
+    assert post(state=state, provenance=spans(n)).status_code == 200
+    r = post(state=state, provenance=spans(n + 1))
+    assert r.status_code == 422 and r.json()["detail"][0]["loc"] == ["body", "provenance"]
+    assert "at most" in r.json()["detail"][0]["msg"]
     assert "Request limits" in (ROOT / "docs" / "typesafe-contract.md").read_text(encoding="utf-8")
 
 
@@ -281,3 +287,141 @@ def test_engine_reports_truncated_from_any_pass():
         assert res["verifier"]["truncated"] is flag
     plain = Engine(ScriptedPredictor()).decide([rec])[0]
     assert plain["verifier"]["truncated"] is False
+
+
+# ---- round 2
+def _client(engine=None, variant=None):
+    from fastapi.testclient import TestClient
+
+    from kelter import server
+    from tests.fakes import FakeEngine
+    return TestClient(server.create_app(engine or FakeEngine(), variant))
+
+
+CHOICE = {"type": "choice", "instructions": "What is the tone?", "criteria": {"angry": "upset", "calm": "neutral"}}
+
+
+def test_verdict_class_values_and_keys_are_checked():
+    c = _client()
+
+    def post(vc):
+        return c.post("/v1/systemone", json={"model": "m", "state": "hello", "questions": {"q": CHOICE},
+                                             "verdict_classes": vc})
+    assert post({"q": {"angry": "destructive"}}).status_code == 200
+    r = post({"q": {"angry": "Destructive"}})  # a typo would silently fall back to "default"
+    assert r.status_code == 422 and r.json()["detail"][0]["loc"] == ["body", "verdict_classes", "q", "angry"]
+    assert "unknown verdict class" in r.json()["detail"][0]["msg"]
+    r = post({"nope": {"angry": "destructive"}})
+    assert r.status_code == 422 and r.json()["detail"][0]["loc"] == ["body", "verdict_classes", "nope"]
+
+
+def test_option_limit_is_a_422_naming_the_limit():
+    from tests.fakes import FakeEngine
+    eng = FakeEngine()
+    eng.max_options = 2
+    c = _client(eng, "default")
+    q = {"type": "choice", "instructions": "x", "criteria": {"a": "1", "b": "2", "c": "3"}}
+    r = c.post("/v1/systemone", json={"model": "m", "state": "hello", "questions": {"q": q}})
+    d = r.json()["detail"][0]
+    assert r.status_code == 422 and d["loc"] == ["body", "questions", "q", "criteria"]
+    assert "at most 2" in d["msg"] and "default" in d["msg"]
+    from kelter.llm import LETTERS, LLMPredictor
+    assert LLMPredictor.max_options == len(LETTERS) - 1 == 25
+    assert "25" in (ROOT / "docs" / "typesafe-contract.md").read_text(encoding="utf-8")
+
+
+def test_llm_truncated_includes_the_witness_encoders_cut():
+    import torch
+
+    from kelter import llm
+
+    class Tok:
+        def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=True):
+            return msgs[0]["content"]
+
+        def __call__(self, text, add_special_tokens=False):
+            return {"input_ids": [ord(c) for c in text]}
+
+        def decode(self, ids):
+            return "".join(chr(i) for i in ids)
+    p = llm.LLMPredictor.__new__(llm.LLMPredictor)
+    p.tok, p.max_tokens, p.temps = Tok(), 10_000, {}
+    p.logits_for = lambda prompts: [torch.zeros(26) for _ in prompts]
+    rec = {"state": "short", "question": {"type": "choice", "instructions": "i"},
+           "options": [{"name": "a", "description": "A"}, {"name": "b", "description": "B"}]}
+    for wit_flag, want in ((True, True), (False, False)):
+        p.witness_pred = types.SimpleNamespace(predict=lambda recs, canonical=True, f=wit_flag:
+                                               [{"witness": [], "truncated": f} for _ in recs])
+        assert p.predict([rec])[0]["truncated"] is want
+    p.witness_pred = None
+    assert p.predict([rec])[0]["truncated"] is False
+
+
+def test_build_prompt_with_a_state_under_the_floor_does_not_repeat_it():
+    from kelter import llm
+
+    class Tok:
+        def apply_chat_template(self, msgs, tokenize=False, add_generation_prompt=True):
+            return msgs[0]["content"]
+
+        def __call__(self, text, add_special_tokens=False):
+            return {"input_ids": [ord(c) for c in text]}
+
+        def decode(self, ids):
+            return "".join(chr(i) for i in ids)
+    rec = {"state": "ABCDEFGHIJ", "question": {"type": "choice", "instructions": "i"},
+           "options": [{"name": "a", "description": "A"}, {"name": "b", "description": "B"}]}
+    full = llm.build_prompt(Tok(), rec, [0, 1], 10_000)
+    info = {}
+    ids = llm.build_prompt(Tok(), rec, [0, 1], len(full) - 5, info)
+    text = "".join(chr(i) for i in ids)
+    assert info == {"truncated": True} and ids == full[-(len(full) - 5):]
+    assert "[...]" not in text and text.count("ABCDEFGHIJ") == 1
+
+
+def test_llm_train_resolves_the_loaded_base_revision(monkeypatch):
+    from kelter import llm_train
+    N = types.SimpleNamespace
+    assert llm_train.resolved_revision(N(config=N(_commit_hash="abc")), "x/y") == "abc"
+    import huggingface_hub
+    monkeypatch.setattr(huggingface_hub, "snapshot_download", lambda base, local_files_only=False: "/cache/snapshots/def456")
+    assert llm_train.resolved_revision(N(config=N()), "x/y") == "def456"
+
+    def none(*a, **k):
+        raise OSError("not cached")
+    monkeypatch.setattr(huggingface_hub, "snapshot_download", none)
+    assert llm_train.resolved_revision(N(config=N()), "x/y") is None
+
+
+def test_preflight_missing_path_or_base_is_an_error(monkeypatch, capsys):
+    import kelter.eval.preflight as pf
+    with pytest.raises(FileNotFoundError, match="does not exist"):
+        pf.collect(["checkpoints/no_such_checkpoint"], None)
+    assert pf.main(["--tag", "t_missing_path", "--paths", "checkpoints/no_such_checkpoint", "--base", ""]) == 1
+    assert "does not exist" in capsys.readouterr().out
+    monkeypatch.setattr(pf, "base_files", lambda repo: [])
+    with pytest.raises(FileNotFoundError, match="not in the Hugging Face cache"):
+        pf.collect([], "no/such-repo")
+    assert not (ROOT / "results" / "eval" / "preflight" / "t_missing_path.json").exists()
+
+
+def test_checkpoint_present_means_complete(tmp_path, monkeypatch):
+    from kelter import download, paths
+    monkeypatch.setenv("KELTER_HOME", str(tmp_path))
+    ck = tmp_path / "checkpoints"
+    (ck / "enc").mkdir(parents=True)
+    (ck / "enc" / "config.json").write_text(json.dumps({"backbone": "b"}))  # an interrupted unpack: config alone
+    (ck / "llm").mkdir()
+    (ck / "llm" / "config.json").write_text(json.dumps({"llm": {}}))
+    assert paths.checkpoint_missing(ck / "enc") == ["model.pt"] and paths.checkpoint_missing(ck / "llm") == ["adapter"]
+    manifest = {"variants": {"v": ["enc", "llm"]}}
+    assert download.present(manifest, "v", tmp_path) is False
+    (ck / "enc" / "model.pt").write_bytes(b"w")
+    (ck / "llm" / "adapter").mkdir()
+    (ck / "llm" / "adapter" / "adapter_model.safetensors").write_bytes(b"w")
+    assert download.present(manifest, "v", tmp_path) is True
+    from kelter import server
+    assert paths.checkpoint_missing(tmp_path / "nothing") == ["config.json"]
+    with pytest.raises(server.MissingWeights):
+        (ck / "enc" / "model.pt").unlink()
+        server.check_weights(str(ck / "enc"))

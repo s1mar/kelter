@@ -21,11 +21,38 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install --no-deps -r requirements-laya.txt
           python -m pip install -e . --no-deps
+      - name: JevBench client at the pinned commit (for test_jevbench_adapter_round_trip)
+        # The benchmark's own client is public (MIT licence); the test runs our server against it.
+        # Pinned to the commit the suite was written against, so a later change there cannot turn this job red.
+        run: |
+          git clone --quiet https://github.com/fstandhartinger/jevbench third_party/jevbench
+          git -C third_party/jevbench checkout --quiet 609a664e81f46e03731600bd7bd9f1b7a61257c5
       - name: Test suite on CPU
         env:
           KELTER_DEVICE: cpu
           CUDA_VISIBLE_DEVICES: ""
-        run: python -m pytest -q
+        run: python -m pytest -q -rs
+
+  windows:
+    # the preflight and sentinel tests call the real unbuffered disk read, which exists on Windows only
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install (CPU torch, then the pinned requirements)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements.txt
+          python -m pip install -e . --no-deps
+      - name: Resume, sentinel and preflight tests
+        env:
+          KELTER_DEVICE: cpu
+          CUDA_VISIBLE_DEVICES: ""
+        run: python -m pytest -q -rs tests/test_train_resume.py
 
   wheel:
     # build the wheel, install it with CPU torch into a fresh venv outside the checkout, run kelter there

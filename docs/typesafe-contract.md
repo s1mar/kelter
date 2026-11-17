@@ -124,7 +124,7 @@ Limits of this server, set far above any real use; a request over one gets a 422
 | Limit | Value | `loc` of the 422 |
 |---|---|---|
 | Questions per request | 64 | `body.questions` |
-| Options of a `choice` question | 255 | a 422 naming the field |
+| Options of a `choice` question | 255 (25 on the default variant, which gives each option a letter) | a 422 naming the field |
 | Levels of a `score` question | 10 | `body.questions.<id>.criteria` |
 | Characters of the rendered `state` | 1,000,000 | `body.state` |
 | Provenance ranges | 10,000 | `body.provenance` |

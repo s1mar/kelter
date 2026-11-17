@@ -84,7 +84,7 @@ def present(manifest: dict, variant: str, home: Path | None = None) -> bool:
     """Whether every checkpoint of a variant is unpacked under the writable folder."""
     home = home or paths.home()
     names = wanted(manifest, variant) or []
-    return bool(names) and all((home / "checkpoints" / n / "config.json").exists() for n in names)
+    return bool(names) and all(not paths.checkpoint_missing(home / "checkpoints" / n) for n in names)
 
 
 def load_manifest() -> dict:
@@ -114,7 +114,7 @@ def main(argv=None) -> int:
     checkpoints, archives = home / "checkpoints", home / "weights" / "archives"
     print(f"kelter: weights folder {checkpoints}")
     for name in names:
-        if (checkpoints / name / "config.json").exists():
+        if not paths.checkpoint_missing(checkpoints / name):
             print(f"  {name}: already present, skipped")
             continue
         asset = manifest["assets"][name]

@@ -126,6 +126,7 @@ class Engine:
         self.policy = policy or load_policy()
         self.alpha = alpha
         self.model_id = "kelter-" + getattr(predictor, "model_hash", "")[:12]
+        self.max_options = getattr(predictor, "max_options", None)  # None: no limit below the schema's
         cfg = getattr(predictor, "cfg", {}) or {}
         self.conformal = (cfg.get("conformal") or {}).get(str(alpha), {})
 

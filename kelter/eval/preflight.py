@@ -35,9 +35,15 @@ def collect(paths: list[str], base: str | None) -> list[Path]:
     files = []
     for p in paths:
         q = ROOT / p
+        if not q.exists():
+            raise FileNotFoundError(f"--paths entry {p} does not exist")
         files += [q] if q.is_file() else sorted(x for x in q.rglob("*") if x.is_file())
     if base:
-        files += base_files(base)
+        found = base_files(base)
+        if not found:
+            raise FileNotFoundError(f"base repository {base} is not in the Hugging Face cache (or has no files); "
+                                    "pass --base '' to skip it")
+        files += found
     return files
 
 
@@ -70,7 +76,11 @@ def main(argv=None) -> int:
     ap.add_argument("--base", default="Qwen/Qwen3-4B-Instruct-2507", help="Hugging Face repo whose cached files are checked; '' is off")
     ap.add_argument("--paths", nargs="*", default=DEFAULT_PATHS)
     a = ap.parse_args(argv)
-    files = collect(a.paths, a.base or None)
+    try:
+        files = collect(a.paths, a.base or None)
+    except FileNotFoundError as e:
+        print(f"preflight: {e}; this is an error, not a clean result")
+        return 1
     if not files:
         print("preflight: no files found to check (look at --paths and --base); this is an error, not a clean result")
         return 1

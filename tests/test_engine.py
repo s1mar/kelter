@@ -178,3 +178,69 @@ def test_default_device_order(monkeypatch):
     monkeypatch.setenv("KELTER_DEVICE", "cpu")
     monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
     assert D.default_device() == "cpu"
+
+
+# ---- the verifier's gates, each failing alone
+class SequencedPredictor:
+    """Answers the engine's two batches in order: first the full pass, then the masked passes of each record
+    (evidence only, evidence masked, untrusted masked), each as a ready-made output."""
+    model_hash = "e" * 64
+
+    def __init__(self, full, masked, q=0.5):
+        self.batches = [full, masked]
+        self.cfg = {"conformal": {"0.05": {"_global": q}}}
+
+    def predict(self, recs, canonical=True):
+        return self.batches.pop(0)
+
+
+def _out(allow, witness=None, truncated=False):
+    return {"probs": {"allow": allow, "deny": round(0.95 - allow, 6)}, "null": 0.05, "witness": witness or [],
+            "logits": [], "truncated": truncated}
+
+
+def _user_rec(verdict_class=None):
+    r = make_rec([("User: " + APPROVAL + "\n", "user"), ("Tool log: exit 0", "tool_output")], verdict_class)
+    return r, [[6, 6 + len(APPROVAL)]]
+
+
+def test_evidence_only_pass_giving_another_verdict_defers():
+    r, wit = _user_rec()
+    # evidence alone says deny: not sufficient
+    pred = SequencedPredictor([_out(0.9, wit)], [_out(0.1), _out(0.1), _out(0.9)])
+    res = engine(pred).decide([r])[0]
+    assert res["verdict"] == "allow" and res["verifier"]["sufficiency"] is False
+    assert res["verifier"]["admissible"] is False and res["action"] == "defer"
+
+
+def test_necessity_gate_and_report_classes():
+    r, wit = _user_rec()
+    never_flips = lambda: SequencedPredictor([_out(0.9, wit)], [_out(0.9), _out(0.9), _out(0.9)])
+    res = engine(never_flips()).decide([r])[0]  # allow is "destructive": necessity is a gate
+    assert res["verifier"]["necessity"] is False and res["verifier"]["necessity_required"] is True
+    assert res["verifier"]["admissible"] is False and res["action"] == "defer"
+    r2, wit2 = _user_rec({"allow": "low_stakes", "deny": "low_stakes"})  # low_stakes only reports necessity
+    res = engine(SequencedPredictor([_out(0.9, wit2)], [_out(0.9), _out(0.9), _out(0.9)])).decide([r2])[0]
+    assert res["verifier"]["necessity"] is False and res["verifier"]["necessity_required"] is False
+    assert res["verifier"]["admissible"] is True and res["action"] == "act"
+
+
+def test_two_label_conformal_set_escalates():
+    r, wit = _user_rec()
+    masked = lambda: [_out(0.9), _out(0.1), _out(0.55)]
+    one = engine(SequencedPredictor([_out(0.55, wit)], masked(), q=0.5)).decide([r])[0]
+    assert one["set"] == ["allow"] and one["verifier"]["admissible"] is True and one["action"] == "act"
+    r, wit = _user_rec()
+    two = engine(SequencedPredictor([_out(0.55, wit)], masked(), q=0.7)).decide([r])[0]
+    assert set(two["set"]) == {"allow", "deny"} and two["verifier"]["admissible"] is True
+    assert two["action"] == "escalate"
+
+
+def test_truncated_flag_from_exactly_one_later_pass():
+    r, wit = _user_rec()
+    base = lambda flags: SequencedPredictor([_out(0.9, wit)], [_out(0.9, truncated=flags[0]),
+                                                                _out(0.1, truncated=flags[1]),
+                                                                _out(0.9, truncated=flags[2])])
+    for flags, want in (((False, False, False), False), ((True, False, False), True), ((False, True, False), True),
+                        ((False, False, True), True)):
+        assert engine(base(flags)).decide([r])[0]["verifier"]["truncated"] is want, flags

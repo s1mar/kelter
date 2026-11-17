@@ -11,6 +11,7 @@ KELTER_HOME overrides the writable folder in both modes.
 """
 from __future__ import annotations
 
+import json
 import os
 import sys
 from pathlib import Path
@@ -75,6 +76,27 @@ def under_home(p) -> Path:
     """A path relative to the writable folder (absolute paths are kept)."""
     p = Path(p)
     return p if p.is_absolute() else home() / p
+
+
+def checkpoint_missing(ck) -> list:
+    """What a checkpoint folder lacks, as names relative to it; an empty list means it is complete. config.json marks
+    a checkpoint, but an interrupted unpack can leave it alone, so also: an LLM checkpoint ("llm" in its config) needs
+    adapter/ with adapter_model.*, an encoder checkpoint ("backbone") needs model.pt. Used by server.check_weights and
+    by the download command, so "present" means the same in both."""
+    ck = Path(ck)
+    cfg = ck / "config.json"
+    if not cfg.exists():
+        return ["config.json"]
+    try:
+        c = json.loads(cfg.read_text(encoding="utf-8"))
+    except ValueError:
+        return ["config.json (unreadable)"]
+    missing = []
+    if "llm" in c and not any((ck / "adapter").glob("adapter_model.*")):
+        missing.append("adapter")
+    if "backbone" in c and not (ck / "model.pt").exists():
+        missing.append("model.pt")
+    return missing
 
 
 def command(sub: str) -> str:

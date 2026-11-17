@@ -513,9 +513,32 @@ def test_examples_provenance_spans_cover_state():
     assert b["state"] == "a" + chr(10) + "bc" and b["provenance"][1] == {"start": 2, "end": 4, "type": "user"}
 
 
-def test_latency_tag_and_power_mode_args():
+def test_latency_tag_and_power_mode_args(tmp_path, monkeypatch):
     """--tag names the output file and --power-mode is recorded; the default name stays the checkpoint name."""
-    import inspect
+    import json
     from kelter.eval import latency
-    src = inspect.getsource(latency.main)
-    assert 'args.tag or Path(args.ckpt).name' in src and 'res["power_mode"] = args.power_mode' in src
+
+    class Tok:
+        def __call__(self, text, add_special_tokens=False):
+            return {"input_ids": list(range(len(text.split())))}
+
+        def decode(self, ids):
+            return " ".join("w" for _ in ids)
+
+    class Pred:
+        tok = Tok()
+        model_hash = "f" * 64
+        cfg = {}
+
+        def predict(self, recs, canonical=True):
+            return [{"probs": {"refund": 0.6, "replace": 0.1, "apologize": 0.1, "escalate": 0.1, "ignore": 0.1},
+                     "null": 0.0, "witness": [], "logits": [], "n_tokens": 7} for _ in recs]
+
+    monkeypatch.setattr(latency, "load_predictor", lambda ckpt, device=None: Pred())
+    monkeypatch.setattr(latency, "ROOT", tmp_path)
+    assert latency.main(["--ckpt", "checkpoints/fake", "--runs", "1", "--tag", "mytag", "--power-mode", "balance"]) == 0
+    res = json.loads((tmp_path / "results" / "eval" / "latency_mytag.json").read_text(encoding="utf-8"))
+    assert res["power_mode"] == "balance" and "--tag mytag" in res["command"] and "--power-mode balance" in res["command"]
+    assert latency.main(["--ckpt", "checkpoints/fake", "--runs", "1"]) == 0
+    res = json.loads((tmp_path / "results" / "eval" / "latency_fake.json").read_text(encoding="utf-8"))
+    assert "power_mode" not in res

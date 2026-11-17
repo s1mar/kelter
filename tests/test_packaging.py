@@ -131,6 +131,7 @@ def test_witness_and_ensemble_paths_under_home(installed):
     from kelter import server
     ck = installed / "checkpoints" / "Q1"
     (ck / "adapter").mkdir(parents=True)
+    (ck / "adapter" / "adapter_model.safetensors").write_bytes(b"w")  # a complete adapter (kelter.paths.checkpoint_missing)
     (ck / "config.json").write_text(json.dumps({"llm": {}, "witness_ckpt": "checkpoints/r2"}))
     with pytest.raises(server.MissingWeights) as e:
         server.check_weights(server.default_ckpt_path("checkpoints/Q1"))

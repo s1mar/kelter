@@ -186,6 +186,20 @@ def sentinel_check(path: Path, expected: str) -> bool:
     return _hash_cached(path) == expected
 
 
+def resolved_revision(model, base: str):
+    """The revision (commit hash) of the base model that was actually loaded, so the adapter can be served pinned to
+    it (config.json base_revision, read by kelter.llm). From the loaded model's config; else the local cache's snapshot
+    folder name; None if neither is known."""
+    rev = getattr(getattr(model, "config", None), "_commit_hash", None)
+    if rev:
+        return rev
+    try:
+        from huggingface_hub import snapshot_download
+        return Path(snapshot_download(base, local_files_only=True)).name
+    except Exception:
+        return None
+
+
 def save_state(path: Path, model, opt, sched, extra: dict) -> None:
     """Trainable parameters, optimizer, scheduler, RNG state and loop counters in
     one file, written to a temporary name and renamed so an interrupted save leaves the last one."""
@@ -291,6 +305,7 @@ def main(argv=None) -> int:
                                                        bnb_4bit_use_double_quant=True,
                                                        bnb_4bit_compute_dtype=torch.bfloat16)
     model = AutoModelForCausalLM.from_pretrained(args.base, device_map={"": 0}, **kw)
+    base_revision = resolved_revision(model, args.base)  # read before peft wraps the model
     model.config.use_cache = False
     if args.qlora:
         model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=True)
@@ -395,6 +410,8 @@ def main(argv=None) -> int:
     cfg = {"llm": {"base": args.base, "qlora_train": bool(args.qlora), "max_len": args.max_len, "lora_r": args.r,
                    "lora_alpha": args.alpha, "lora_dropout": args.dropout, "token_budget": 8192},
            "infer_max_len": args.infer_max_len, "corpus": args.corpus, "witness_ckpt": args.witness_ckpt}
+    if base_revision:
+        cfg["base_revision"] = base_revision
     (ck / "config.json").write_text(json.dumps(cfg, indent=2), encoding="utf-8")
     if state_path.exists():
         state_path.unlink()  # the finished adapter and its config supersede the resume state; deleted last

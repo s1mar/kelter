@@ -77,6 +77,11 @@ def build_prompt(tok, r: Dict[str, Any], order: Sequence[int], max_tokens: int, 
     # than 32. Of the tokens kept, two thirds come from the start and the remaining third from the end.
     # The final [-max_tokens:] below is a last guard that cuts from the left if the prompt is still too long.
     keep = max(32, len(s) - (len(ids) - max_tokens) - 16)
+    if keep > len(s):
+        # A state shorter than the 32-token floor cannot be cut; slicing it would repeat tokens around " [...] ".
+        # Keep it whole; the [-max_tokens:] cut is then the only one. (Before this check, head and tail slices
+        # of such a state overlapped.)
+        return ids[-max_tokens:]
     head = (2 * keep) // 3
     state = tok.decode(s[:head]) + " [...] " + tok.decode(s[len(s) - (keep - head):])
     return ids_for(state)[-max_tokens:]
@@ -112,6 +117,7 @@ def adapter_hash(ckpt: Path) -> str:
 
 class LLMPredictor:
     null_head = False
+    max_options = len(LETTERS) - 1  # one letter per option, and one more for "none of the options"
 
     def __init__(self, ckpt_dir: str, device: Optional[str] = None, witness: bool = True):
         import torch
@@ -206,7 +212,7 @@ class LLMPredictor:
         import torch
         orders = [show_order(r, canonical) for r in recs]
         for r in recs:
-            if len(r["options"]) + 1 > len(LETTERS):
+            if len(r["options"]) > self.max_options:
                 raise ValueError(f"{len(r['options'])} options exceed the letters this predictor supports")
         infos = [{} for _ in recs]
         prompts = [build_prompt(self.tok, r, o, self.max_tokens, info) for r, o, info in zip(recs, orders, infos)]
@@ -224,7 +230,8 @@ class LLMPredictor:
                 "logits": z.tolist(),
                 "order": [r["options"][j]["name"] for j in o],
                 "witness": (w or {}).get("witness") or [],
-                "truncated": bool(info.get("truncated")),
+                # the prompt's own cut, or the cut of the encoder that supplies the witness (r2 reads fewer tokens)
+                "truncated": bool(info.get("truncated")) or bool((w or {}).get("truncated")),
                 "n_tokens": len(p),
             })
         return out

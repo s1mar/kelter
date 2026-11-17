@@ -136,6 +136,18 @@ def build_provenance(spans: Optional[List[ProvSpan]], n: int) -> List[List[Any]]
     return out
 
 
+def policy_classes() -> List[str]:
+    """The verdict class names the policy table defines (loaded once)."""
+    global _POLICY_CLASSES
+    if _POLICY_CLASSES is None:
+        from kelter.engine import load_policy
+        _POLICY_CLASSES = list(load_policy()["classes"])
+    return _POLICY_CLASSES
+
+
+_POLICY_CLASSES: Optional[List[str]] = None
+
+
 def build_record(req_id: str, qid: str, q: Any, state: str, provenance: List[List[Any]],
                  verdict_classes: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
     loc = ["body", "questions", qid]
@@ -170,6 +182,10 @@ def build_record(req_id: str, qid: str, q: Any, state: str, provenance: List[Lis
     unknown = set(verdict_classes or {}) - {o["name"] for o in options}
     if unknown:
         raise ContractError(["body", "verdict_classes", qid], f"verdict_classes name unknown options {sorted(unknown)}")
+    known = policy_classes()
+    for name, cls in (verdict_classes or {}).items():
+        if cls not in known:  # a typo such as "Destructive" would fall back to "default" and drop the protection
+            raise ContractError(["body", "verdict_classes", qid, name], f"unknown verdict class {cls!r}; choose one of {sorted(known)}")
     try:
         # schema.validate demands a gold unless null is set. Requests have none, so
         # check a copy with a placeholder gold; the engine gets the record as built.
@@ -284,16 +300,14 @@ def check_weights(ckpt: str, root: Optional[Path] = None) -> None:
         except ValueError:
             return x.as_posix()
 
-    cfg = ck / "config.json"
-    if not cfg.exists():
-        missing.append(shown(ck / "config.json"))
-    else:
-        c = json.loads(cfg.read_text(encoding="utf-8"))
-        if "llm" in c and not (ck / "adapter").exists():
-            missing.append(shown(ck / "adapter"))
-        wit = c.get("witness_ckpt")
-        if wit and not ((wbase / wit) / "config.json").exists():
-            missing.append(shown(wbase / wit / "config.json"))
+    missing += [shown(ck / m) for m in paths.checkpoint_missing(ck)]  # the same completeness test as the download command
+    try:
+        wit = json.loads((ck / "config.json").read_text(encoding="utf-8")).get("witness_ckpt")
+    except (OSError, ValueError):
+        wit = None  # no config, or an unreadable one: already reported above
+    wmiss = paths.checkpoint_missing(wbase / wit) if wit else []
+    if wmiss:
+        missing.append(shown(wbase / wit / wmiss[0]))
     if missing:
         if paths.is_checkout() and not os.environ.get("KELTER_HOME"):
             raise MissingWeights(f"kelter: weights not found ({', '.join(missing)}). Download the release weights into "
@@ -402,7 +416,15 @@ def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
             raise ContractError(["body", "state"], f"the rendered state has {len(state)} characters; this server accepts at most {MAX_STATE_CHARS}")
         provenance = build_provenance(req.provenance, len(state))
         qids = list(req.questions)
+        for qid in req.verdict_classes or {}:
+            if qid not in req.questions:
+                raise ContractError(["body", "verdict_classes", qid], f"verdict_classes names {qid!r}, which is not a question id")
         recs = [build_record(req_id, qid, req.questions[qid], state, provenance, (req.verdict_classes or {}).get(qid)) for qid in qids]
+        limit = getattr(engine, "max_options", None)  # the LLM variant has one letter per option, plus one for none
+        for qid, rec in zip(qids, recs):
+            if limit and len(rec["options"]) > limit:
+                raise ContractError(["body", "questions", qid, "criteria"],
+                                    f"{len(rec['options'])} options; the {variant or 'served'} variant takes at most {limit}")
         with lock:
             results = engine.decide(recs)
         if not isinstance(results, list) or len(results) != len(recs):
