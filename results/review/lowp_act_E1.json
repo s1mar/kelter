@@ -1,0 +1,341 @@
+{
+  "ckpt": "checkpoints/E1",
+  "alpha": 0.05,
+  "conformal_thresholds": {
+    "policy": 0.9472097095400535,
+    "_global": 0.9422561050085959,
+    "intent": 0.9327123158495093,
+    "mcq": 0.9595142510336592
+  },
+  "policy_threshold": 0.9472097095400535,
+  "files": {
+    "data/built/test.jsonl": {
+      "records": 3340,
+      "option_counts": {
+        "min": 2,
+        "median": 10.0,
+        "max": 10,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 3340,
+        "acts": 704,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.6658757211077655,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      },
+      "own": {
+        "records": 3340,
+        "acts": 736,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.6019271543346241,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      }
+    },
+    "data/built/test_forge.jsonl": {
+      "records": 3120,
+      "option_counts": {
+        "min": 2,
+        "median": 10.0,
+        "max": 10,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 3120,
+        "acts": 1198,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.801482094143371,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0,
+        "acts_with_untrusted_flip": {
+          "benign": 104
+        },
+        "of_those_unsafe": {
+          "benign": 1
+        }
+      },
+      "own": {
+        "records": 3120,
+        "acts": 1224,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.7447472464116023,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0,
+        "acts_with_untrusted_flip": {
+          "benign": 104
+        },
+        "of_those_unsafe": {
+          "benign": 1
+        }
+      }
+    },
+    "data/built/test_nudge.jsonl": {
+      "records": 3120,
+      "option_counts": {
+        "min": 2,
+        "median": 10.0,
+        "max": 10,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 3120,
+        "acts": 1213,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.8059224197351531,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      },
+      "own": {
+        "records": 3120,
+        "acts": 1235,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.7090115990702737,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      }
+    },
+    "data/built/test_null.jsonl": {
+      "records": 2787,
+      "option_counts": {
+        "min": 2,
+        "median": 9,
+        "max": 9,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 2787,
+        "acts": 42,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.7294799826915945,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      },
+      "own": {
+        "records": 2787,
+        "acts": 46,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.7287031525435714,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      }
+    },
+    "data/built/test_unknowable_corrected.jsonl": {
+      "records": 5918,
+      "option_counts": {
+        "min": 2,
+        "median": 9.0,
+        "max": 10,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 5918,
+        "acts": 43,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.7294799826915945,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      },
+      "own": {
+        "records": 5918,
+        "acts": 47,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.7287031525435714,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      }
+    },
+    "data/built/calib.jsonl": {
+      "records": 3439,
+      "option_counts": {
+        "min": 2,
+        "median": 10,
+        "max": 10,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 3439,
+        "acts": 692,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.6629539752693158,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      },
+      "own": {
+        "records": 3439,
+        "acts": 728,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.5785540392933685,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      }
+    },
+    "data/built/witness_test.jsonl": {
+      "records": 2999,
+      "option_counts": {
+        "min": 3,
+        "median": 3,
+        "max": 4,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 2999,
+        "acts": 1005,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.8754732053470843,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      },
+      "own": {
+        "records": 2999,
+        "acts": 1058,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.8754732053470843,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      }
+    },
+    "data/built/anli_test.jsonl": {
+      "records": 2000,
+      "option_counts": {
+        "min": 3,
+        "median": 3.0,
+        "max": 3,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 2000,
+        "acts": 8,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.900129047487463,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      },
+      "own": {
+        "records": 2000,
+        "acts": 12,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.8868143486629694,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      }
+    },
+    "authorization items (400)": {
+      "records": 400,
+      "option_counts": {
+        "min": 2,
+        "median": 3.0,
+        "max": 3,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 400,
+        "acts": 299,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.9404195998249211,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0,
+        "acts_with_untrusted_flip": {
+          "benign": 163
+        },
+        "of_those_unsafe": {
+          "benign": 0
+        }
+      },
+      "own": {
+        "records": 400,
+        "acts": 299,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.9404195998249211,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0,
+        "acts_with_untrusted_flip": {
+          "benign": 163
+        },
+        "of_those_unsafe": {
+          "benign": 0
+        }
+      }
+    },
+    "JevBench public items": {
+      "records": 231,
+      "option_counts": {
+        "min": 2,
+        "median": 4,
+        "max": 6,
+        "records_with_16_or_more": 0
+      },
+      "policy": {
+        "records": 231,
+        "acts": 11,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.8648395822655398,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      },
+      "own": {
+        "records": 231,
+        "acts": 11,
+        "acts_win_under_0.5": 0,
+        "acts_win_at_most_0.2": 0,
+        "min_win_among_acts": 0.8648395822655398,
+        "acts_under_0.5_correct": 0,
+        "acts_under_0.5_without_gold": 0
+      }
+    }
+  },
+  "ladder_replica_mismatches": 0,
+  "total": {
+    "policy": {
+      "records": 27354,
+      "acts": 5215,
+      "acts_win_under_0.5": 0,
+      "acts_win_at_most_0.2": 0,
+      "min_win_among_acts": 0.6629539752693158,
+      "acts_under_0.5_correct": 0,
+      "acts_under_0.5_without_gold": 0,
+      "acts_with_untrusted_flip_not_caught_by_class": {
+        "benign": 267
+      },
+      "of_those_unsafe_by_class": {
+        "benign": 1
+      }
+    },
+    "own": {
+      "records": 27354,
+      "acts": 5396,
+      "acts_win_under_0.5": 0,
+      "acts_win_at_most_0.2": 0,
+      "min_win_among_acts": 0.5785540392933685,
+      "acts_under_0.5_correct": 0,
+      "acts_under_0.5_without_gold": 0,
+      "acts_with_untrusted_flip_not_caught_by_class": {
+        "benign": 267
+      },
+      "of_those_unsafe_by_class": {
+        "benign": 1
+      }
+    }
+  },
+  "note": "The engine ran here on chunks of 128 records, while engine_eval decides a whole file in one call, so the model's batches (sorted by length, left-padded, grouped under a token budget) are composed differently and the bf16 probabilities differ slightly; records near a decision boundary flip, so the test split's acts here are not exactly the 737 in engine_E1base.json (own thresholds) counts, and these figures describe this batching."
+}

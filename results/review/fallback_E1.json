@@ -132,5 +132,6 @@
       "empty_before_fallback": 0,
       "of_those_act": 0
     }
-  }
+  },
+  "note": "The full pass ran here on chunks of 128 records, and the engine on the flagged records in chunks of 128 as well, while engine_eval decides a whole file in one call, so the model's batches (sorted by length, left-padded, grouped under a token budget) are composed differently and the bf16 probabilities differ slightly; records near a decision boundary flip, so the acts counted here are not exactly the acts of engine_Q1base.json (880 on the test split) and these counts describe this batching."
 }

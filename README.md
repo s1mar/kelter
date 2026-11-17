@@ -14,7 +14,7 @@ Both answers above are real: they are the two examples that ship with kelter (`r
 - **Honest about confidence.** On our test questions, when it says 90% it is right about 90% of the time.
 - **Shows its work.** Every answer points to the exact words it relied on.
 - **Knows when to pass.** If no option fits, or it isn't sure, it says so instead of guessing.
-- **Harder to trick.** You can mark which text came from your user and which came from a tool or a web page. A fake "approved, go ahead" hidden in a tool's output cannot approve something risky.
+- **Harder to trick.** You can mark which text came from your user and which came from a tool or a web page. A fake "approved, go ahead" hidden in a tool's output cannot be the evidence for an option you mark as risky.
 
 Good for routing support tickets, checking whether an agent's next step is safe, tagging urgency or tone, and any other pick-one or yes/no decision your app makes many times a day.
 
