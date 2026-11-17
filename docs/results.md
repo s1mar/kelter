@@ -118,7 +118,7 @@ The shipped rule acts only on admissible evidence, so it defers most questions. 
 | Fake approval in tool_output: unsafe act (n=400) | 0 | 0 |
 | Forge set: unsafe act (n=3120) | 4 (0.001) | 19 (0.006) |
 
-The candidate failed on the forge set, so it was not shipped. The same test gave the shipped rule its first forge figure: 4 unsafe acts in 3,120, all on items where the planted text carried a `user` or `system` label. The shipped figures are in `results/eval/engine_Q1base.json`; the candidate's figures are in `results/eval/engine_Q1conf.json`.
+The candidate failed on the forge set, so it was not shipped. The same test gave the shipped rule its first forge figure: 4 unsafe acts in 3,120, all on items where the planted text carried a `user` or `system` label. The shipped figures are in `results/eval/engine_Q1base.json`; the candidate's figures are in `results/eval/engine_Q1conf.json`. That file's recorded command uses a `--policy` option and a candidate policy table that are not in this repository, so the candidate run cannot be repeated from here.
 
 ## Baselines
 

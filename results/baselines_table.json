@@ -175,12 +175,12 @@
     [
       "Jev 1.13 (hosted, not run here)",
       "ECE 0.045, paired flip rate 0.021, injection ASR 0.063",
-      "Respan run as cited in docs/own-decision-model-design.md (read 2026-10-25); different items from ours"
+      "Respan's published run (read 2026-10-25); different items from ours"
     ],
     [
       "Jev 1.13 (hosted, not run here)",
       "JevBench v1.4 composite 63.3",
-      "JevBench v1.4 results as cited in docs/own-decision-model-design.md (read 2026-10-25)"
+      "JevBench v1.4 published results (read 2026-10-25)"
     ]
   ]
 }

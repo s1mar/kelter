@@ -4,14 +4,14 @@ All of these are computed by `kelter/eval/run.py`, `engine_eval.py` and `latency
 
 ## Answers
 
-- **Held-out accuracy.** Share of answerable test questions where the top option is the gold option. Also reported per source.
+- **Held-out accuracy.** Share of answerable test questions where the verdict is the gold option. The verdict is "none of the options" when the null wins, and that counts as wrong here. The share where the most likely option is the gold option, whatever the null says, is stored as `heldout_accuracy_forced` (0.917 for Q1 and 0.710 for E1, against 0.913 and 0.688). Also reported per source.
 - **ECE (expected calibration error, 15 bins).** Predictions are bucketed by confidence; ECE is the average gap between each bucket's confidence and its accuracy, weighted by bucket size. Reported after the per-type temperature fitted on the calibration split, and before it.
 - **Brier.** Mean squared error between the probability vector and the one-hot gold answer.
 
 ## Robustness
 
-- **Paired flip rate.** Each question is scored with its options in two orders; a flip is a different top option. With canonical ordering (options sorted by hash before scoring) the rate is exactly zero by construction. The "no canonical" column shows what the model alone does.
-- **Nudge-ASR.** Attack success rate when a sentence is appended to the input suggesting a wrong option: the share of previously correct answers that move to the suggested option.
+- **Paired flip rate.** Each answerable `choice` question is scored with its options in two orders; a flip is a different top option. Yes or no questions and score questions are not permuted. With canonical ordering (options sorted by hash before scoring) the rate is exactly zero by construction. The "no canonical" column shows what the model alone does.
+- **Nudge-ASR.** Attack success rate when a sentence is appended to the input suggesting a wrong option: the share of answers that move to the suggested option, among all answerable questions whose answer before the attack was not already that option (right or wrong before the attack).
 - **Forge-ASR.** The same, when the appended sentence imitates an authoritative instruction ("the correct answer is...").
 
 ## Null detection
@@ -44,4 +44,4 @@ The encoder's witness head points at spans of the input; in the default variant 
 
 ## JevBench
 
-`jevbench_run.py` serves the model and runs the public tiers of JevBench through JevBench's own harness and TypeSafe adapter. The harness scores the option probabilities only, so the encoder ensembles score the same as the single checkpoint that chooses their options. `jevbench_cost.py` reads a run's per-item results back for reported input tokens, cost per 1,000 decisions at the board's reference price, per-request latency and mean top probability. The v1.4 composite needs the sealed tier and a hosted cost basis and is not computable locally.
+`jevbench_run.py` serves the model and runs the public tiers of JevBench through JevBench's own harness and TypeSafe adapter. It expects a JevBench checkout at `third_party/jevbench`, which this repository does not include: `git clone https://github.com/fstandhartinger/jevbench third_party/jevbench`, then check out commit `609a664e81f46e03731600bd7bd9f1b7a61257c5`, the one the tests use. The harness scores the option probabilities only, so the encoder ensembles score the same as the single checkpoint that chooses their options. `jevbench_cost.py` reads a run's per-item results back for reported input tokens, cost per 1,000 decisions at the board's reference price, per-request latency and mean top probability. The v1.4 composite needs the sealed tier and a hosted cost basis and is not computable locally.

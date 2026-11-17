@@ -51,7 +51,7 @@ A request is some text (the *state*) plus one or more questions. Here is what ha
 | temperature | the single number per question type that calibration fits |
 | act / escalate / defer | go ahead / probably right, get a second opinion / do not rely on this answer |
 | choice, score, noul | the three question types: pick one option, rate on a scale, yes or no |
-| canonical order | options are sorted by a hash before scoring, so their order in the request cannot change the answer |
+| canonical order | options are sorted by a hash before scoring, so their order in the request cannot change the answer. The default model keeps the levels of a `score` question in the order given, because the order is the scale |
 
 ## Model names
 
