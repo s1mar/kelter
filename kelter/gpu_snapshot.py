@@ -35,4 +35,6 @@ def snapshot() -> str:
 
 
 if __name__ == "__main__":
+    from kelter import paths
+    paths.no_arguments("kelter.gpu_snapshot", __doc__)
     print(snapshot())

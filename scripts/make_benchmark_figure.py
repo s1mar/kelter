@@ -135,4 +135,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    import argparse
+    argparse.ArgumentParser(prog="python scripts/make_benchmark_figure.py", description=__doc__,
+                            formatter_class=argparse.RawDescriptionHelpFormatter).parse_args()
     main()

@@ -69,7 +69,7 @@ def main(argv=None) -> int:
         print(f"kelter {__version__}")
         return 0
     if cmd in ("-h", "--help", "help"):
-        print(__doc__.strip())
+        print("usage: kelter [--version] [serve|download|examples] [options]\n\n" + __doc__.strip())
         return 0
     if cmd == "serve":
         from kelter.server import main as serve
