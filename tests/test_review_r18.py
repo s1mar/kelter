@@ -80,3 +80,16 @@ def test_every_subcommand_usage_starts_with_the_command_typed(monkeypatch, capsy
         first = capsys.readouterr().out.split("\n", 1)[0]
         assert first.startswith(f"usage: {paths.command(sub)} "), (sub, first)
     assert paths.command("serve") == ("python -m kelter.server" if checkout else "kelter serve")
+
+
+@pytest.mark.parametrize("x,shown", [(2.3, "2.30"), (1.15, "1.15"), (4.35, "4.35"), (8.29, "8.29"), (0.29, "0.29"), (0.0, "0.00"),
+                                      (9.0, "9.00"), (8.999999999068677, "8.99"), (8.94, "8.94"), (8.96, "8.96"), (24.0, "24.00"),
+                                      (1e6, "1000000.00")])
+def test_gb_cuts_down_on_the_decimal_representation(x, shown):
+    assert server.gb(x) == shown
+
+
+def test_gb_never_prints_a_refused_figure_as_the_threshold():
+    just_under = 9.0 - 1 / 2**30  # 9 GiB minus one byte
+    assert not server.gpu_fits(just_under) and float(server.gb(just_under)) < server.LLM_GPU_GB
+    assert server.gpu_fits(9.0) and server.gb(9.0) == "9.00"

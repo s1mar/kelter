@@ -24,6 +24,7 @@ import os
 import threading
 import uuid
 from datetime import date
+from decimal import ROUND_DOWN, Decimal
 from pathlib import Path
 from typing import Annotated, Any, Dict, List, Literal, Optional, Union
 
@@ -407,7 +408,7 @@ def _cuda_free_gb():
 
 def gb(x: float) -> str:
     """GiB with two decimals, cut down rather than rounded, so a figure below LLM_GPU_GB never prints as the threshold or above it."""
-    return f"{math.floor(x * 100) / 100:.2f}"
+    return str(Decimal(repr(x)).quantize(Decimal("0.01"), rounding=ROUND_DOWN))
 
 
 def gpu_fits(free: float) -> bool:
