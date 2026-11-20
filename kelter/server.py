@@ -27,7 +27,7 @@ from datetime import date
 from pathlib import Path
 from typing import Annotated, Any, Dict, List, Literal, Optional, Union
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.routing import APIRoute
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
@@ -463,6 +463,9 @@ class _DigitLimitRequest(Request):
     async def json(self):
         try:
             return await super().json()
+        except RecursionError:  # nested past the decoder's own limit (about 3,000 levels): not parsed again, the field is unknown
+            raise HTTPException(422, detail=[{"loc": ["body"], "type": "value_error", "msg": f"nested deeper than {MAX_NESTING} levels: "
+                                              "the body is too deeply nested to parse, so the field cannot be named"}]) from None
         except (json.JSONDecodeError, UnicodeDecodeError):
             raise
         except ValueError as e:

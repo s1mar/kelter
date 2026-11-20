@@ -8,6 +8,7 @@
 """
 from __future__ import annotations
 
+import re
 import sys
 
 from kelter import __version__, paths
@@ -27,8 +28,12 @@ def _gpu() -> str:
     if g is None:
         return "no CUDA GPU found"
     free, total = g
-    import torch
-    return f"{torch.cuda.get_device_name(0)}, {free:.1f} of {total:.1f} GB free"
+    try:
+        import torch
+        name = torch.cuda.get_device_name(0)
+    except Exception:
+        name = "GPU"
+    return f"{name}, {free:.1f} of {total:.1f} GB free"
 
 
 def status() -> list:
@@ -38,7 +43,15 @@ def status() -> list:
     m = load_manifest()
     have = {v: present(m, v, home) for v in ("default", "lower-latency")}
     gpu = _gpu()
-    has_gpu = "free" in gpu
+    m_free = re.search(r"([\d.]+) of [\d.]+ GB free", gpu)
+    free = float(m_free.group(1)) if m_free else None
+    has_gpu = free is not None and free >= LLM_GPU_GB  # the test check_device applies before loading the default variant
+    if has_gpu:
+        why = ""
+    elif free is None:
+        why = "no usable GPU for the default"
+    else:
+        why = f"only {free:.1f} GB free on the GPU, the default needs about {LLM_GPU_GB:.1f} GB"
     lines = [f"kelter {__version__} ({'clone at ' + str(root) if root else 'installed package'})",
              f"Folder: {home} (set KELTER_HOME to use another)",
              "Weights: " + "; ".join(f"{v} {'present' if ok else 'not downloaded'}" for v, ok in have.items()),
@@ -46,15 +59,16 @@ def status() -> list:
     serve = paths.command("serve")
     if not have["default"] and not have["lower-latency"]:
         nxt = (f"{paths.command('download')}" if has_gpu
-               else f"{paths.command('download')} --variant lower-latency (the default needs an NVIDIA GPU with "
-                    f"about {LLM_GPU_GB:.0f} GB free)")
+               else f"{paths.command('download')} --variant lower-latency ({why}; the default needs an NVIDIA GPU with "
+                    f"about {LLM_GPU_GB:.0f} GB free, or KELTER_DEVICE=cpu, much slower)")
     elif have["default"] and has_gpu:
         nxt = f"{serve}, then in another shell {paths.command('examples')}"
     elif have["lower-latency"]:
-        nxt = f"{serve} --variant lower-latency, then in another shell {paths.command('examples')}"
+        nxt = (f"{serve} --variant lower-latency, then in another shell {paths.command('examples')}"
+               + (f" ({why}; KELTER_DEVICE=cpu would run the default on the CPU, much slower)" if have["default"] else ""))
     else:
-        nxt = (f"{paths.command('download')} --variant lower-latency (no usable GPU for the default; "
-               f"KELTER_DEVICE=cpu runs it on the CPU, much slower)")
+        nxt = (f"{paths.command('download')} --variant lower-latency ({why}; "
+               f"KELTER_DEVICE=cpu runs the default on the CPU, much slower)")
     lines += [f"Next: {nxt}", "Commands: serve, download, examples, --version; each takes --help."]
     return lines
 

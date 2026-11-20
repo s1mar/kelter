@@ -42,8 +42,8 @@ def test_deep_nesting_is_rejected_not_a_500():
     assert r.status_code == 422 and r.json()["detail"][0]["loc"] == ["body", "state"]
     r = _post_raw(c, b'{"model":"m","state":' + deep(1_500) + b',"questions":{"q":' + q + b"}}")  # near the interpreter's limit
     assert r.status_code == 422 and "nested" in r.json()["detail"][0]["msg"]
-    r = _post_raw(c, b'{"model":"m","state":' + deep(20_000) + b',"questions":{"q":' + q + b"}}")  # unparseable: FastAPI's 400
-    assert r.status_code == 400
+    r = _post_raw(c, b'{"model":"m","state":' + deep(20_000) + b',"questions":{"q":' + q + b"}}")  # past the decoder's limit: a 422 at body
+    assert r.status_code == 422 and r.json()["detail"][0]["loc"] == ["body"] and "nested deeper" in r.json()["detail"][0]["msg"]
     nested_instr = json.loads(b'{"a":' * 70 + b"1" + b"}" * 70)
     assert _post(c, dict(CHOICE, instructions=nested_instr)).status_code == 422
     assert _post(c, state={"a": [1, {"b": 2}]}).status_code == 200

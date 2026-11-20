@@ -280,7 +280,7 @@ def test_examples_still_succeed_against_a_good_server(monkeypatch, capsys, tmp_p
     from tests.fakes import FakeEngine
     tc = TestClient(server.create_app(FakeEngine()))
     monkeypatch.setenv("KELTER_HOME", str(tmp_path))
-    monkeypatch.setattr(examples, "post", lambda url, body: tc.post("/v1/systemone", json=body).json())
+    monkeypatch.setattr(examples, "post", lambda url, body, timeout=None: tc.post("/v1/systemone", json=body).json())
     assert examples.main([]) == 0
     out = capsys.readouterr().out
     assert "act" in out and "responses written to" in out
