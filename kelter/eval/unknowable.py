@@ -102,5 +102,6 @@ def main() -> int:
 
 if __name__ == "__main__":
     from kelter import paths
+    paths.no_arguments("kelter.eval.unknowable", __doc__)
     paths.require_checkout("evaluation (python -m kelter.eval.unknowable)")
     raise SystemExit(main())

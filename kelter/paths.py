@@ -116,6 +116,14 @@ def command(sub: str) -> str:
     return f"kelter {sub}"
 
 
+def no_arguments(module: str, doc: Optional[str]) -> None:
+    """For a module run with -m that takes no options: `--help` prints the module's docstring as usage and exits 0, any other
+    argument is an argparse error, and nothing else happens. Call it first in the __main__ block, before the work starts."""
+    import argparse
+    argparse.ArgumentParser(prog=f"python -m {module}", description=doc,
+                            formatter_class=argparse.RawDescriptionHelpFormatter).parse_args()
+
+
 def require_checkout(what: str) -> None:
     """Exit with one plain line when a checkout-only command runs from an installed wheel."""
     if not is_checkout():

@@ -27,7 +27,8 @@ from datetime import date
 from pathlib import Path
 from typing import Annotated, Any, Dict, List, Literal, Optional, Union
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.routing import APIRoute
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -374,11 +375,16 @@ def check_weights(ckpt: str, root: Optional[Path] = None) -> None:
         if paths.is_checkout() and not os.environ.get("KELTER_HOME"):
             raise MissingWeights(f"kelter: weights not found ({', '.join(missing)}). Download the release weights into "
                                  f"checkpoints/ as the README's quick start says, or pass --ckpt <checkpoint dir>.")
-        raise MissingWeights(f"kelter: weights not found ({', '.join(missing)}). Run `{paths.command('download')}` to "
+        name = resolve_variant(None, ckpt)[0]  # a named variant's weights come from that variant's download
+        cmd = paths.command("download") + (f" --variant {name}" if name in VARIANTS and name != DEFAULT_VARIANT else "")
+        raise MissingWeights(f"kelter: weights not found ({', '.join(missing)}). Run `{cmd}` to "
                              f"put them in {paths.home() / 'checkpoints'}, or pass --ckpt <checkpoint dir>.")
 
 
-LLM_GPU_GB = 9.0  # free GPU memory an LLM variant needs: peak 8.82 GB at 8,000 tokens, plus margin
+# Free GPU memory an LLM variant needs. Measured on Q1 with a 1,024-token prefill chunk and one prompt: peak 8.07, 8.09, 8.37 and 8.82 GB at 1,000, 2,500, 5,000 and 8,000 tokens. The 8,000-token prompt is a
+# setting that no longer exists (the window is 4,096 tokens) and 4,096 itself was not measured; its peak lies between the 2,500
+# and 5,000 token figures, so at most 8.37 GB. 9.0 is a margin over those figures, not a measured peak.
+LLM_GPU_GB = 9.0
 
 
 def _cuda_free_gb():
@@ -449,8 +455,34 @@ def _load(ckpt: str):
                              "GPU (`nvidia-smi` lists them) or run `python -m kelter.server --variant lower-latency`.") from None
 
 
+class _DigitLimitRequest(Request):
+    """CPython refuses an integer of more than 4,300 digits while parsing JSON (the interpreter's limit stays), and FastAPI turns
+    any such ValueError into a 400. It is a body that is not valid for this server like any other, so it is reported as a JSON
+    error: the documented 422. A body that is not UTF-8 stays a 400, as before."""
+
+    async def json(self):
+        try:
+            return await super().json()
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            raise
+        except ValueError as e:
+            if "digits" in str(e):
+                raise json.JSONDecodeError("an integer in the body has more than 4,300 digits", "", 0) from None
+            raise
+
+
+class _Route(APIRoute):
+    def get_route_handler(self):
+        handler = super().get_route_handler()
+
+        async def wrapped(request: Request):
+            return await handler(_DigitLimitRequest(request.scope, request.receive))
+        return wrapped
+
+
 def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
     app = FastAPI(title="kelter", description="TypeSafe System One compatible server")
+    app.router.route_class = _Route
     lock = threading.Lock()  # one decide() at a time; the engine owns the GPU
     release_date = str(getattr(engine, "release_date", None) or date.today().isoformat())
 
@@ -460,7 +492,8 @@ def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
 
     @app.exception_handler(RequestValidationError)
     async def _validation_error(_, exc: RequestValidationError):
-        detail = [{"loc": [_safe(x) for x in e.get("loc", [])], "msg": _safe(str(e.get("msg", ""))),
+        detail = [{"loc": [_safe(x) for x in e.get("loc", [])],
+                   "msg": _safe(str(e.get("msg", "")) + (f": {e['ctx']['error']}" if e.get("type") == "json_invalid" and (e.get("ctx") or {}).get("error") else "")),
                    "type": str(e.get("type", "value_error"))} for e in exc.errors()]
         return JSONResponse({"detail": detail}, status_code=422)
 
@@ -491,6 +524,8 @@ def create_app(engine: Any, variant: Optional[str] = None) -> FastAPI:
             _check_value(v, loc)
         state = render_state(req.state)
         _check_utf8(state, ["body", "state"], "the state")
+        if not state.strip():  # checked here so the 422 names the state, not the first question
+            raise ContractError(["body", "state"], "invalid question: empty state")
         if len(state) > MAX_STATE_CHARS:
             raise ContractError(["body", "state"], f"the rendered state has {len(state)} characters; this server accepts at most {MAX_STATE_CHARS}")
         provenance = build_provenance(req.provenance, len(state))

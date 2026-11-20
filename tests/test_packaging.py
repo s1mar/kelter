@@ -90,7 +90,7 @@ def test_every_script_module_is_guarded_or_runtime():
         rel = p.with_suffix("").relative_to(ROOT / "kelter").as_posix()
         if '__name__ == "__main__"' in s and rel not in runtime:
             tail = s[s.index('__name__ == "__main__"'):]
-            assert "paths.require_checkout(" in tail.split("\n", 3)[2], rel
+            assert "paths.require_checkout(" in "\n".join(tail.split("\n")[:5]), rel  # after the --help guard, if any
 
 
 def test_cli_version(capsys):
