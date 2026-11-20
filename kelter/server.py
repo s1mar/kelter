@@ -405,6 +405,16 @@ def _cuda_free_gb():
         return free / 2**30, total / 2**30
 
 
+def gb(x: float) -> str:
+    """GiB with two decimals, cut down rather than rounded, so a figure below LLM_GPU_GB never prints as the threshold or above it."""
+    return f"{math.floor(x * 100) / 100:.2f}"
+
+
+def gpu_fits(free: float) -> bool:
+    """Whether `free` GiB (unrounded) is enough for an LLM variant: the one test the status screen and check_device share."""
+    return free >= LLM_GPU_GB
+
+
 def check_device(ckpt: str, root: Optional[Path] = None) -> None:
     """Before loading an LLM variant: a one-line error when there is no usable GPU or too little
     free GPU memory, saying what to run instead. KELTER_DEVICE set explicitly skips the check."""
@@ -422,9 +432,9 @@ def check_device(ckpt: str, root: Optional[Path] = None) -> None:
                              f"`{_serve()} --variant lower-latency`, or set KELTER_DEVICE=cpu to run this one "
                              "on the CPU anyway (much slower).")
     free, total = gpu
-    if free < LLM_GPU_GB:
-        raise MissingWeights(f"kelter: {_rel(ckpt)} needs about {LLM_GPU_GB:.1f} GB of free GPU memory; {free:.1f} GB of "
-                             f"{total:.1f} GB is free. Close other programs using the GPU (`nvidia-smi` lists them) or run "
+    if not gpu_fits(free):
+        raise MissingWeights(f"kelter: {_rel(ckpt)} needs about {LLM_GPU_GB:.1f} GB of free GPU memory; {gb(free)} GB of "
+                             f"{gb(total)} GB is free. Close other programs using the GPU (`nvidia-smi` lists them) or run "
                              f"`{_serve()} --variant lower-latency`.")
 
 
@@ -610,7 +620,8 @@ def check_port(host: str, port: int, platform: Optional[str] = None) -> None:
 
 
 def main(argv: Optional[List[str]] = None) -> None:
-    ap = argparse.ArgumentParser(description="Serve the TypeSafe System One contract.")
+    from kelter import paths
+    ap = argparse.ArgumentParser(prog=paths.command("serve"), description="Serve the TypeSafe System One contract.")
     ap.add_argument("--variant", default=os.environ.get("KELTER_VARIANT"), choices=sorted(VARIANTS))
     ap.add_argument("--ckpt", default=os.environ.get("KELTER_CKPT"), help="overrides --variant")
     ap.add_argument("--port", type=int, default=8765)

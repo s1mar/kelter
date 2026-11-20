@@ -93,7 +93,7 @@ def load_manifest() -> dict:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="kelter download", description=__doc__.split("\n\n")[0])
+    ap = argparse.ArgumentParser(prog=paths.command("download"), description=__doc__.split("\n\n")[0])
     ap.add_argument("--variant", default="default", help="default, lower-latency or all")
     ap.add_argument("--repo", default=None, help="GitHub owner/name; defaults to the manifest's repository")
     ap.add_argument("--keep-archives", action="store_true", help="keep the downloaded tar files")

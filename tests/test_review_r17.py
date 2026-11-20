@@ -12,6 +12,7 @@ from tests.fakes import FakeEngine
 
 # ---- 1: the status screen compares the free GPU memory with what the default variant needs
 def _status(monkeypatch, gpu, have):
+    monkeypatch.delenv("KELTER_DEVICE", raising=False)  # CI sets it
     monkeypatch.setattr(server, "_cuda_free_gb", lambda: gpu)
     monkeypatch.setattr(download, "present", lambda m, v, home: v in have)
     return "\n".join(cli.status())
@@ -29,7 +30,7 @@ def test_status_default_variant_needs_llm_gpu_gb_free(monkeypatch, gpu, usable):
     nxt = [l for l in out.splitlines() if l.startswith("Next:")][0]
     assert ("--variant lower-latency" not in nxt) == usable
     if gpu and not usable:
-        assert f"only {gpu[0]:.1f} GB free" in nxt and "9.0 GB" in nxt and "KELTER_DEVICE=cpu" in nxt
+        assert f"only {server.gb(gpu[0])} GB free" in nxt and "9.0 GB" in nxt and "KELTER_DEVICE=cpu" in nxt
     if usable:
         assert "Next: " in nxt and "serve" in nxt
     # only the default downloaded

@@ -8,7 +8,6 @@
 """
 from __future__ import annotations
 
-import re
 import sys
 
 from kelter import __version__, paths
@@ -19,39 +18,38 @@ CHECKOUT_ONLY = {
 }
 
 
-def _gpu() -> str:
+def _gpu():
+    """(text for the status screen, free GiB unrounded or None). The number is kept, not read back from the text."""
     try:
-        from kelter.server import _cuda_free_gb
+        from kelter.server import _cuda_free_gb, gb
         g = _cuda_free_gb()
     except Exception as e:  # torch missing or broken: say so instead of a traceback
-        return f"not checked ({e.__class__.__name__}: is torch installed?)"
+        return f"not checked ({e.__class__.__name__}: is torch installed?)", None
     if g is None:
-        return "no CUDA GPU found"
+        return "no CUDA GPU found", None
     free, total = g
     try:
         import torch
         name = torch.cuda.get_device_name(0)
     except Exception:
         name = "GPU"
-    return f"{name}, {free:.1f} of {total:.1f} GB free"
+    return f"{name}, {gb(free)} of {gb(total)} GB free", free
 
 
 def status() -> list:
     from kelter.download import load_manifest, present
-    from kelter.server import LLM_GPU_GB
+    from kelter.server import LLM_GPU_GB, gb, gpu_fits
     root, home = paths.checkout_root(), paths.home()
     m = load_manifest()
     have = {v: present(m, v, home) for v in ("default", "lower-latency")}
-    gpu = _gpu()
-    m_free = re.search(r"([\d.]+) of [\d.]+ GB free", gpu)
-    free = float(m_free.group(1)) if m_free else None
-    has_gpu = free is not None and free >= LLM_GPU_GB  # the test check_device applies before loading the default variant
+    gpu, free = _gpu()
+    has_gpu = free is not None and gpu_fits(free)  # the test check_device applies before loading the default variant
     if has_gpu:
         why = ""
-    elif free is None:
-        why = "no usable GPU for the default"
+    elif free is not None:
+        why = f"only {gb(free)} GB free on the GPU, the default needs about {LLM_GPU_GB:.1f} GB"
     else:
-        why = f"only {free:.1f} GB free on the GPU, the default needs about {LLM_GPU_GB:.1f} GB"
+        why = "no usable GPU for the default"
     lines = [f"kelter {__version__} ({'clone at ' + str(root) if root else 'installed package'})",
              f"Folder: {home} (set KELTER_HOME to use another)",
              "Weights: " + "; ".join(f"{v} {'present' if ok else 'not downloaded'}" for v, ok in have.items()),

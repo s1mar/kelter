@@ -482,7 +482,7 @@ def test_gpu_messages(tmp_path, monkeypatch):
     monkeypatch.setattr(server, "_cuda_free_gb", lambda: (3.2, 12.0))
     with pytest.raises(server.MissingWeights) as e:
         server.check_device("checkpoints/Q1", root=tmp_path)
-    assert "3.2 GB of 12.0 GB is free" in str(e.value) and "nvidia-smi" in str(e.value)
+    assert "3.20 GB of 12.00 GB is free" in str(e.value) and "nvidia-smi" in str(e.value)
     monkeypatch.setattr(server, "_cuda_free_gb", lambda: (11.0, 12.0))
     server.check_device("checkpoints/Q1", root=tmp_path)
     (ck / "config.json").write_text(_json.dumps({}))  # encoder variant: no GPU needed

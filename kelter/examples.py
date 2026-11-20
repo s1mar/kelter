@@ -45,6 +45,20 @@ EXAMPLES = {
 }
 
 
+MAX_TIMEOUT = 86400
+
+
+def _timeout(text: str) -> float:
+    """--timeout: a finite number of seconds above 0 and at most a day (inf, nan and negatives are argument errors)."""
+    try:
+        v = float(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{text!r} is not a number of seconds") from None
+    if not (0 < v <= MAX_TIMEOUT):  # false for nan too
+        raise argparse.ArgumentTypeError(f"{text!r} is out of range: give a number of seconds above 0 and at most {MAX_TIMEOUT}")
+    return v
+
+
 DEFAULT_TIMEOUT = 900  # seconds; the default variant took 475 s for one answer on the CPU (results/e2e)
 
 
@@ -66,10 +80,11 @@ def _serve() -> str:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="kelter examples")
+    from kelter import paths
+    ap = argparse.ArgumentParser(prog=paths.command("examples"))
     ap.add_argument("--url", default="http://127.0.0.1:8765")
     ap.add_argument("--only", nargs="*", default=None)
-    ap.add_argument("--timeout", type=float, default=DEFAULT_TIMEOUT,
+    ap.add_argument("--timeout", type=_timeout, default=DEFAULT_TIMEOUT,
                     help=f"seconds to wait for each answer (default {DEFAULT_TIMEOUT}; the default variant can need several minutes on a CPU)")
     a = ap.parse_args(argv)
     from kelter import paths
@@ -85,17 +100,22 @@ def main(argv=None) -> int:
             detail = e.read().decode("utf-8", "replace")[:200].replace("\n", " ")
             return _fail(f"the server at {a.url} answered {e.code} for the {name} example ({detail}). Check that it is a kelter "
                          "server and that its weights loaded (see the server's own output).")
-        except (TimeoutError, socket.timeout, urllib.error.URLError) as e:
-            if isinstance(e, urllib.error.URLError) and not isinstance(e.reason, (TimeoutError, socket.timeout)):
-                return _fail(f"could not reach a server at {a.url} ({e.reason}). Start one with `{_serve()}`, wait until it "
-                             "says it is running, and run this again; --url names another address.")
+        except urllib.error.URLError as e:  # urllib wraps everything that goes wrong while connecting and sending
+            if isinstance(e.reason, (TimeoutError, socket.timeout)):
+                return _fail(f"no connection to {a.url} within {a.timeout:g} s: the server was not reached. Check the address "
+                             f"(--url) and that the server is running (`{_serve()}`, wait until it says it is running).")
+            return _fail(f"could not reach a server at {a.url} ({e.reason}). Start one with `{_serve()}`, wait until it "
+                         "says it is running, and run this again; --url names another address.")
+        except (TimeoutError, socket.timeout):  # raised unwrapped, after the request was sent: no answer yet
             return _fail(f"no answer from {a.url} within {a.timeout:g} s for the {name} example. The server may still be working "
                          "(the default variant can need several minutes per answer on a CPU), so check its output before "
                          "sending again; --timeout <seconds> sets a longer wait.")
         except (OSError, http.client.HTTPException) as e:
             return _fail(f"the request to {a.url} failed ({e.__class__.__name__}). Check that the server is running and run this again.")
-        except (ValueError, KeyError, TypeError):
+        except (json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError):
             return _fail(f"the reply from {a.url} is not a kelter answer. Check that --url points at a kelter server.")
+        except ValueError as e:  # building the request failed (for example --url without http://): nothing was sent
+            return _fail(f"{a.url!r} cannot be used as the server address ({e}). Give it as http://host:port.")
         out = {"name": name, "request": body, "response": resp,
                "command": "python -m kelter.server --port 8765, then python -m kelter.examples"}
         (d / f"{name}.json").write_text(json.dumps(out, indent=2), encoding="utf-8")

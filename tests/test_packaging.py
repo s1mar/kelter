@@ -101,13 +101,14 @@ def test_cli_version(capsys):
 
 def test_cli_status_without_weights(installed, monkeypatch, capsys):
     from kelter import cli
-    monkeypatch.setattr(cli, "_gpu", lambda: "no CUDA GPU found")
+    monkeypatch.delenv("KELTER_DEVICE", raising=False)  # CI sets it; the status screen treats it as "run the default anywhere"
+    monkeypatch.setattr(cli, "_gpu", lambda: ("no CUDA GPU found", None))
     assert cli.main([]) == 0
     out = capsys.readouterr().out
     assert "installed package" in out and f"Folder: {installed}" in out
     assert "default not downloaded" in out and "lower-latency not downloaded" in out
     assert "Next: kelter download --variant lower-latency" in out
-    monkeypatch.setattr(cli, "_gpu", lambda: "GPU X, 11.0 of 12.0 GB free")
+    monkeypatch.setattr(cli, "_gpu", lambda: ("GPU X, 11.00 of 12.00 GB free", 11.0))
     cli.main([])
     assert "Next: kelter download\n" in capsys.readouterr().out
     for n in ("r2", "Q1"):
